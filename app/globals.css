@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --rho-red:        #C8102E;
+  --rho-cream:      #F5ECD7;
+  --rho-cream-soft: #FAF3E8;
+  --rho-red-dark:   #9B0D22;
+  --rho-gold:       #D4A853;
+
+  --background: var(--rho-red);
+  --foreground: var(--rho-cream);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background:    var(--background);
+  --color-foreground:    var(--foreground);
+  --color-rho-red:       var(--rho-red);
+  --color-rho-cream:     var(--rho-cream);
+  --color-rho-cream-soft: var(--rho-cream-soft);
+  --color-rho-red-dark:  var(--rho-red-dark);
+  --color-rho-gold:      var(--rho-gold);
+  --font-display: var(--font-playfair);
+  --font-body:    var(--font-lora);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--rho-red);
+  color: var(--rho-cream);
+  font-family: var(--font-lora), Georgia, serif;
+  min-height: 100%;
+  /* subtle papier-textuur via radial gradient */
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(155, 13, 34, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(200, 16, 46, 0.3) 0%, transparent 50%);
 }
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+/* Zachte scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--rho-red-dark); }
+::-webkit-scrollbar-thumb { background: var(--rho-gold); border-radius: 3px; }
