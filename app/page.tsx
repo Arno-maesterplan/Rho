@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { getRhoAge, getCurrentLeap, formatDutchDate } from "@/lib/rho";
-import { Card } from "@/components/Card";
+import { getRhoAge, getCurrentLeap, formatDutchDate, WONDER_WEEKS } from "@/lib/rho";
 import { redirect } from "next/navigation";
+import { differenceInDays } from "date-fns";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -20,119 +20,222 @@ export default async function Dashboard() {
   const { weeks, days } = getRhoAge();
   const { activeLeap, nextLeap, isInStorm } = getCurrentLeap(weeks);
 
-  const maanden = Math.floor(weeks / 4);
-  const restWeken = weeks % 4;
+  const maanden = Math.floor(weeks / 4.33);
+  const leeftijdLabel =
+    maanden >= 2
+      ? `${maanden} maanden oud`
+      : maanden === 1
+      ? `1 maand oud`
+      : `${weeks} weken oud`;
+
+  const daysUntilNext = nextLeap
+    ? differenceInDays(new Date(nextLeap.dateStart), new Date())
+    : null;
+
+  // Laatste milestone en update ophalen
+  const [{ data: lastMilestone }, { data: lastUpdate }] = await Promise.all([
+    supabase
+      .from("milestones")
+      .select("title, emoji, date")
+      .order("date", { ascending: false })
+      .limit(1)
+      .single(),
+    supabase
+      .from("updates")
+      .select("title, body, created_at")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single(),
+  ]);
+
+  const isParent = profile?.role === "parent";
 
   return (
-    <main className="min-h-screen px-6 py-10 max-w-lg mx-auto space-y-6">
+    <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-5">
       {/* Header */}
-      <div className="text-center space-y-1 pt-4">
-        <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body">
-          Welkom, {profile?.name ?? user.email}
+      <header className="text-center pt-2 pb-1">
+        <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
+          {formatDutchDate("2025-05-13")}
         </p>
-        <h1 className="font-display text-4xl text-[var(--rho-cream)]">Rho</h1>
-        <p className="text-[var(--rho-cream)]/60 text-xs font-body">
-          Geboren op {formatDutchDate("2025-05-13")}
+        <h1 className="font-display text-5xl text-[var(--rho-cream)] leading-tight">Rho</h1>
+        <p className="text-[var(--rho-cream)]/60 font-body text-sm mt-1">
+          {leeftijdLabel} — week {weeks}, dag {days}
         </p>
+      </header>
+
+      {/* Weer-kaart: storm of zonneschijn */}
+      <div
+        className={`relative overflow-hidden rounded-2xl p-6 ${
+          isInStorm
+            ? "bg-gradient-to-br from-[#2a1a2e] to-[#1a0d1e] border border-purple-900/40"
+            : activeLeap
+            ? "bg-gradient-to-br from-[#7a1a28] to-[var(--rho-red-dark)] border border-[var(--rho-cream)]/10"
+            : "bg-gradient-to-br from-[#9B3a15] to-[#C8701E] border border-[var(--rho-gold)]/20"
+        }`}
+      >
+        {/* Decoratieve achtergrond sterren */}
+        <div className="absolute inset-0 pointer-events-none select-none" aria-hidden>
+          {isInStorm ? (
+            <>
+              <span className="absolute top-3 right-6 text-purple-300/20 text-2xl">⚡</span>
+              <span className="absolute bottom-4 left-4 text-purple-300/10 text-4xl">☁️</span>
+              <span className="absolute top-8 left-10 text-white/5 text-6xl">⛈</span>
+            </>
+          ) : activeLeap ? (
+            <>
+              <span className="absolute top-2 right-4 text-[var(--rho-cream)]/10 text-5xl">🌙</span>
+              <span className="absolute bottom-3 right-8 text-[var(--rho-gold)]/20 text-2xl">✦</span>
+            </>
+          ) : (
+            <>
+              <span className="absolute top-2 right-4 text-yellow-200/20 text-5xl">☀️</span>
+              <span className="absolute bottom-3 left-6 text-[var(--rho-gold)]/20 text-2xl">✦</span>
+            </>
+          )}
+        </div>
+
+        {activeLeap ? (
+          <div className="relative space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">{isInStorm ? "⛈️" : activeLeap.emoji}</span>
+              <span
+                className={`text-xs font-body uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                  isInStorm
+                    ? "bg-purple-500/20 text-purple-200"
+                    : "bg-[var(--rho-cream)]/10 text-[var(--rho-cream)]/70"
+                }`}
+              >
+                {isInStorm ? "Storm" : "Sprong in zicht"}
+              </span>
+            </div>
+            <h2 className="font-display text-xl text-[var(--rho-cream)] leading-snug">
+              Sprong {activeLeap.number}: {activeLeap.name}
+            </h2>
+            <p className="text-[var(--rho-cream)]/70 text-sm font-body leading-relaxed">
+              {activeLeap.description}
+            </p>
+            {isInStorm && (
+              <div className="mt-3 pt-3 border-t border-[var(--rho-cream)]/10 space-y-1">
+                <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
+                  Tips
+                </p>
+                {activeLeap.tips.slice(0, 3).map((tip, i) => (
+                  <p key={i} className="text-[var(--rho-gold)] text-sm font-body">
+                    ✦ {tip}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="relative space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">☀️</span>
+              <span className="text-xs font-body uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--rho-gold)]/20 text-[var(--rho-gold)]">
+                Zonneschijn
+              </span>
+            </div>
+            <h2 className="font-display text-xl text-[var(--rho-cream)]">Rustige periode</h2>
+            <p className="text-[var(--rho-cream)]/70 text-sm font-body">
+              Rho zit tussen twee sprongen in. Een moment om te genieten van al wat ze al kan.
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Leeftijd */}
-      <Card>
-        <p className="text-[var(--rho-cream)]/60 text-xs font-body uppercase tracking-wider mb-2">
-          Hoe oud is Rho?
-        </p>
-        <p className="font-display text-3xl text-[var(--rho-cream)]">
-          {maanden > 0 ? `${maanden} maand${maanden > 1 ? "en" : ""}` : ""}{" "}
-          {restWeken > 0 ? `${restWeken} week${restWeken > 1 ? "en" : ""}` : ""}
-          {maanden === 0 && restWeken === 0 ? `${days} dag${days > 1 ? "en" : ""}` : ""}
-        </p>
-        <p className="text-[var(--rho-cream)]/50 text-sm font-body mt-1">
-          Week {weeks} — {days} dag{days !== 1 ? "en" : ""} in deze week
-        </p>
-      </Card>
-
-      {/* Huidige sprong */}
-      {activeLeap ? (
-        <Card className={isInStorm ? "border-[var(--rho-gold)]/40" : ""}>
-          <div className="flex items-start gap-4">
-            <span className="text-3xl">{isInStorm ? "⛈️" : activeLeap.emoji}</span>
-            <div className="space-y-1">
-              <p className="text-[var(--rho-cream)]/60 text-xs font-body uppercase tracking-wider">
-                {isInStorm ? "Nu in storm" : "Sprong in zicht"}
-              </p>
-              <h2 className="font-display text-lg text-[var(--rho-cream)]">
-                Sprong {activeLeap.number}: {activeLeap.name}
-              </h2>
-              <p className="text-[var(--rho-cream)]/70 text-sm font-body leading-relaxed">
-                {activeLeap.description}
-              </p>
-              {isInStorm && (
-                <div className="mt-3 space-y-1">
-                  {activeLeap.tips.slice(0, 2).map((tip, i) => (
-                    <p key={i} className="text-[var(--rho-gold)] text-xs font-body">
-                      ✦ {tip}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </Card>
-      ) : (
-        <Card>
-          <div className="flex items-start gap-4">
-            <span className="text-3xl">✨</span>
-            <div>
-              <p className="text-[var(--rho-cream)]/60 text-xs font-body uppercase tracking-wider">
-                Rustige periode
-              </p>
-              <p className="text-[var(--rho-cream)]/80 text-sm font-body mt-1">
-                Rho zit momenteel tussen twee sprongen in. Geniet van de zonneschijn!
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
-
       {/* Volgende sprong */}
-      {nextLeap && (
-        <Card>
-          <p className="text-[var(--rho-cream)]/60 text-xs font-body uppercase tracking-wider mb-2">
-            Volgende sprong
-          </p>
-          <p className="font-display text-lg text-[var(--rho-cream)]">
-            {nextLeap.emoji} Sprong {nextLeap.number}: {nextLeap.name}
-          </p>
-          <p className="text-[var(--rho-cream)]/50 text-sm font-body mt-1">
-            Verwacht vanaf week {nextLeap.weekStart} — {formatDutchDate(nextLeap.dateStart)}
-          </p>
-        </Card>
+      {nextLeap && daysUntilNext !== null && (
+        <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4 flex items-center gap-4">
+          <span className="text-2xl">{nextLeap.emoji}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
+              Volgende sprong
+            </p>
+            <p className="text-[var(--rho-cream)] font-display text-base leading-snug truncate">
+              {nextLeap.name}
+            </p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="font-display text-2xl text-[var(--rho-gold)]">
+              {daysUntilNext > 0 ? daysUntilNext : 0}
+            </p>
+            <p className="text-[var(--rho-cream)]/40 text-xs font-body">
+              {daysUntilNext === 1 ? "dag" : "dagen"}
+            </p>
+          </div>
+        </div>
       )}
 
-      {/* Navigatie */}
-      <nav className="grid grid-cols-2 gap-3 pt-2">
-        {[
-          { href: "/tijdlijn", label: "Tijdlijn", emoji: "📅" },
-          { href: "/groei", label: "Groei", emoji: "📈" },
-          { href: "/milestones", label: "Milestones", emoji: "⭐" },
-          { href: "/updates", label: "Updates", emoji: "💬" },
-        ].map(({ href, label, emoji }) => (
-          <a
-            key={href}
-            href={href}
-            className="flex items-center gap-3 bg-[var(--rho-cream)]/10 border border-[var(--rho-cream)]/20 rounded-xl p-4 hover:bg-[var(--rho-cream)]/15 transition-colors"
-          >
-            <span className="text-xl">{emoji}</span>
-            <span className="font-body text-sm text-[var(--rho-cream)]">{label}</span>
-          </a>
-        ))}
-      </nav>
+      {/* Laatste milestone */}
+      {lastMilestone && (
+        <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4">
+          <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider mb-2">
+            Laatste milestone
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{lastMilestone.emoji}</span>
+            <div>
+              <p className="text-[var(--rho-cream)] font-body text-sm font-medium">
+                {lastMilestone.title}
+              </p>
+              <p className="text-[var(--rho-cream)]/40 text-xs font-body">
+                {formatDutchDate(lastMilestone.date)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Laatste update */}
+      {lastUpdate && (
+        <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4">
+          <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider mb-2">
+            Laatste update
+          </p>
+          {lastUpdate.title && (
+            <p className="text-[var(--rho-cream)] font-display text-base mb-1">
+              {lastUpdate.title}
+            </p>
+          )}
+          <p className="text-[var(--rho-cream)]/70 text-sm font-body line-clamp-2">
+            {lastUpdate.body}
+          </p>
+          <p className="text-[var(--rho-cream)]/30 text-xs font-body mt-2">
+            {formatDutchDate(lastUpdate.created_at)}
+          </p>
+        </div>
+      )}
+
+      {/* Snelle acties voor ouders */}
+      {isParent && (
+        <div className="pt-2">
+          <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-3">
+            Snel toevoegen
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { href: "/updates?new=1", label: "Update", emoji: "✏️" },
+              { href: "/milestones?new=1", label: "Milestone", emoji: "⭐" },
+              { href: "/groei?new=1", label: "Meting", emoji: "📏" },
+            ].map(({ href, label, emoji }) => (
+              <a
+                key={href}
+                href={href}
+                className="flex flex-col items-center gap-1.5 bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-xl py-4 hover:bg-[var(--rho-cream)]/12 transition-colors"
+              >
+                <span className="text-xl">{emoji}</span>
+                <span className="text-[var(--rho-cream)]/60 text-xs font-body">{label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Uitloggen */}
-      <form action="/api/auth/signout" method="post" className="text-center pt-2">
+      <form action="/api/auth/signout" method="post" className="text-center pt-2 pb-4">
         <button
           type="submit"
-          className="text-[var(--rho-cream)]/30 text-xs font-body hover:text-[var(--rho-cream)]/60 transition-colors"
+          className="text-[var(--rho-cream)]/25 text-xs font-body hover:text-[var(--rho-cream)]/50 transition-colors"
         >
           Uitloggen
         </button>
