@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 
-const BEKENDE_NAMEN = ["Arno", "Céline", "Oma Rita", "Opa Jef", "Oma Marie", "Opa Frank", "Delfien", "Thomas"];
-
 export function WieBenJij() {
   const [tonen, setTonen] = useState(false);
   const [naam, setNaam] = useState("");
@@ -13,8 +11,8 @@ export function WieBenJij() {
     if (!opgeslagen) setTonen(true);
   }, []);
 
-  function opslaan(gekozenNaam: string) {
-    const n = gekozenNaam.trim();
+  function opslaan() {
+    const n = naam.trim();
     if (!n) return;
     localStorage.setItem("rho_naam", n);
     setTonen(false);
@@ -34,37 +32,18 @@ export function WieBenJij() {
           </p>
         </div>
 
-        {/* Snelle keuze */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          {BEKENDE_NAMEN.map((n) => (
-            <button
-              key={n}
-              onClick={() => opslaan(n)}
-              className="px-3 py-1.5 rounded-full border border-[var(--rho-cream)]/20 text-[var(--rho-cream)]/70 text-sm font-body hover:bg-[var(--rho-cream)]/10 hover:text-[var(--rho-cream)] transition-colors"
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-[var(--rho-cream)]/10" />
-          <span className="text-[var(--rho-cream)]/30 text-xs font-body">of typ je naam</span>
-          <div className="flex-1 h-px bg-[var(--rho-cream)]/10" />
-        </div>
-
         <div className="flex gap-2">
           <input
             type="text"
             placeholder="Jouw naam"
             value={naam}
             onChange={(e) => setNaam(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && opslaan(naam)}
+            onKeyDown={(e) => e.key === "Enter" && opslaan()}
             className="flex-1 bg-[var(--rho-cream)]/10 border border-[var(--rho-cream)]/20 rounded-xl px-4 py-3 text-[var(--rho-cream)] placeholder:text-[var(--rho-cream)]/25 text-sm font-body focus:outline-none focus:border-[var(--rho-gold)]/50 transition-colors"
             autoFocus
           />
           <button
-            onClick={() => opslaan(naam)}
+            onClick={opslaan}
             disabled={!naam.trim()}
             className="w-12 h-12 rounded-xl bg-[var(--rho-gold)] text-[var(--rho-red-dark)] font-body font-bold disabled:opacity-30 hover:opacity-90 transition-opacity"
           >
