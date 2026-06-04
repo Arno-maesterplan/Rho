@@ -5,28 +5,25 @@ import { createClient } from "@/lib/supabase/client";
 import { formatDutchDate } from "@/lib/rho";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
+import { useNaam } from "@/lib/useNaam";
 
 type Template = { emoji: string; title: string; category: string };
-type Behaald = { title: string; date: string; emoji: string; photo_url: string | null; description: string | null };
+type Behaald = { title: string; date: string; emoji: string; description: string | null };
 
 interface Props {
   templates: Template[];
   behaald: Behaald[];
-  isParent: boolean;
 }
 
 const CATEGORIES_ORDER = ["sociaal", "motorisch", "communicatie", "eten", "slapen", "speciaal"];
 const CAT_LABELS: Record<string, string> = {
-  sociaal: "Sociaal",
-  motorisch: "Motorisch",
-  communicatie: "Communicatie",
-  eten: "Eten",
-  slapen: "Slapen",
-  speciaal: "Speciaal",
+  sociaal: "Sociaal", motorisch: "Motorisch", communicatie: "Communicatie",
+  eten: "Eten", slapen: "Slapen", speciaal: "Speciaal",
 };
 
-export function MilestoneGrid({ templates, behaald, isParent }: Props) {
+export function MilestoneGrid({ templates, behaald }: Props) {
   const router = useRouter();
+  const naam = useNaam();
   const supabase = createClient();
 
   const [activeModal, setActiveModal] = useState<Template | null>(null);
@@ -39,13 +36,12 @@ export function MilestoneGrid({ templates, behaald, isParent }: Props) {
   async function aanvinken() {
     if (!activeModal) return;
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
     await supabase.from("milestones").insert({
       title: activeModal.title,
       emoji: activeModal.emoji,
       date: datum,
       description: nota || null,
-      created_by: user?.id,
+      author_name: naam || "Onbekend",
     });
     setLoading(false);
     setActiveModal(null);
@@ -73,28 +69,22 @@ export function MilestoneGrid({ templates, behaald, isParent }: Props) {
                   <button
                     key={t.title}
                     onClick={() => {
-                      if (!gedaan && isParent) {
+                      if (!gedaan) {
                         setActiveModal(t);
                         setDatum(new Date().toISOString().split("T")[0]);
                       }
                     }}
-                    disabled={!!gedaan || !isParent}
+                    disabled={!!gedaan}
                     className={`text-left rounded-xl p-3 border transition-all ${
                       gedaan
                         ? "bg-[var(--rho-gold)]/15 border-[var(--rho-gold)]/30"
-                        : isParent
-                        ? "bg-[var(--rho-cream)]/5 border-[var(--rho-cream)]/10 hover:bg-[var(--rho-cream)]/10 cursor-pointer"
-                        : "bg-[var(--rho-cream)]/5 border-[var(--rho-cream)]/10 cursor-default"
+                        : "bg-[var(--rho-cream)]/5 border-[var(--rho-cream)]/10 hover:bg-[var(--rho-cream)]/10 cursor-pointer"
                     }`}
                   >
                     <div className="flex items-start gap-2">
                       <span className="text-xl shrink-0">{t.emoji}</span>
                       <div className="min-w-0">
-                        <p
-                          className={`text-xs font-body leading-snug ${
-                            gedaan ? "text-[var(--rho-cream)]" : "text-[var(--rho-cream)]/60"
-                          }`}
-                        >
+                        <p className={`text-xs font-body leading-snug ${gedaan ? "text-[var(--rho-cream)]" : "text-[var(--rho-cream)]/60"}`}>
                           {t.title}
                         </p>
                         {gedaan && (
@@ -112,7 +102,6 @@ export function MilestoneGrid({ templates, behaald, isParent }: Props) {
         ))}
       </div>
 
-      {/* Modal */}
       {activeModal && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6"
@@ -121,15 +110,10 @@ export function MilestoneGrid({ templates, behaald, isParent }: Props) {
           <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4">
             <div className="flex items-center gap-3">
               <span className="text-3xl">{activeModal.emoji}</span>
-              <h3 className="font-display text-lg text-[var(--rho-cream)] leading-snug">
-                {activeModal.title}
-              </h3>
+              <h3 className="font-display text-lg text-[var(--rho-cream)] leading-snug">{activeModal.title}</h3>
             </div>
-
             <div>
-              <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
-                Wanneer was dit?
-              </label>
+              <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Wanneer was dit?</label>
               <input
                 type="date"
                 value={datum}
@@ -137,11 +121,8 @@ export function MilestoneGrid({ templates, behaald, isParent }: Props) {
                 className="w-full bg-[var(--rho-cream)]/10 border border-[var(--rho-cream)]/20 rounded-xl px-4 py-3 text-[var(--rho-cream)] text-sm font-body focus:outline-none focus:border-[var(--rho-gold)]/50 transition-colors"
               />
             </div>
-
             <div>
-              <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
-                Notitie (optioneel)
-              </label>
+              <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Notitie (optioneel)</label>
               <textarea
                 placeholder="Vertel er iets over..."
                 value={nota}
@@ -150,11 +131,8 @@ export function MilestoneGrid({ templates, behaald, isParent }: Props) {
                 className="w-full bg-[var(--rho-cream)]/10 border border-[var(--rho-cream)]/20 rounded-xl px-4 py-3 text-[var(--rho-cream)] placeholder:text-[var(--rho-cream)]/25 text-sm font-body focus:outline-none focus:border-[var(--rho-gold)]/50 transition-colors resize-none"
               />
             </div>
-
             <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1" onClick={() => setActiveModal(null)}>
-                Annuleer
-              </Button>
+              <Button variant="ghost" className="flex-1" onClick={() => setActiveModal(null)}>Annuleer</Button>
               <Button variant="gold" className="flex-1" loading={loading} onClick={aanvinken}>
                 Milestone behaald!
               </Button>

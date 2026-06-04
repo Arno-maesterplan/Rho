@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/Button";
 import { useRouter } from "next/navigation";
+import { useNaam } from "@/lib/useNaam";
 
 interface Props {
   showForm: boolean;
@@ -11,6 +12,7 @@ interface Props {
 
 export function NieuweUpdate({ showForm }: Props) {
   const router = useRouter();
+  const naam = useNaam();
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -32,9 +34,7 @@ export function NieuweUpdate({ showForm }: Props) {
     if (!tekst.trim()) return;
     setLoading(true);
 
-    const { data: { user } } = await supabase.auth.getUser();
     const fotoUrls: string[] = [];
-
     for (const foto of fotos) {
       const pad = `updates/${Date.now()}-${foto.name.replace(/\s/g, "_")}`;
       const { data } = await supabase.storage.from("photos").upload(pad, foto);
@@ -48,7 +48,7 @@ export function NieuweUpdate({ showForm }: Props) {
       title: titel.trim() || null,
       body: tekst.trim(),
       photo_urls: fotoUrls.length > 0 ? fotoUrls : null,
-      created_by: user?.id,
+      author_name: naam || "Onbekend",
     });
 
     setLoading(false);
@@ -56,10 +56,7 @@ export function NieuweUpdate({ showForm }: Props) {
     setTimeout(() => {
       setSuccess(false);
       setOpen(false);
-      setTitel("");
-      setTekst("");
-      setFotos([]);
-      setPreviews([]);
+      setTitel(""); setTekst(""); setFotos([]); setPreviews([]);
       router.refresh();
     }, 1200);
   }
@@ -77,69 +74,32 @@ export function NieuweUpdate({ showForm }: Props) {
 
   return (
     <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl p-5 space-y-4">
-      <h2 className="font-display text-lg text-[var(--rho-cream)]">Nieuwe update</h2>
+      <h2 className="font-display text-lg text-[var(--rho-cream)]">
+        Nieuwe update {naam && <span className="text-[var(--rho-cream)]/40 font-body text-sm font-normal">als {naam}</span>}
+      </h2>
 
       <div>
-        <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
-          Titel (optioneel)
-        </label>
-        <input
-          type="text"
-          placeholder="Bijv. Eerste glimlach vanmorgen!"
-          value={titel}
-          onChange={(e) => setTitel(e.target.value)}
-          className={inputClass}
-        />
+        <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Titel (optioneel)</label>
+        <input type="text" placeholder="Bijv. Eerste glimlach vanmorgen!" value={titel} onChange={(e) => setTitel(e.target.value)} className={inputClass} />
       </div>
 
       <div>
-        <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
-          Vertel het aan de familie
-        </label>
-        <textarea
-          placeholder="Wat wil je delen over Rho vandaag?"
-          value={tekst}
-          onChange={(e) => setTekst(e.target.value)}
-          rows={4}
-          className={`${inputClass} resize-none`}
-        />
+        <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Vertel het aan de familie</label>
+        <textarea placeholder="Wat wil je delen over Rho vandaag?" value={tekst} onChange={(e) => setTekst(e.target.value)} rows={4} className={`${inputClass} resize-none`} />
       </div>
 
-      {/* Foto's */}
       <div>
-        <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
-          Foto&apos;s (max 4)
-        </label>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={onFotoKeuze}
-          className="hidden"
-        />
+        <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Foto&apos;s (max 4)</label>
+        <input ref={fileRef} type="file" accept="image/*" multiple onChange={onFotoKeuze} className="hidden" />
         {previews.length > 0 ? (
           <div className="grid grid-cols-4 gap-2">
             {previews.map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                alt=""
-                className="aspect-square object-cover rounded-lg"
-              />
+              <img key={i} src={src} alt="" className="aspect-square object-cover rounded-lg" />
             ))}
-            <button
-              onClick={() => fileRef.current?.click()}
-              className="aspect-square rounded-lg border border-[var(--rho-cream)]/20 flex items-center justify-center text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/60 transition-colors text-xl"
-            >
-              +
-            </button>
+            <button onClick={() => fileRef.current?.click()} className="aspect-square rounded-lg border border-[var(--rho-cream)]/20 flex items-center justify-center text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/60 transition-colors text-xl">+</button>
           </div>
         ) : (
-          <button
-            onClick={() => fileRef.current?.click()}
-            className="w-full border border-dashed border-[var(--rho-cream)]/20 rounded-xl py-6 flex flex-col items-center gap-2 text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/50 hover:border-[var(--rho-cream)]/30 transition-colors"
-          >
+          <button onClick={() => fileRef.current?.click()} className="w-full border border-dashed border-[var(--rho-cream)]/20 rounded-xl py-6 flex flex-col items-center gap-2 text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/50 hover:border-[var(--rho-cream)]/30 transition-colors">
             <span className="text-2xl">📷</span>
             <span className="text-xs font-body">Foto&apos;s toevoegen</span>
           </button>
@@ -147,21 +107,8 @@ export function NieuweUpdate({ showForm }: Props) {
       </div>
 
       <div className="flex gap-3">
-        <Button
-          variant="ghost"
-          className="flex-1"
-          onClick={() => setOpen(false)}
-          disabled={loading}
-        >
-          Annuleer
-        </Button>
-        <Button
-          variant="primary"
-          className="flex-1"
-          loading={loading}
-          onClick={plaatsen}
-          disabled={!tekst.trim()}
-        >
+        <Button variant="ghost" className="flex-1" onClick={() => setOpen(false)} disabled={loading}>Annuleer</Button>
+        <Button variant="primary" className="flex-1" loading={loading} onClick={plaatsen} disabled={!tekst.trim()}>
           {success ? "✓ Geplaatst!" : "Plaatsen"}
         </Button>
       </div>

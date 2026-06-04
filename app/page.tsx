@@ -1,21 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import { getRhoAge, getCurrentLeap, formatDutchDate, WONDER_WEEKS } from "@/lib/rho";
-import { redirect } from "next/navigation";
+import { getRhoAge, getCurrentLeap, formatDutchDate } from "@/lib/rho";
 import { differenceInDays } from "date-fns";
+import { NaamWeergave } from "@/components/NaamWeergave";
 
 export default async function Dashboard() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("name, role")
-    .eq("id", user.id)
-    .single();
+  const supabase = createClient();
 
   const { weeks, days } = getRhoAge();
   const { activeLeap, nextLeap, isInStorm } = getCurrentLeap(weeks);
@@ -32,7 +21,6 @@ export default async function Dashboard() {
     ? differenceInDays(new Date(nextLeap.dateStart), new Date())
     : null;
 
-  // Laatste milestone en update ophalen
   const [{ data: lastMilestone }, { data: lastUpdate }] = await Promise.all([
     supabase
       .from("milestones")
@@ -48,12 +36,9 @@ export default async function Dashboard() {
       .single(),
   ]);
 
-  const isParent = profile?.role === "parent";
-
   return (
     <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-5">
-      {/* Header */}
-      <header className="text-center pt-2 pb-1">
+      <header className="text-center pt-2 pb-1 flex flex-col items-center">
         <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
           {formatDutchDate("2025-05-13")}
         </p>
@@ -61,9 +46,10 @@ export default async function Dashboard() {
         <p className="text-[var(--rho-cream)]/60 font-body text-sm mt-1">
           {leeftijdLabel} — week {weeks}, dag {days}
         </p>
+        <NaamWeergave />
       </header>
 
-      {/* Weer-kaart: storm of zonneschijn */}
+      {/* Weer-kaart */}
       <div
         className={`relative overflow-hidden rounded-2xl p-6 ${
           isInStorm
@@ -73,24 +59,16 @@ export default async function Dashboard() {
             : "bg-gradient-to-br from-[#9B3a15] to-[#C8701E] border border-[var(--rho-gold)]/20"
         }`}
       >
-        {/* Decoratieve achtergrond sterren */}
         <div className="absolute inset-0 pointer-events-none select-none" aria-hidden>
           {isInStorm ? (
             <>
               <span className="absolute top-3 right-6 text-purple-300/20 text-2xl">⚡</span>
               <span className="absolute bottom-4 left-4 text-purple-300/10 text-4xl">☁️</span>
-              <span className="absolute top-8 left-10 text-white/5 text-6xl">⛈</span>
             </>
           ) : activeLeap ? (
-            <>
-              <span className="absolute top-2 right-4 text-[var(--rho-cream)]/10 text-5xl">🌙</span>
-              <span className="absolute bottom-3 right-8 text-[var(--rho-gold)]/20 text-2xl">✦</span>
-            </>
+            <span className="absolute top-2 right-4 text-[var(--rho-cream)]/10 text-5xl">🌙</span>
           ) : (
-            <>
-              <span className="absolute top-2 right-4 text-yellow-200/20 text-5xl">☀️</span>
-              <span className="absolute bottom-3 left-6 text-[var(--rho-gold)]/20 text-2xl">✦</span>
-            </>
+            <span className="absolute top-2 right-4 text-yellow-200/20 text-5xl">☀️</span>
           )}
         </div>
 
@@ -116,13 +94,8 @@ export default async function Dashboard() {
             </p>
             {isInStorm && (
               <div className="mt-3 pt-3 border-t border-[var(--rho-cream)]/10 space-y-1">
-                <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
-                  Tips
-                </p>
                 {activeLeap.tips.slice(0, 3).map((tip, i) => (
-                  <p key={i} className="text-[var(--rho-gold)] text-sm font-body">
-                    ✦ {tip}
-                  </p>
+                  <p key={i} className="text-[var(--rho-gold)] text-sm font-body">✦ {tip}</p>
                 ))}
               </div>
             )}
@@ -137,7 +110,7 @@ export default async function Dashboard() {
             </div>
             <h2 className="font-display text-xl text-[var(--rho-cream)]">Rustige periode</h2>
             <p className="text-[var(--rho-cream)]/70 text-sm font-body">
-              Rho zit tussen twee sprongen in. Een moment om te genieten van al wat ze al kan.
+              Rho zit tussen twee sprongen in. Geniet van de zonneschijn!
             </p>
           </div>
         )}
@@ -193,53 +166,37 @@ export default async function Dashboard() {
             Laatste update
           </p>
           {lastUpdate.title && (
-            <p className="text-[var(--rho-cream)] font-display text-base mb-1">
-              {lastUpdate.title}
-            </p>
+            <p className="text-[var(--rho-cream)] font-display text-base mb-1">{lastUpdate.title}</p>
           )}
-          <p className="text-[var(--rho-cream)]/70 text-sm font-body line-clamp-2">
-            {lastUpdate.body}
-          </p>
+          <p className="text-[var(--rho-cream)]/70 text-sm font-body line-clamp-2">{lastUpdate.body}</p>
           <p className="text-[var(--rho-cream)]/30 text-xs font-body mt-2">
             {formatDutchDate(lastUpdate.created_at)}
           </p>
         </div>
       )}
 
-      {/* Snelle acties voor ouders */}
-      {isParent && (
-        <div className="pt-2">
-          <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-3">
-            Snel toevoegen
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { href: "/updates?new=1", label: "Update", emoji: "✏️" },
-              { href: "/milestones?new=1", label: "Milestone", emoji: "⭐" },
-              { href: "/groei?new=1", label: "Meting", emoji: "📏" },
-            ].map(({ href, label, emoji }) => (
-              <a
-                key={href}
-                href={href}
-                className="flex flex-col items-center gap-1.5 bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-xl py-4 hover:bg-[var(--rho-cream)]/12 transition-colors"
-              >
-                <span className="text-xl">{emoji}</span>
-                <span className="text-[var(--rho-cream)]/60 text-xs font-body">{label}</span>
-              </a>
-            ))}
-          </div>
+      {/* Snelle acties */}
+      <div className="pt-2">
+        <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-3">
+          Snel toevoegen
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { href: "/updates?new=1", label: "Update", emoji: "✏️" },
+            { href: "/milestones?new=1", label: "Milestone", emoji: "⭐" },
+            { href: "/groei?new=1", label: "Meting", emoji: "📏" },
+          ].map(({ href, label, emoji }) => (
+            <a
+              key={href}
+              href={href}
+              className="flex flex-col items-center gap-1.5 bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-xl py-4 hover:bg-[var(--rho-cream)]/12 transition-colors"
+            >
+              <span className="text-xl">{emoji}</span>
+              <span className="text-[var(--rho-cream)]/60 text-xs font-body">{label}</span>
+            </a>
+          ))}
         </div>
-      )}
-
-      {/* Uitloggen */}
-      <form action="/api/auth/signout" method="post" className="text-center pt-2 pb-4">
-        <button
-          type="submit"
-          className="text-[var(--rho-cream)]/25 text-xs font-body hover:text-[var(--rho-cream)]/50 transition-colors"
-        >
-          Uitloggen
-        </button>
-      </form>
+      </div>
     </main>
   );
 }

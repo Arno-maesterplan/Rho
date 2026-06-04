@@ -1,15 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { getRhoAge, getCurrentLeap, formatDutchDate, WONDER_WEEKS } from "@/lib/rho";
-import { redirect } from "next/navigation";
 import { differenceInDays } from "date-fns";
 
 export default async function TijdlijnPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const { weeks } = getRhoAge();
   const { activeLeap, isInStorm } = getCurrentLeap(weeks);
   const today = new Date();
@@ -27,7 +20,6 @@ export default async function TijdlijnPage() {
       </header>
 
       <div className="relative">
-        {/* Verticale lijn */}
         <div className="absolute left-6 top-0 bottom-0 w-px bg-[var(--rho-cream)]/10" />
 
         <div className="space-y-1">
@@ -35,14 +27,12 @@ export default async function TijdlijnPage() {
             const start = new Date(leap.dateStart);
             const end = new Date(leap.dateEnd);
             const isPast = end < today;
-            const isCurrent =
-              activeLeap?.number === leap.number;
+            const isCurrent = activeLeap?.number === leap.number;
             const isFuture = start > today;
             const daysUntil = differenceInDays(start, today);
 
             return (
               <div key={leap.number} className="relative pl-16 pb-6">
-                {/* Cirkel op de lijn */}
                 <div
                   className={`absolute left-4 top-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs transition-all ${
                     isCurrent
@@ -57,7 +47,6 @@ export default async function TijdlijnPage() {
                   )}
                 </div>
 
-                {/* Inhoud */}
                 <div
                   className={`rounded-2xl p-4 border transition-all ${
                     isCurrent
@@ -83,27 +72,19 @@ export default async function TijdlijnPage() {
                     </div>
 
                     {isCurrent && (
-                      <span
-                        className={`text-xs font-body px-2 py-0.5 rounded-full shrink-0 ${
-                          isInStorm
-                            ? "bg-purple-500/20 text-purple-300"
-                            : "bg-[var(--rho-gold)]/20 text-[var(--rho-gold)]"
-                        }`}
-                      >
+                      <span className={`text-xs font-body px-2 py-0.5 rounded-full shrink-0 ${
+                        isInStorm ? "bg-purple-500/20 text-purple-300" : "bg-[var(--rho-gold)]/20 text-[var(--rho-gold)]"
+                      }`}>
                         {isInStorm ? "Storm" : "Nu"}
                       </span>
                     )}
-
                     {isFuture && daysUntil > 0 && (
                       <span className="text-xs font-body text-[var(--rho-cream)]/30 shrink-0">
                         over {daysUntil}d
                       </span>
                     )}
-
                     {isPast && !isCurrent && (
-                      <span className="text-xs font-body text-[var(--rho-cream)]/25 shrink-0">
-                        Voorbij
-                      </span>
+                      <span className="text-xs font-body text-[var(--rho-cream)]/25 shrink-0">Voorbij</span>
                     )}
                   </div>
 
@@ -112,27 +93,25 @@ export default async function TijdlijnPage() {
                   </p>
 
                   {isCurrent && (
-                    <p className="text-[var(--rho-cream)]/70 text-sm font-body mt-2 leading-relaxed">
-                      {leap.description}
-                    </p>
-                  )}
-
-                  {isCurrent && leap.symptoms.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-[var(--rho-cream)]/10">
-                      <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-1.5">
-                        Wat je kan merken
+                    <>
+                      <p className="text-[var(--rho-cream)]/70 text-sm font-body mt-2 leading-relaxed">
+                        {leap.description}
                       </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {leap.symptoms.map((s, i) => (
-                          <span
-                            key={i}
-                            className="text-xs font-body bg-[var(--rho-cream)]/10 text-[var(--rho-cream)]/70 px-2 py-0.5 rounded-full"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                      {leap.symptoms.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-[var(--rho-cream)]/10">
+                          <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-1.5">
+                            Wat je kan merken
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {leap.symptoms.map((s, i) => (
+                              <span key={i} className="text-xs font-body bg-[var(--rho-cream)]/10 text-[var(--rho-cream)]/70 px-2 py-0.5 rounded-full">
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

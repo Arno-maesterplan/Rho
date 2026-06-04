@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Lora } from "next/font/google";
 import { Nav } from "@/components/Nav";
+import { WieBenJij } from "@/components/WieBenJij";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="nl" className={`${playfair.variable} ${lora.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased pb-20">
+        <WieBenJij />
         {children}
         <Nav />
       </body>

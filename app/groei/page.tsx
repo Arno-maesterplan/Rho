@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { formatDutchDate } from "@/lib/rho";
-import { redirect } from "next/navigation";
 import { GroeiGrafiek } from "./GroeiGrafiek";
 import { MetingFormulier } from "./MetingFormulier";
 
@@ -9,27 +8,15 @@ export default async function GroeiPage({
 }: {
   searchParams: Promise<{ new?: string }>;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  const supabase = createClient();
 
   const { data: metingen } = await supabase
     .from("measurements")
     .select("*")
     .order("date", { ascending: true });
 
-  const isParent = profile?.role === "parent";
   const params = await searchParams;
-  const showForm = isParent && params.new === "1";
-
+  const showForm = params.new === "1";
   const laatste = metingen && metingen.length > 0 ? metingen[metingen.length - 1] : null;
 
   return (
@@ -41,7 +28,6 @@ export default async function GroeiPage({
         <h1 className="font-display text-4xl text-[var(--rho-cream)]">Groei</h1>
       </header>
 
-      {/* Laatste meting samenvatting */}
       {laatste && (
         <div className="grid grid-cols-3 gap-3">
           {laatste.weight_grams && (
@@ -71,12 +57,9 @@ export default async function GroeiPage({
         </div>
       )}
 
-      {/* Grafiek */}
-      {metingen && metingen.length > 1 && (
-        <GroeiGrafiek metingen={metingen} />
-      )}
+      {metingen && metingen.length > 1 && <GroeiGrafiek metingen={metingen} />}
 
-      {metingen && metingen.length <= 1 && (
+      {(!metingen || metingen.length <= 1) && (
         <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
           <p className="text-[var(--rho-cream)]/40 font-body text-sm">
             Voeg metingen toe om de groeicurve te zien.
@@ -84,10 +67,8 @@ export default async function GroeiPage({
         </div>
       )}
 
-      {/* Formulier voor ouders */}
-      {isParent && <MetingFormulier showForm={showForm} />}
+      <MetingFormulier showForm={showForm} />
 
-      {/* Tabel van laatste metingen */}
       {metingen && metingen.length > 0 && (
         <div>
           <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-3">
@@ -102,20 +83,16 @@ export default async function GroeiPage({
                 <p className="text-[var(--rho-cream)]/60 text-sm font-body">
                   {formatDutchDate(m.date)}
                 </p>
-                <div className="flex gap-4 text-right">
+                <div className="flex gap-4">
                   {m.weight_grams && (
-                    <div>
-                      <p className="text-[var(--rho-cream)] text-sm font-body">
-                        {(m.weight_grams / 1000).toFixed(2).replace(".", ",")} kg
-                      </p>
-                    </div>
+                    <p className="text-[var(--rho-cream)] text-sm font-body">
+                      {(m.weight_grams / 1000).toFixed(2).replace(".", ",")} kg
+                    </p>
                   )}
                   {m.height_mm && (
-                    <div>
-                      <p className="text-[var(--rho-cream)] text-sm font-body">
-                        {(m.height_mm / 10).toFixed(1).replace(".", ",")} cm
-                      </p>
-                    </div>
+                    <p className="text-[var(--rho-cream)] text-sm font-body">
+                      {(m.height_mm / 10).toFixed(1).replace(".", ",")} cm
+                    </p>
                   )}
                 </div>
               </div>
