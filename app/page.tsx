@@ -54,7 +54,7 @@ export default async function Dashboard() {
           <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1 fade-in-up fade-in-up-1">
             {formatDutchDate("2026-05-13")}
           </p>
-          <h1 className="font-display text-6xl text-[var(--rho-cream)] leading-tight fade-in-up fade-in-up-2">Rho</h1>
+          <h1 className="text-6xl text-[var(--rho-cream)] leading-tight fade-in-up fade-in-up-2" style={{ fontFamily: "Datum, serif" }}>Rho</h1>
           <p className="text-[var(--rho-cream)]/60 font-body text-sm mt-1 fade-in-up fade-in-up-3">
             {leeftijdLabel} — week {weeks}, dag {days}
           </p>

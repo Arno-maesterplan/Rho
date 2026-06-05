@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Datum";
+  src: url("/fonts/datum.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --rho-red:        #C8102E;
   --rho-cream:      #F5ECD7;
