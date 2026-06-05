@@ -11,31 +11,27 @@ interface Props {
   showForm: boolean;
 }
 
-// Comprimeer foto naar JPEG base64 via createImageBitmap (werkt op iOS met HEIC)
-async function comprimeerFoto(file: File): Promise<string> {
-  const MAX = 1000;
-  let bitmap: ImageBitmap;
-
-  try {
-    bitmap = await createImageBitmap(file);
-  } catch {
-    // Fallback voor oudere browsers
-    const dataUrl = await new Promise<string>((res, rej) => {
-      const reader = new FileReader();
-      reader.onload = () => res(reader.result as string);
-      reader.onerror = rej;
-      reader.readAsDataURL(file);
-    });
-    return dataUrl;
-  }
-
-  const schaal = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width  = Math.round(bitmap.width  * schaal);
-  canvas.height = Math.round(bitmap.height * schaal);
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  return canvas.toDataURL("image/jpeg", 0.78);
+// Comprimeer foto via objectURL → Image → Canvas (werkt op alle browsers incl iOS Safari)
+function comprimeerFoto(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const MAX = 1000;
+      const schaal = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width  = Math.round(img.width  * schaal);
+      canvas.height = Math.round(img.height * schaal);
+      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.78));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Afbeelding kon niet worden geladen"));
+    };
+    img.src = objectUrl;
+  });
 }
 
 export function NieuweUpdate({ showForm }: Props) {
