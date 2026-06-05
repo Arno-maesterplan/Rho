@@ -81,28 +81,48 @@ export function calculatePercentile(
   ageWeeks: number,
   measurementType: "weight" | "length" | "head"
 ): PercentileResult {
-  let curveData: PercentileData[];
+  try {
+    // Validate inputs
+    if (!value || value <= 0 || !isFinite(value)) {
+      return { percentile: 50, band: "P50", label: "Unable to calculate" };
+    }
 
-  switch (measurementType) {
-    case "weight":
-      curveData = KG_WEIGHT;
-      break;
-    case "length":
-      curveData = KG_LENGTH;
-      break;
-    case "head":
-      curveData = KG_HEAD;
-      break;
+    if (!isFinite(ageWeeks) || ageWeeks < 0) {
+      return { percentile: 50, band: "P50", label: "Invalid age" };
+    }
+
+    let curveData: PercentileData[];
+
+    switch (measurementType) {
+      case "weight":
+        curveData = KG_WEIGHT;
+        break;
+      case "length":
+        curveData = KG_LENGTH;
+        break;
+      case "head":
+        curveData = KG_HEAD;
+        break;
+      default:
+        return { percentile: 50, band: "P50", label: "Unknown measurement type" };
+    }
+
+    if (!curveData || curveData.length === 0) {
+      return { percentile: 50, band: "P50", label: "No curve data" };
+    }
+
+    const ageData = getAgeData(ageWeeks, curveData);
+    const percentile = Math.round(findPercentileRank(value, ageData));
+
+    return {
+      percentile: Math.max(1, Math.min(99, percentile)),
+      band: getPercentileBand(percentile),
+      label: getPercentileLabel(percentile),
+    };
+  } catch (err) {
+    console.error("Error calculating percentile:", err);
+    return { percentile: 50, band: "P50", label: "Calculation error" };
   }
-
-  const ageData = getAgeData(ageWeeks, curveData);
-  const percentile = Math.round(findPercentileRank(value, ageData));
-
-  return {
-    percentile,
-    band: getPercentileBand(percentile),
-    label: getPercentileLabel(percentile),
-  };
 }
 
 /**

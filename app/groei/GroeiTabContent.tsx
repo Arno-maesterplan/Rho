@@ -21,9 +21,11 @@ interface Props {
 }
 
 export function GroeiTabContent({ measurements, type, label, unit, onAddClick }: Props) {
-  if (measurements.length === 0) {
+  if (!measurements || measurements.length === 0) {
     return <div className="text-[var(--rho-cream)]/40 py-8">Geen metingen beschikbaar</div>;
   }
+
+  try {
 
   // Get curve data
   let curveData: PercentileData[] = [];
@@ -107,4 +109,8 @@ export function GroeiTabContent({ measurements, type, label, unit, onAddClick }:
       </button>
     </div>
   );
+  } catch (error) {
+    console.error(`Error rendering ${label} tab:`, error);
+    return <div className="text-red-400 py-8">Error loading {label} data</div>;
+  }
 }
