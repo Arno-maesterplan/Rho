@@ -61,6 +61,18 @@ export default async function Dashboard() {
           <NaamWeergave />
         </div>
 
+        {/* Kat links */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sprites/kat-links.png" alt="" aria-hidden="true"
+          className="zweef absolute left-0 top-0 w-20 h-auto pointer-events-none select-none"
+          style={{ opacity: 0.7, animationDelay: "2s" }} />
+
+        {/* Meisje rechts */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sprites/meisje.png" alt="" aria-hidden="true"
+          className="zweef absolute right-0 bottom-4 w-16 h-auto pointer-events-none select-none"
+          style={{ opacity: 0.75 }} />
+
       </header>
 
       <SprongKaarten
