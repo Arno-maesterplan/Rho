@@ -59,6 +59,12 @@ export default async function Dashboard() {
           </p>
           <NaamWeergave />
         </div>
+
+        {/* Meisje rechts van de krans */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sprites/meisje.png" alt="" aria-hidden="true"
+          className="zweef absolute right-0 bottom-0 w-16 h-auto pointer-events-none select-none"
+          style={{ opacity: 0.35, animationDelay: "1s" }} />
       </header>
 
       {/* Weer-kaart */}

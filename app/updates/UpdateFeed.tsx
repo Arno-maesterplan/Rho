@@ -154,7 +154,7 @@ function UpdateKaart({ update }: { update: Update }) {
 
     const allefotos = [...bewerkFotos, ...geuploadUrls];
 
-    await supabase.from("updates").update({
+    const { error } = await supabase.from("updates").update({
       title: bewerkTitel.trim() || null,
       body: bewerkTekst.trim(),
       date: bewerkDatum,
@@ -163,10 +163,14 @@ function UpdateKaart({ update }: { update: Update }) {
     }).eq("id", update.id);
 
     setSaveLoading(false);
-    setBewerkModus(false);
-    setNieuwefotos([]);
-    setNieuwePreviews([]);
-    router.refresh();
+
+    if (!error) {
+      // Sluit bewerk modus en reset alles
+      setBewerkModus(false);
+      setNieuwefotos([]);
+      setNieuwePreviews([]);
+      router.refresh();
+    }
   }
 
   async function stuurReactie() {

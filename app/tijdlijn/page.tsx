@@ -273,14 +273,10 @@ export default async function TijdlijnPage() {
         </p>
       </div>
 
-      {/* Wandelende kat onderaan */}
-      <div className="relative h-16 overflow-hidden pointer-events-none select-none" aria-hidden>
+      {/* Decoratieve kat rechtsonder */}
+      <div className="flex justify-end pt-4 pb-2 pointer-events-none select-none opacity-30" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/sprites/kat-lopend.png"
-          alt=""
-          className="kat-wandel absolute bottom-0 w-20 h-auto"
-        />
+        <img src="/sprites/kat-lopend.png" alt="" className="w-24 h-auto" style={{ transform: "scaleX(-1) rotate(5deg)" }} />
       </div>
     </main>
   );
