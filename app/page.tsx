@@ -60,11 +60,11 @@ export default async function Dashboard() {
           <NaamWeergave />
         </div>
 
-        {/* Meisje rechts van de krans */}
+        {/* Dansend meisje rechts */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/sprites/meisje.png" alt="" aria-hidden="true"
-          className="zweef absolute right-0 bottom-0 w-16 h-auto pointer-events-none select-none"
-          style={{ opacity: 0.35, animationDelay: "1s" }} />
+          className="zweef absolute right-2 -bottom-2 w-12 h-auto pointer-events-none select-none"
+          style={{ opacity: 0.45 }} />
       </header>
 
       {/* Weer-kaart */}
