@@ -9,6 +9,26 @@ import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 import { Button } from "@/components/Button";
 
+function fotoNaarDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const maxBreedte = 1200;
+      const schaal = Math.min(1, maxBreedte / img.width);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width * schaal;
+      canvas.height = img.height * schaal;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = reject;
+    img.src = objectUrl;
+  });
+}
+
 type Reactie = { id: string; message: string; created_at: string; author_name: string };
 type Update = {
   id: string;
@@ -70,13 +90,11 @@ function UpdateKaart({ update }: { update: Update }) {
 
     const geuploadUrls: string[] = [];
     for (const foto of nieuwefotos) {
-      const pad = `updates/${Date.now()}-${foto.name.replace(/\s/g, "_")}`;
-      const { data, error } = await supabase.storage.from("photos").upload(pad, foto);
-      if (error) {
-        console.error("Upload fout bij bewerken:", error);
-      } else if (data) {
-        const { data: url } = supabase.storage.from("photos").getPublicUrl(data.path);
-        geuploadUrls.push(url.publicUrl);
+      try {
+        const dataUrl = await fotoNaarDataUrl(foto);
+        geuploadUrls.push(dataUrl);
+      } catch (e) {
+        console.error("Foto laden mislukt:", e);
       }
     }
 

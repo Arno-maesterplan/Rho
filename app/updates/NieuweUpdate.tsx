@@ -7,6 +7,27 @@ import { useRouter } from "next/navigation";
 import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 
+function fotoNaarDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // Verklein de foto eerst voor opslag
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const maxBreedte = 1200;
+      const schaal = Math.min(1, maxBreedte / img.width);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width * schaal;
+      canvas.height = img.height * schaal;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = reject;
+    img.src = objectUrl;
+  });
+}
+
 interface Props {
   showForm: boolean;
 }
@@ -48,17 +69,13 @@ export function NieuweUpdate({ showForm }: Props) {
     const fotoUrls: string[] = [];
     setFotoFout(null);
     for (const foto of fotos) {
-      const pad = `updates/${Date.now()}-${foto.name.replace(/\s/g, "_")}`;
-      const { data, error } = await supabase.storage.from("photos").upload(pad, foto);
-      if (error) {
-        console.error("Upload fout:", error);
-        setFotoFout(`Foto kon niet worden opgeslagen: ${error.message}`);
+      try {
+        const dataUrl = await fotoNaarDataUrl(foto);
+        fotoUrls.push(dataUrl);
+      } catch (e) {
+        setFotoFout("Foto kon niet worden geladen. Probeer een kleinere foto.");
         setLoading(false);
         return;
-      }
-      if (data) {
-        const { data: url } = supabase.storage.from("photos").getPublicUrl(data.path);
-        fotoUrls.push(url.publicUrl);
       }
     }
 
