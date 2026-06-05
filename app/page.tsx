@@ -48,7 +48,7 @@ export default async function Dashboard() {
           alt=""
           aria-hidden="true"
           className="krans-animatie absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-          style={{ opacity: 0.45, transform: "scale(1.15)" }}
+          style={{ opacity: 0.65, transform: "scale(1.35)" }}
         />
         <div className="relative z-10 flex flex-col items-center">
           <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1 fade-in-up fade-in-up-1">
@@ -60,18 +60,6 @@ export default async function Dashboard() {
           </p>
           <NaamWeergave />
         </div>
-
-        {/* Kat links op koord */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sprites/kat-koord.png" alt="" aria-hidden="true"
-          className="zweef absolute left-2 top-12 w-24 h-auto pointer-events-none select-none"
-          style={{ opacity: 0.85, animationDelay: "1s" }} />
-
-        {/* Meisje rechts op koord */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sprites/meisje-new.png" alt="" aria-hidden="true"
-          className="zweef absolute right-2 top-8 w-32 h-auto pointer-events-none select-none"
-          style={{ opacity: 0.85 }} />
 
       </header>
 
