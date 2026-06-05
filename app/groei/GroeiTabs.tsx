@@ -29,6 +29,16 @@ const TABS: Array<{ id: TabType; label: string }> = [
 export function GroeiTabs({ measurements, onAddClick }: Props) {
   const [activeTab, setActiveTab] = useState<TabType>("gewicht");
 
+  if (!measurements || measurements.length === 0) {
+    return (
+      <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl p-6 text-center">
+        <p className="text-[var(--rho-cream)]/60 font-body text-sm">
+          Voeg metingen toe om de groeicurves te zien
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Tab Buttons */}

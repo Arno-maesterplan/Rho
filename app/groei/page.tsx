@@ -37,18 +37,16 @@ export default async function GroeiPage({
         </div>
       )}
 
+      {/* Groei tabs - ALWAYS show, even without measurements */}
+      <div>
+        <GroeiTabs measurements={metingen ?? []} onAddClick={(type) => {}} />
+      </div>
+
       {(!metingen || metingen.length === 0) && (
         <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
           <p className="text-[var(--rho-cream)]/40 font-body text-sm">
             👇 Voeg jouw eerste meting toe om Rho's groei te volgen
           </p>
-        </div>
-      )}
-
-      {/* Groei tabs */}
-      {metingen && metingen.length > 0 && (
-        <div>
-          <GroeiTabs measurements={metingen} onAddClick={(type) => {}} />
         </div>
       )}
 
