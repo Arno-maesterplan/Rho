@@ -61,11 +61,17 @@ export default async function Dashboard() {
           <NaamWeergave />
         </div>
 
-        {/* Dansend meisje rechts */}
+        {/* Kat links */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sprites/kat-links.png" alt="" aria-hidden="true"
+          className="zweef absolute left-0 top-1/4 w-16 h-auto pointer-events-none select-none"
+          style={{ opacity: 0.35, animationDelay: "2s" }} />
+
+        {/* Meisje rechts */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/sprites/meisje.png" alt="" aria-hidden="true"
-          className="zweef absolute right-2 -bottom-2 w-12 h-auto pointer-events-none select-none"
-          style={{ opacity: 0.45 }} />
+          className="zweef absolute right-2 bottom-0 w-12 h-auto pointer-events-none select-none"
+          style={{ opacity: 0.5 }} />
       </header>
 
       <SprongKaarten
