@@ -12,12 +12,19 @@ interface Props {
 
 export function SprongKaarten({ activeLeap, isInStorm, nextLeap, daysUntilNext }: Props) {
   const [selectedSprong, setSelectedSprong] = useState<number | null>(null);
+  const [showRustig, setShowRustig] = useState(false);
 
   return (
     <>
       {/* Weer-kaart */}
       <button
-        onClick={() => activeLeap && setSelectedSprong(activeLeap.number)}
+        onClick={() => {
+          if (activeLeap) {
+            setSelectedSprong(activeLeap.number);
+          } else {
+            setShowRustig(true);
+          }
+        }}
         className={`relative overflow-hidden rounded-2xl p-6 w-full text-left cursor-pointer transition-opacity hover:opacity-90 ${
           isInStorm
             ? "bg-gradient-to-br from-[#2a1a2e] to-[#1a0d1e] border border-purple-900/40"
@@ -112,6 +119,48 @@ export function SprongKaarten({ activeLeap, isInStorm, nextLeap, daysUntilNext }
       )}
 
       <SprongModal sprongNum={selectedSprong} isOpen={!!selectedSprong} onClose={() => setSelectedSprong(null)} />
+
+      {/* Rustige periode modal */}
+      {showRustig && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6"
+          onClick={(e) => e.target === e.currentTarget && setShowRustig(false)}
+        >
+          <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4">
+            <div>
+              <p className="text-[var(--rho-gold)] text-xs font-body uppercase tracking-wider mb-2">Rustige periode</p>
+              <h2 className="font-display text-2xl text-[var(--rho-cream)] leading-tight">Genieten! ☀️</h2>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-[var(--rho-cream)]/80 font-body text-sm leading-relaxed">
+                Rho zit momenteel tussen twee sprongen in. Dit is een rustige periode waarin je van je baby kunt genieten zonder de chaotische veranderingen van een sprong.
+              </p>
+
+              {nextLeap && daysUntilNext !== null && (
+                <div className="bg-[var(--rho-gold)]/10 border border-[var(--rho-gold)]/20 rounded-xl p-4 space-y-2">
+                  <p className="text-[var(--rho-cream)]/60 text-xs font-body uppercase tracking-wider">Volgende sprong:</p>
+                  <p className="font-display text-lg text-[var(--rho-cream)]">{nextLeap.name}</p>
+                  <p className="text-[var(--rho-gold)] text-sm font-body">
+                    {daysUntilNext > 0 ? `Over ${daysUntilNext} ${daysUntilNext === 1 ? "dag" : "dagen"}` : "Binnenkort!"}
+                  </p>
+                </div>
+              )}
+
+              <p className="text-[var(--rho-cream)]/70 text-sm font-body">
+                ✨ Maak foto's, geniet van de momenten, en zorg goed voor jezelf ook!
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowRustig(false)}
+              className="w-full px-4 py-3 bg-[var(--rho-gold)]/20 hover:bg-[var(--rho-gold)]/30 text-[var(--rho-gold)] font-body text-sm rounded-xl transition-colors"
+            >
+              Sluiten
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
