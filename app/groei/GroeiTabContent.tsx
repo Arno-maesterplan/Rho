@@ -44,7 +44,7 @@ export function GroeiTabContent({ measurements, type, label, unit, onAddClick }:
       break;
   }
 
-  const birthDate = measurements[0].date;
+  const birthDate = new Date(measurements[0].date);
   const firstMeasurement = measurements[0];
   const lastMeasurement = measurements[measurements.length - 1];
 

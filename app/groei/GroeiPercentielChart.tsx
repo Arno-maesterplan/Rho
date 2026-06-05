@@ -21,11 +21,11 @@ interface Props {
 
 export function GroeiPercentielChart({ measurements, type, curveData, unit }: Props) {
   // Extract birth date from first measurement
-  const birthDate = measurements.length > 0 ? measurements[0].date : new Date();
+  const birthDate = measurements.length > 0 ? new Date(measurements[0].date) : new Date();
+  const BIRTH_DATE = birthDate;
 
   // Build chart data: combine curve points + measurements
   const chartData: any[] = [];
-  const BIRTH_DATE = new Date(birthDate);
 
   // Add all curve percentile points
   for (const agePoint of curveData) {
