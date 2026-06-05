@@ -57,12 +57,13 @@ export default async function GroeiPage({
         </div>
       )}
 
-      {metingen && metingen.length > 1 && <GroeiGrafiek metingen={metingen} />}
+      {/* Altijd WHO curves tonen */}
+      <GroeiGrafiek metingen={metingen ?? []} />
 
-      {(!metingen || metingen.length <= 1) && (
+      {(!metingen || metingen.length === 0) && (
         <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
           <p className="text-[var(--rho-cream)]/40 font-body text-sm">
-            Voeg metingen toe om de groeicurve te zien.
+            👇 Voeg jouw eerste meting toe om Rho's groei te volgen
           </p>
         </div>
       )}
