@@ -38,15 +38,27 @@ export default async function Dashboard() {
 
   return (
     <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-5">
-      <header className="text-center pt-2 pb-1 flex flex-col items-center">
-        <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
-          {formatDutchDate("2026-05-13")}
-        </p>
-        <h1 className="font-display text-5xl text-[var(--rho-cream)] leading-tight">Rho</h1>
-        <p className="text-[var(--rho-cream)]/60 font-body text-sm mt-1">
-          {leeftijdLabel} — week {weeks}, dag {days}
-        </p>
-        <NaamWeergave />
+      {/* Header met krans */}
+      <header className="relative text-center pt-8 pb-4 flex flex-col items-center">
+        {/* Krans achtergrond */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/krans.png"
+          alt=""
+          aria-hidden="true"
+          className="krans-animatie absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+          style={{ opacity: 0.15 }}
+        />
+        <div className="relative z-10 flex flex-col items-center">
+          <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1 fade-in-up fade-in-up-1">
+            {formatDutchDate("2026-05-13")}
+          </p>
+          <h1 className="font-display text-6xl text-[var(--rho-cream)] leading-tight fade-in-up fade-in-up-2">Rho</h1>
+          <p className="text-[var(--rho-cream)]/60 font-body text-sm mt-1 fade-in-up fade-in-up-3">
+            {leeftijdLabel} — week {weeks}, dag {days}
+          </p>
+          <NaamWeergave />
+        </div>
       </header>
 
       {/* Weer-kaart */}
