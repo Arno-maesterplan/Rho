@@ -179,16 +179,20 @@ export function NieuweUpdate({ showForm }: Props) {
           ))}
 
           {fotoFiles.length < 4 && (
-            <label className="w-20 h-20 shrink-0 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 flex flex-col items-center justify-center gap-1 text-[var(--rho-cream)]/40 cursor-pointer active:bg-[var(--rho-cream)]/5 transition-colors">
-              <span className="text-xl leading-none">📷</span>
-              <span className="text-[10px] font-body">{fotoFiles.length === 0 ? "Foto" : "+"}</span>
+            <div className="relative w-20 h-20 shrink-0">
+              {/* Visuele knop */}
+              <div className="absolute inset-0 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 flex flex-col items-center justify-center gap-1 text-[var(--rho-cream)]/40 pointer-events-none">
+                <span className="text-xl leading-none">📷</span>
+                <span className="text-[10px] font-body">{fotoFiles.length === 0 ? "Foto" : "+"}</span>
+              </div>
+              {/* Transparante input als overlay — meest betrouwbaar op iOS */}
               <input
                 type="file"
                 accept="image/*"
                 onChange={onFotoKeuze}
-                className="sr-only"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
-            </label>
+            </div>
           )}
         </div>
       </div>
