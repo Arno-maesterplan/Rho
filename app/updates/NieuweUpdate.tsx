@@ -164,37 +164,44 @@ export function NieuweUpdate({ showForm }: Props) {
       )}
 
       {/* Foto's */}
-      <div>
-        <p className="text-[var(--rho-cream)]/60 text-xs font-body mb-2">Foto&apos;s (max 4)</p>
-        <div className="flex flex-wrap gap-2">
-          {fotoPreviews.map((src, i) => (
-            <div key={i} className="relative w-20 h-20 shrink-0">
-              <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
-              <button
-                type="button"
-                onClick={() => fotoVerwijderen(i)}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center"
-              >×</button>
-            </div>
-          ))}
+      <div className="space-y-2">
+        <p className="text-[var(--rho-cream)]/60 text-xs font-body">
+          Foto&apos;s ({fotoFiles.length}/4)
+        </p>
 
-          {fotoFiles.length < 4 && (
-            <div className="relative w-20 h-20 shrink-0">
-              {/* Visuele knop */}
-              <div className="absolute inset-0 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 flex flex-col items-center justify-center gap-1 text-[var(--rho-cream)]/40 pointer-events-none">
-                <span className="text-xl leading-none">📷</span>
-                <span className="text-[10px] font-body">{fotoFiles.length === 0 ? "Foto" : "+"}</span>
+        {/* Previews */}
+        {fotoPreviews.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {fotoPreviews.map((src, i) => (
+              <div key={i} className="relative w-24 h-24 shrink-0">
+                <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
+                <button
+                  type="button"
+                  onClick={() => fotoVerwijderen(i)}
+                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-sm flex items-center justify-center shadow-md"
+                >×</button>
               </div>
-              {/* Transparante input als overlay — meest betrouwbaar op iOS */}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onFotoKeuze}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
+            ))}
+          </div>
+        )}
+
+        {/* Toevoegen knop — altijd zichtbaar als < 4 */}
+        {fotoFiles.length < 4 && (
+          <div className="relative">
+            <div className="w-full py-4 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/25 flex items-center justify-center gap-2 text-[var(--rho-cream)]/50 pointer-events-none">
+              <span className="text-xl">📷</span>
+              <span className="text-sm font-body">
+                {fotoFiles.length === 0 ? "Foto toevoegen" : `Nog ${4 - fotoFiles.length} foto${4 - fotoFiles.length > 1 ? "'s" : ""} toevoegen`}
+              </span>
             </div>
-          )}
-        </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onFotoKeuze}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
+        )}
       </div>
 
       {fout && (
