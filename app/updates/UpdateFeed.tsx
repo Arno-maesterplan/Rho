@@ -9,12 +9,58 @@ import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 import { Button } from "@/components/Button";
 
-function leesAlsDataUrl(file: File): Promise<string> {
+function leesDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error("Kon foto niet lezen"));
+    reader.onerror = reject;
     reader.readAsDataURL(file);
+  });
+}
+
+function comprimeerFoto(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    let afgerond = false;
+    const timer = setTimeout(async () => {
+      if (afgerond) return;
+      afgerond = true;
+      resolve(await leesDataUrl(file));
+    }, 4000);
+
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      if (afgerond) return;
+      URL.revokeObjectURL(objectUrl);
+      try {
+        const MAX = 1000;
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        const schaal = Math.min(1, MAX / Math.max(w, h));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(w * schaal);
+        canvas.height = Math.round(h * schaal);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("geen canvas context");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const result = canvas.toDataURL("image/jpeg", 0.78);
+        clearTimeout(timer);
+        afgerond = true;
+        resolve(result.length > 5000 ? result : leesDataUrl(file) as any);
+      } catch {
+        clearTimeout(timer);
+        afgerond = true;
+        leesDataUrl(file).then(resolve);
+      }
+    };
+    img.onerror = () => {
+      if (afgerond) return;
+      URL.revokeObjectURL(objectUrl);
+      clearTimeout(timer);
+      afgerond = true;
+      leesDataUrl(file).then(resolve);
+    };
+    img.src = objectUrl;
   });
 }
 
@@ -81,13 +127,12 @@ function UpdateKaart({ update }: { update: Update }) {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const dataUrl = await leesAlsDataUrl(file);
+      const dataUrl = await comprimeerFoto(file);
       setNieuwefotos((prev) => [...prev, file]);
       setNieuwePreviews((prev) => [...prev, dataUrl]);
     } catch {
       console.error("Foto laden mislukt");
     }
-    if (fileRef.current) fileRef.current.value = "";
   }
 
   function fotoVerwijderen(url: string) {
@@ -211,7 +256,7 @@ function UpdateKaart({ update }: { update: Update }) {
             <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
               Foto&apos;s toevoegen {bewerkFotos.length > 0 ? `(nog ${4 - bewerkFotos.length} mogelijk)` : ""}
             </label>
-            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/heic,image/heif,image/webp" onChange={onNieuweFoto} className="hidden" />
+            <input key={nieuwePreviews.length} type="file" accept="image/*" onChange={onNieuweFoto} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             {nieuwePreviews.length > 0 ? (
               <div className="grid grid-cols-4 gap-2">
                 {nieuwePreviews.map((src, i) => (
