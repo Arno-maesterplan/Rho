@@ -1,24 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
-import { GroeiTabs } from "./GroeiTabs";
-import { MetingenTabel } from "./MetingenTabel";
-import { MetingFormulier } from "./MetingFormulier";
 
 export const dynamic = "force-dynamic";
 
-export default async function GroeiPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ new?: string }>;
-}) {
+export default async function GroeiPage() {
   const supabase = createClient();
 
   const { data: metingen } = await supabase
     .from("measurements")
     .select("*")
     .order("date", { ascending: true });
-
-  const params = await searchParams;
-  const showForm = params.new === "1";
 
   return (
     <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
@@ -29,37 +19,34 @@ export default async function GroeiPage({
         <h1 className="font-display text-4xl text-[var(--rho-cream)]">Groei</h1>
       </header>
 
-      {/* Metingen tabel - alleen als er data is */}
-      {metingen && metingen.length > 0 && (
-        <div>
-          <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-2">
-            Alle metingen
-          </p>
-          <MetingenTabel measurements={metingen} />
+      <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl p-6">
+        <div className="space-y-3">
+          <button className="w-full px-4 py-3 font-body text-sm transition-colors whitespace-nowrap text-[var(--rho-gold)] border-b-2 border-[var(--rho-gold)]">
+            Gewicht
+          </button>
+          <button className="w-full px-4 py-3 font-body text-sm transition-colors whitespace-nowrap text-[var(--rho-cream)]/60">
+            Lengte
+          </button>
+          <button className="w-full px-4 py-3 font-body text-sm transition-colors whitespace-nowrap text-[var(--rho-cream)]/60">
+            Hoofd
+          </button>
+          <button className="w-full px-4 py-3 font-body text-sm transition-colors whitespace-nowrap text-[var(--rho-cream)]/60">
+            Overzicht
+          </button>
         </div>
-      )}
 
-      {/* Groei tabs - ALTIJD tonen (curves zijn templates) */}
-      <div>
-        <GroeiTabs measurements={metingen ?? []} onAddClick={() => {}} />
-      </div>
-
-      {/* Empty state - alleen als geen metingen */}
-      {(!metingen || metingen.length === 0) && (
-        <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
-          <p className="text-[var(--rho-cream)]/40 font-body text-sm">
-            👇 Voeg metingen toe om je baby op de curve te volgen
+        <div className="mt-6 p-4 bg-[var(--rho-gold)]/10 border border-[var(--rho-gold)]/25 rounded-xl">
+          <p className="text-[var(--rho-cream)]/80 font-body text-sm">
+            📊 Kind en Gezin referentiecurve
+          </p>
+          <p className="text-[var(--rho-cream)]/60 font-body text-xs mt-2">
+            Metingen in database: <strong>{metingen?.length || 0}</strong>
           </p>
         </div>
-      )}
 
-      {/* Meting formulier */}
-      <MetingFormulier showForm={showForm} />
-
-      {/* Decoratief huisje */}
-      <div className="flex justify-end pt-6 pointer-events-none select-none opacity-25" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sprites/huisje.png" alt="" className="w-24 h-auto" style={{ transform: "rotate(-8deg)" }} />
+        <button className="w-full mt-4 bg-[var(--rho-gold)]/20 hover:bg-[var(--rho-gold)]/30 text-[var(--rho-gold)] font-body py-3 rounded-xl transition-colors">
+          + Meting toevoegen
+        </button>
       </div>
     </main>
   );
