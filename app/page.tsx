@@ -32,7 +32,7 @@ export default async function Dashboard() {
     supabase
       .from("updates")
       .select("title, body, created_at, photo_urls, date")
-      .order("created_at", { ascending: false })
+      .order("date", { ascending: false })
       .limit(1)
       .single(),
   ]);
