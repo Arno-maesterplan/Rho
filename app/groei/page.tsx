@@ -8,18 +8,24 @@ export default async function GroeiPage({
 }: {
   searchParams: Promise<{ new?: string }>;
 }) {
-  const supabase = createClient();
+  try {
+    const supabase = createClient();
 
-  const { data: metingen } = await supabase
-    .from("measurements")
-    .select("*")
-    .order("date", { ascending: true });
+    const { data: metingen, error } = await supabase
+      .from("measurements")
+      .select("*")
+      .order("date", { ascending: true });
 
-  const params = await searchParams;
-  const showForm = params.new === "1";
+    if (error) {
+      console.error("Supabase error:", error);
+      throw new Error(`Database error: ${error.message}`);
+    }
 
-  return (
-    <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
+    const params = await searchParams;
+    const showForm = params.new === "1";
+
+    return (
+      <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
       <header>
         <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
           Kind en Gezin groeicurves
@@ -58,6 +64,21 @@ export default async function GroeiPage({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/sprites/huisje.png" alt="" className="w-24 h-auto" style={{ transform: "rotate(-8deg)" }} />
       </div>
-    </main>
-  );
+      </main>
+    );
+  } catch (error) {
+    console.error("Groei page error:", error);
+    return (
+      <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
+        <header>
+          <h1 className="font-display text-4xl text-[var(--rho-cream)]">Groei</h1>
+        </header>
+        <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-6">
+          <p className="text-red-300 font-body">
+            Error loading groei page: {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </main>
+    );
+  }
 }
