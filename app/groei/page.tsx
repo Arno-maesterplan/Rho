@@ -100,6 +100,12 @@ export default async function GroeiPage({
           </div>
         </div>
       )}
+
+      {/* Decoratief huisje */}
+      <div className="flex justify-end pt-6 pointer-events-none select-none opacity-25" aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sprites/huisje.png" alt="" className="w-24 h-auto" style={{ transform: "rotate(-8deg)" }} />
+      </div>
     </main>
   );
 }

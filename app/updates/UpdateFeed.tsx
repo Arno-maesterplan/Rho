@@ -104,6 +104,7 @@ function UpdateKaart({ update }: { update: Update }) {
   const [nieuwefotos, setNieuwefotos] = useState<File[]>([]);
   const [nieuwePreviews, setNieuwePreviews] = useState<string[]>([]);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [saveBericht, setSaveBericht] = useState<string | null>(null);
 
   const { weeks } = getRhoAge();
   const relevanteSprongen = WONDER_WEEKS.filter((ww) => ww.weekStart <= weeks + 4);
@@ -154,6 +155,14 @@ function UpdateKaart({ update }: { update: Update }) {
 
     const allefotos = [...bewerkFotos, ...geuploadUrls];
 
+    console.log("Update verzenden:", {
+      id: update.id,
+      title: bewerkTitel.trim() || null,
+      body: bewerkTekst.trim(),
+      date: bewerkDatum,
+      fotos: allefotos.length,
+    });
+
     const { error } = await supabase.from("updates").update({
       title: bewerkTitel.trim() || null,
       body: bewerkTekst.trim(),
@@ -164,12 +173,20 @@ function UpdateKaart({ update }: { update: Update }) {
 
     setSaveLoading(false);
 
-    if (!error) {
+    if (error) {
+      console.error("Supabase fout:", error);
+      setSaveBericht("Fout bij opslaan!");
+      setTimeout(() => setSaveBericht(null), 3000);
+    } else {
       // Sluit bewerk modus en reset alles
-      setBewerkModus(false);
-      setNieuwefotos([]);
-      setNieuwePreviews([]);
-      router.refresh();
+      setSaveBericht("✓ Opgeslagen!");
+      setTimeout(() => setSaveBericht(null), 2000);
+      setTimeout(() => {
+        setBewerkModus(false);
+        setNieuwefotos([]);
+        setNieuwePreviews([]);
+        router.refresh();
+      }, 500);
     }
   }
 
@@ -278,6 +295,16 @@ function UpdateKaart({ update }: { update: Update }) {
                 <input key={nieuwePreviews.length} type="file" accept="image/*" onChange={onNieuweFoto} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
               </div>
             )}
+          </div>
+        )}
+
+        {saveBericht && (
+          <div className={`text-center text-sm font-body py-2 px-3 rounded-lg ${
+            saveBericht.includes("Fout")
+              ? "bg-red-900/20 text-red-300"
+              : "bg-[var(--rho-gold)]/20 text-[var(--rho-gold)]"
+          }`}>
+            {saveBericht}
           </div>
         )}
 
