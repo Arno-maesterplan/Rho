@@ -11,8 +11,33 @@ interface Props {
   showForm: boolean;
 }
 
-// Preview via objectURL (werkt op alle browsers voor display)
-// Upload via Supabase Storage
+// Comprimeer foto naar JPEG base64 via createImageBitmap (werkt op iOS met HEIC)
+async function comprimeerFoto(file: File): Promise<string> {
+  const MAX = 1000;
+  let bitmap: ImageBitmap;
+
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch {
+    // Fallback voor oudere browsers
+    const dataUrl = await new Promise<string>((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result as string);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+    return dataUrl;
+  }
+
+  const schaal = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width  = Math.round(bitmap.width  * schaal);
+  canvas.height = Math.round(bitmap.height * schaal);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  return canvas.toDataURL("image/jpeg", 0.78);
+}
+
 export function NieuweUpdate({ showForm }: Props) {
   const router = useRouter();
   const naam = useNaam();
@@ -24,10 +49,7 @@ export function NieuweUpdate({ showForm }: Props) {
   const [datum, setDatum] = useState(new Date().toISOString().split("T")[0]);
   const [gelinkteSprong, setGelinkteSprong] = useState<number | null>(null);
 
-  // Bewaar File objecten + preview URLs apart
-  const [fotoFiles, setFotoFiles] = useState<File[]>([]);
-  const [fotoPreviews, setFotoPreviews] = useState<string[]>([]);
-
+  const [fotos, setFotos] = useState<string[]>([]); // base64 data URLs
   const [fotoLoading, setFotoLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -36,21 +58,19 @@ export function NieuweUpdate({ showForm }: Props) {
   const { weeks } = getRhoAge();
   const relevanteSprongen = WONDER_WEEKS.filter((ww) => ww.weekStart <= weeks + 4);
 
-  function onFotoKeuze(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onFotoKeuze(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file) return;
-    if (fotoFiles.length >= 4) return;
-
-    // Preview via objectURL — werkt altijd, ook voor HEIC op iOS
-    const preview = URL.createObjectURL(file);
-    setFotoFiles((prev) => [...prev, file]);
-    setFotoPreviews((prev) => [...prev, preview]);
-  }
-
-  function fotoVerwijderen(i: number) {
-    URL.revokeObjectURL(fotoPreviews[i]);
-    setFotoFiles((prev) => prev.filter((_, j) => j !== i));
-    setFotoPreviews((prev) => prev.filter((_, j) => j !== i));
+    if (!file || fotos.length >= 4) return;
+    setFotoLoading(true);
+    setFout(null);
+    try {
+      const compressed = await comprimeerFoto(file);
+      setFotos((prev) => [...prev, compressed].slice(0, 4));
+    } catch (err) {
+      setFout("Foto kon niet worden geladen.");
+      console.error(err);
+    }
+    setFotoLoading(false);
   }
 
   async function plaatsen() {
@@ -58,36 +78,19 @@ export function NieuweUpdate({ showForm }: Props) {
     setLoading(true);
     setFout(null);
 
-    // Upload foto's naar Supabase Storage
-    const fotoUrls: string[] = [];
-    for (const file of fotoFiles) {
-      const pad = `updates/${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const { data, error } = await supabase.storage
-        .from("photos")
-        .upload(pad, file, { upsert: false });
-
-      if (error) {
-        // Storage werkt niet — sla op zonder foto's en toon melding
-        setFout(`Foto's konden niet worden opgeslagen (${error.message}). Update wordt zonder foto's geplaatst.`);
-        break;
-      }
-      const { data: urlData } = supabase.storage.from("photos").getPublicUrl(data.path);
-      fotoUrls.push(urlData.publicUrl);
-    }
-
-    const { error: insertError } = await supabase.from("updates").insert({
+    const { error } = await supabase.from("updates").insert({
       title: titel.trim() || null,
       body: tekst.trim(),
       date: datum,
-      photo_urls: fotoUrls.length > 0 ? fotoUrls : null,
+      photo_urls: fotos.length > 0 ? fotos : null,
       author_name: naam || "Onbekend",
       leap_number: gelinkteSprong,
     });
 
     setLoading(false);
 
-    if (insertError) {
-      setFout("Kon de update niet opslaan. Probeer opnieuw.");
+    if (error) {
+      setFout(`Kon niet opslaan: ${error.message}`);
       return;
     }
 
@@ -95,8 +98,7 @@ export function NieuweUpdate({ showForm }: Props) {
     setTimeout(() => {
       setSuccess(false);
       setOpen(false);
-      setTitel(""); setTekst("");
-      setFotoFiles([]); setFotoPreviews([]);
+      setTitel(""); setTekst(""); setFotos([]);
       setDatum(new Date().toISOString().split("T")[0]);
       setGelinkteSprong(null);
       router.refresh();
@@ -118,11 +120,7 @@ export function NieuweUpdate({ showForm }: Props) {
     <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl p-5 space-y-4">
       <h2 className="font-display text-lg text-[var(--rho-cream)]">
         Nieuwe update{" "}
-        {naam && (
-          <span className="text-[var(--rho-cream)]/40 font-body text-sm font-normal">
-            als {naam}
-          </span>
-        )}
+        {naam && <span className="text-[var(--rho-cream)]/40 font-body text-sm font-normal">als {naam}</span>}
       </h2>
 
       <div>
@@ -145,18 +143,14 @@ export function NieuweUpdate({ showForm }: Props) {
           <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Gaat dit over een sprong? (optioneel)</label>
           <div className="flex flex-wrap gap-2">
             {relevanteSprongen.map((ww) => (
-              <button
-                key={ww.number}
-                type="button"
+              <button key={ww.number} type="button"
                 onClick={() => setGelinkteSprong(gelinkteSprong === ww.number ? null : ww.number)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-body border transition-colors ${
                   gelinkteSprong === ww.number
                     ? "bg-[var(--rho-gold)] text-[var(--rho-red-dark)] border-[var(--rho-gold)]"
                     : "border-[var(--rho-cream)]/20 text-[var(--rho-cream)]/60 hover:border-[var(--rho-cream)]/40"
-                }`}
-              >
-                <span>{ww.emoji}</span>
-                <span>Sprong {ww.number}</span>
+                }`}>
+                <span>{ww.emoji}</span><span>Sprong {ww.number}</span>
               </button>
             ))}
           </div>
@@ -165,47 +159,45 @@ export function NieuweUpdate({ showForm }: Props) {
 
       {/* Foto's */}
       <div className="space-y-2">
-        <p className="text-[var(--rho-cream)]/60 text-xs font-body">
-          Foto&apos;s ({fotoFiles.length}/4)
-        </p>
+        <p className="text-[var(--rho-cream)]/60 text-xs font-body">Foto&apos;s ({fotos.length}/4)</p>
 
-        {/* Previews */}
-        {fotoPreviews.length > 0 && (
+        {fotos.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {fotoPreviews.map((src, i) => (
+            {fotos.map((src, i) => (
               <div key={i} className="relative w-24 h-24 shrink-0">
                 <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
-                <button
-                  type="button"
-                  onClick={() => fotoVerwijderen(i)}
-                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-sm flex items-center justify-center shadow-md"
-                >×</button>
+                <button type="button" onClick={() => setFotos((prev) => prev.filter((_, j) => j !== i))}
+                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-sm flex items-center justify-center shadow-md">×</button>
               </div>
             ))}
           </div>
         )}
 
-        {/* Toevoegen knop — altijd zichtbaar als < 4 */}
-        {fotoFiles.length < 4 && (
+        {fotos.length < 4 && (
           <div className="relative">
             <div className="w-full py-4 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/25 flex items-center justify-center gap-2 text-[var(--rho-cream)]/50 pointer-events-none">
-              <span className="text-xl">📷</span>
-              <span className="text-sm font-body">
-                {fotoFiles.length === 0 ? "Foto toevoegen" : `Nog ${4 - fotoFiles.length} foto${4 - fotoFiles.length > 1 ? "'s" : ""} toevoegen`}
-              </span>
+              {fotoLoading ? (
+                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+              ) : (
+                <>
+                  <span className="text-xl">📷</span>
+                  <span className="text-sm font-body">
+                    {fotos.length === 0 ? "Foto toevoegen" : `Nog ${4 - fotos.length} foto${4 - fotos.length > 1 ? "'s" : ""} toevoegen`}
+                  </span>
+                </>
+              )}
             </div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={onFotoKeuze}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
+            <input type="file" accept="image/*" onChange={onFotoKeuze}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" disabled={fotoLoading} />
           </div>
         )}
       </div>
 
       {fout && (
-        <p className="text-orange-300 text-xs font-body bg-orange-900/20 rounded-lg px-3 py-2">{fout}</p>
+        <p className="text-red-300 text-xs font-body bg-red-900/20 rounded-lg px-3 py-2">{fout}</p>
       )}
 
       <div className="flex gap-3">
