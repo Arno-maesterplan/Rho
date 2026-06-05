@@ -62,7 +62,20 @@ function UpdateKaart({ update }: { update: Update }) {
   const { weeks } = getRhoAge();
   const relevanteSprongen = WONDER_WEEKS.filter((ww) => ww.weekStart <= weeks + 4);
 
-  const isEigenUpdate = !update.author_name || update.author_name === naam || naam === "Arno" || naam === "Céline";
+  const isOuder = naam === "Arno" || naam === "Céline";
+  const isEigenUpdate = !update.author_name || update.author_name === naam || isOuder;
+  const magVerwijderen = isOuder || update.author_name === naam;
+
+  const [verwijderBevestig, setVerwijderBevestig] = useState(false);
+  const [verwijderLoading, setVerwijderLoading] = useState(false);
+
+  async function verwijderen() {
+    setVerwijderLoading(true);
+    await supabase.from("updates").delete().eq("id", update.id);
+    setVerwijderLoading(false);
+    setVerwijderBevestig(false);
+    router.refresh();
+  }
 
   async function onNieuweFoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -253,14 +266,42 @@ function UpdateKaart({ update }: { update: Update }) {
               <p className="text-[var(--rho-cream)]/40 text-xs font-body">{formatDutchDate(update.date ?? update.created_at)}</p>
             </div>
           </div>
-          {isEigenUpdate && (
-            <button
-              onClick={() => setBewerkModus(true)}
-              className="text-[var(--rho-cream)]/25 hover:text-[var(--rho-cream)]/60 text-xs font-body transition-colors px-2 py-1 rounded-lg hover:bg-[var(--rho-cream)]/5"
-            >
-              ✏️ Bewerken
-            </button>
-          )}
+          <div className="flex gap-1">
+            {isEigenUpdate && (
+              <button
+                onClick={() => setBewerkModus(true)}
+                className="text-[var(--rho-cream)]/25 hover:text-[var(--rho-cream)]/60 text-xs font-body transition-colors px-2 py-1 rounded-lg hover:bg-[var(--rho-cream)]/5"
+              >
+                ✏️
+              </button>
+            )}
+            {magVerwijderen && !verwijderBevestig && (
+              <button
+                onClick={() => setVerwijderBevestig(true)}
+                className="text-[var(--rho-cream)]/25 hover:text-red-400 text-xs font-body transition-colors px-2 py-1 rounded-lg hover:bg-red-900/20"
+              >
+                🗑️
+              </button>
+            )}
+            {verwijderBevestig && (
+              <div className="flex items-center gap-1">
+                <span className="text-[var(--rho-cream)]/50 text-xs font-body">Zeker?</span>
+                <button
+                  onClick={verwijderen}
+                  disabled={verwijderLoading}
+                  className="text-red-400 text-xs font-body px-2 py-1 rounded-lg bg-red-900/20 hover:bg-red-900/40 transition-colors"
+                >
+                  {verwijderLoading ? "..." : "Ja"}
+                </button>
+                <button
+                  onClick={() => setVerwijderBevestig(false)}
+                  className="text-[var(--rho-cream)]/40 text-xs font-body px-2 py-1"
+                >
+                  Nee
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {update.title && (
