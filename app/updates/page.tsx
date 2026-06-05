@@ -11,7 +11,7 @@ export default async function UpdatesPage({
 
   const { data: updates } = await supabase
     .from("updates")
-    .select(`id, title, body, photo_urls, created_at, author_name, reactions(id, message, created_at, author_name)`)
+    .select(`id, title, body, photo_urls, created_at, date, author_name, leap_number, reactions(id, message, created_at, author_name)`)
     .order("created_at", { ascending: false });
 
   const params = await searchParams;

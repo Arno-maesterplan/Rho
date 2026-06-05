@@ -14,7 +14,9 @@ type Update = {
   body: string;
   photo_urls: string[] | null;
   created_at: string;
+  date: string | null;
   author_name: string;
+  leap_number: number | null;
   reactions: Reactie[];
 };
 
@@ -67,7 +69,7 @@ function UpdateKaart({ update }: { update: Update }) {
           <Avatar name={update.author_name ?? "?"} size="sm" />
           <div>
             <p className="text-[var(--rho-cream)] text-sm font-body font-medium">{update.author_name ?? "Onbekend"}</p>
-            <p className="text-[var(--rho-cream)]/40 text-xs font-body">{formatDutchDate(update.created_at)}</p>
+            <p className="text-[var(--rho-cream)]/40 text-xs font-body">{formatDutchDate(update.date ?? update.created_at)}</p>
           </div>
         </div>
 
