@@ -11,25 +11,65 @@ interface Props {
   showForm: boolean;
 }
 
-// Comprimeer foto via objectURL → Image → Canvas (werkt op alle browsers incl iOS Safari)
-function comprimeerFoto(file: File): Promise<string> {
+// Lees bestand als data URL via FileReader (altijd betrouwbaar)
+function leesDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Comprimeer via canvas, met timeout + FileReader als fallback
+function comprimeerFoto(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    let afgerond = false;
+
+    // Fallback: na 4 seconden gewoon de raw data URL gebruiken
+    const timer = setTimeout(async () => {
+      if (afgerond) return;
+      afgerond = true;
+      resolve(await leesDataUrl(file));
+    }, 4000);
+
     const objectUrl = URL.createObjectURL(file);
     const img = new Image();
+
     img.onload = () => {
+      if (afgerond) return;
       URL.revokeObjectURL(objectUrl);
-      const MAX = 1000;
-      const schaal = Math.min(1, MAX / Math.max(img.width, img.height));
-      const canvas = document.createElement("canvas");
-      canvas.width  = Math.round(img.width  * schaal);
-      canvas.height = Math.round(img.height * schaal);
-      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL("image/jpeg", 0.78));
+      try {
+        const MAX = 1000;
+        const w = img.naturalWidth  || img.width;
+        const h = img.naturalHeight || img.height;
+        const schaal = Math.min(1, MAX / Math.max(w, h));
+        const canvas = document.createElement("canvas");
+        canvas.width  = Math.round(w * schaal);
+        canvas.height = Math.round(h * schaal);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("geen canvas context");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const result = canvas.toDataURL("image/jpeg", 0.78);
+        clearTimeout(timer);
+        afgerond = true;
+        // Controleer of canvas iets heeft geproduceerd (niet leeg)
+        resolve(result.length > 5000 ? result : leesDataUrl(file) as any);
+      } catch {
+        clearTimeout(timer);
+        afgerond = true;
+        leesDataUrl(file).then(resolve);
+      }
     };
+
     img.onerror = () => {
+      if (afgerond) return;
       URL.revokeObjectURL(objectUrl);
-      reject(new Error("Afbeelding kon niet worden geladen"));
+      clearTimeout(timer);
+      afgerond = true;
+      leesDataUrl(file).then(resolve);
     };
+
     img.src = objectUrl;
   });
 }
@@ -190,7 +230,7 @@ export function NieuweUpdate({ showForm }: Props) {
                 </>
               )}
             </div>
-            <input type="file" accept="image/*" onChange={onFotoKeuze}
+            <input key={fotos.length} type="file" accept="image/*" onChange={onFotoKeuze}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" disabled={fotoLoading} />
           </div>
         )}
