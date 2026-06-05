@@ -7,11 +7,27 @@ import { useRouter } from "next/navigation";
 import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 
-function leesAlsDataUrl(file: File): Promise<string> {
+// Lees en comprimeer een foto — max 900px breed, 75% kwaliteit (~100-200KB)
+function verwerkFoto(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error("Kon foto niet lezen"));
+    reader.onerror = () => reject(new Error("Leesfout"));
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const img = new Image();
+      img.onerror = () => reject(new Error("Afbeeldingsfout"));
+      img.onload = () => {
+        const MAX = 900;
+        const schaal = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width  = Math.round(img.width  * schaal);
+        canvas.height = Math.round(img.height * schaal);
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
+      };
+      img.src = dataUrl;
+    };
     reader.readAsDataURL(file);
   });
 }
@@ -50,9 +66,10 @@ export function NieuweUpdate({ showForm }: Props) {
     setFotoLoading(true);
     setFotoFout(null);
     try {
-      const dataUrl = await leesAlsDataUrl(file);
+      const dataUrl = await verwerkFoto(file);
       setFotoDataUrls((prev) => [...prev, dataUrl].slice(0, 4));
-    } catch {
+    } catch (err) {
+      console.error(err);
       setFotoFout("Foto kon niet worden geladen. Probeer een andere foto.");
     }
     setFotoLoading(false);
@@ -194,42 +211,40 @@ export function NieuweUpdate({ showForm }: Props) {
           onChange={onFotoKeuze}
           className="hidden"
         />
-        {fotoLoading && (
-          <div className="w-full py-6 flex items-center justify-center gap-2 text-[var(--rho-cream)]/40 text-sm font-body">
-            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
-            Foto&apos;s laden...
-          </div>
-        )}
-        {!fotoLoading && fotoDataUrls.length > 0 ? (
-          <div className="grid grid-cols-4 gap-2">
-            {fotoDataUrls.map((src, i) => (
-              <div key={i} className="relative">
-                <img src={src} alt="" className="aspect-square object-cover rounded-lg" />
-                <button
-                  onClick={() => setFotoDataUrls(fotoDataUrls.filter((_, j) => j !== i))}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center"
-                >×</button>
-              </div>
-            ))}
-            {fotoDataUrls.length < 4 && (
+        {/* Foto previews + toevoegen knop */}
+        <div className="flex flex-wrap gap-2">
+          {fotoDataUrls.map((src, i) => (
+            <div key={i} className="relative w-20 h-20 shrink-0">
+              <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
               <button
-                onClick={() => fileRef.current?.click()}
-                className="aspect-square rounded-lg border border-[var(--rho-cream)]/20 flex items-center justify-center text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/60 transition-colors text-xl"
-              >+</button>
-            )}
-          </div>
-        ) : !fotoLoading ? (
-          <button
-            onClick={() => fileRef.current?.click()}
-            className="w-full border border-dashed border-[var(--rho-cream)]/20 rounded-xl py-6 flex flex-col items-center gap-2 text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/50 hover:border-[var(--rho-cream)]/30 transition-colors"
-          >
-            <span className="text-2xl">📷</span>
-            <span className="text-xs font-body">Foto&apos;s toevoegen</span>
-          </button>
-        ) : null}
+                type="button"
+                onClick={() => setFotoDataUrls(fotoDataUrls.filter((_, j) => j !== i))}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center leading-none"
+              >×</button>
+            </div>
+          ))}
+
+          {fotoDataUrls.length < 4 && (
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={fotoLoading}
+              className="w-20 h-20 shrink-0 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 flex flex-col items-center justify-center gap-1 text-[var(--rho-cream)]/40 hover:border-[var(--rho-cream)]/40 hover:text-[var(--rho-cream)]/60 transition-colors disabled:opacity-40"
+            >
+              {fotoLoading ? (
+                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+              ) : (
+                <>
+                  <span className="text-xl leading-none">📷</span>
+                  <span className="text-[10px] font-body">{fotoDataUrls.length === 0 ? "Foto" : "+"}</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {fotoFout && (
