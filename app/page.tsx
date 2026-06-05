@@ -47,7 +47,7 @@ export default async function Dashboard() {
           alt=""
           aria-hidden="true"
           className="krans-animatie absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-          style={{ opacity: 0.15 }}
+          style={{ opacity: 0.30 }}
         />
         <div className="relative z-10 flex flex-col items-center">
           <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1 fade-in-up fade-in-up-1">

@@ -272,6 +272,16 @@ export default async function TijdlijnPage() {
           Het verhaal gaat verder...
         </p>
       </div>
+
+      {/* Wandelende kat onderaan */}
+      <div className="relative h-16 overflow-hidden pointer-events-none select-none" aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/sprites/kat-lopend.png"
+          alt=""
+          className="kat-wandel absolute bottom-0 w-20 h-auto"
+        />
+      </div>
     </main>
   );
 }

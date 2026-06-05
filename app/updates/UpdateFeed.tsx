@@ -256,20 +256,23 @@ function UpdateKaart({ update }: { update: Update }) {
             <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
               Foto&apos;s toevoegen {bewerkFotos.length > 0 ? `(nog ${4 - bewerkFotos.length} mogelijk)` : ""}
             </label>
-            <input key={nieuwePreviews.length} type="file" accept="image/*" onChange={onNieuweFoto} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             {nieuwePreviews.length > 0 ? (
-              <div className="grid grid-cols-4 gap-2">
+              <div className="flex flex-wrap gap-2">
                 {nieuwePreviews.map((src, i) => (
-                  <img key={i} src={src} alt="" className="aspect-square object-cover rounded-lg opacity-70" />
+                  <img key={i} src={src} alt="" className="w-20 h-20 object-cover rounded-lg" />
                 ))}
+                <div className="relative w-20 h-20">
+                  <div className="absolute inset-0 rounded-lg border-2 border-dashed border-[var(--rho-cream)]/20 flex items-center justify-center text-[var(--rho-cream)]/40 pointer-events-none">+</div>
+                  <input key={nieuwePreviews.length} type="file" accept="image/*" onChange={onNieuweFoto} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                </div>
               </div>
             ) : (
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="w-full border border-dashed border-[var(--rho-cream)]/20 rounded-xl py-4 flex items-center justify-center gap-2 text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/50 transition-colors text-sm font-body"
-              >
-                <span>📷</span> Foto&apos;s toevoegen
-              </button>
+              <div className="relative">
+                <div className="w-full border border-dashed border-[var(--rho-cream)]/20 rounded-xl py-4 flex items-center justify-center gap-2 text-[var(--rho-cream)]/30 pointer-events-none text-sm font-body">
+                  <span>📷</span> Foto&apos;s toevoegen
+                </div>
+                <input key={nieuwePreviews.length} type="file" accept="image/*" onChange={onNieuweFoto} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+              </div>
             )}
           </div>
         )}
