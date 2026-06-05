@@ -30,7 +30,7 @@ export default async function Dashboard() {
       .single(),
     supabase
       .from("updates")
-      .select("title, body, created_at")
+      .select("title, body, created_at, photo_urls")
       .order("created_at", { ascending: false })
       .limit(1)
       .single(),
@@ -165,21 +165,38 @@ export default async function Dashboard() {
       {lastUpdate && (
         <a
           href="/updates"
-          className="block bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4 hover:bg-[var(--rho-cream)]/12 transition-colors"
+          className="block bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl overflow-hidden hover:bg-[var(--rho-cream)]/12 transition-colors"
         >
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
-              Laatste update
-            </p>
-            <p className="text-[var(--rho-gold)] text-xs font-body">Lees meer →</p>
-          </div>
-          {lastUpdate.title && (
-            <p className="text-[var(--rho-cream)] font-display text-base mb-1">{lastUpdate.title}</p>
+          {/* Foto bovenaan als die er is */}
+          {lastUpdate.photo_urls && lastUpdate.photo_urls.length > 0 && (
+            <div className="relative">
+              <img
+                src={lastUpdate.photo_urls[0]}
+                alt=""
+                className="w-full aspect-video object-cover"
+              />
+              {lastUpdate.photo_urls.length > 1 && (
+                <span className="absolute bottom-2 right-2 bg-black/50 text-white text-xs font-body px-2 py-0.5 rounded-full">
+                  +{lastUpdate.photo_urls.length - 1}
+                </span>
+              )}
+            </div>
           )}
-          <p className="text-[var(--rho-cream)]/70 text-sm font-body line-clamp-3">{lastUpdate.body}</p>
-          <p className="text-[var(--rho-cream)]/30 text-xs font-body mt-2">
-            {formatDutchDate(lastUpdate.created_at)}
-          </p>
+          <div className="px-5 py-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
+                Laatste update
+              </p>
+              <p className="text-[var(--rho-gold)] text-xs font-body">Lees meer →</p>
+            </div>
+            {lastUpdate.title && (
+              <p className="text-[var(--rho-cream)] font-display text-base mb-1">{lastUpdate.title}</p>
+            )}
+            <p className="text-[var(--rho-cream)]/70 text-sm font-body line-clamp-2">{lastUpdate.body}</p>
+            <p className="text-[var(--rho-cream)]/30 text-xs font-body mt-2">
+              {formatDutchDate(lastUpdate.created_at)}
+            </p>
+          </div>
         </a>
       )}
 
