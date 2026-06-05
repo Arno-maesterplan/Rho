@@ -126,7 +126,7 @@ export function NieuweUpdate({ showForm }: Props) {
     setLoading(false);
 
     if (error) {
-      setFout(`Fout bij opslaan: ${error.message} (${fotos.length} fotos, ~${totaalKB}KB)`);
+      setFout(`Kon niet opslaan: ${error.message}`);
       return;
     }
 
