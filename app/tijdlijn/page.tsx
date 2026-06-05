@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getRhoAge, getCurrentLeap, formatDutchDate, WONDER_WEEKS, BIRTH_DATE } from "@/lib/rho";
 import { differenceInDays, differenceInWeeks } from "date-fns";
+import { TijdlijnClient } from "./TijdlijnClient";
 
 type Update = {
   id: string;
@@ -83,7 +84,8 @@ export default async function TijdlijnPage() {
   }
 
   return (
-    <main className="min-h-screen max-w-lg mx-auto px-5 py-8">
+    <TijdlijnClient>
+      <main className="min-h-screen max-w-lg mx-auto px-5 py-8">
       <header className="mb-8">
         <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
           Het verhaal van Rho
@@ -126,7 +128,11 @@ export default async function TijdlijnPage() {
               const heeftUpdates = item.updates.length > 0;
 
               return (
-                <div key={`ww-${ww.number}`} className="relative pl-16 pb-4">
+                <div
+                  key={`ww-${ww.number}`}
+                  className="relative pl-16 pb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                  data-sprong-num={ww.number}
+                >
                   <div className={`absolute left-4 top-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center text-[8px] transition-all ${
                     isCurrent
                       ? "bg-[var(--rho-gold)] border-[var(--rho-gold)] scale-125 shadow-lg shadow-[var(--rho-gold)]/30"
@@ -279,5 +285,6 @@ export default async function TijdlijnPage() {
         <img src="/sprites/kat-lopend.png" alt="" className="w-24 h-auto" style={{ transform: "scaleX(-1) rotate(5deg)" }} />
       </div>
     </main>
+    </TijdlijnClient>
   );
 }
