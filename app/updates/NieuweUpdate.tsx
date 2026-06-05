@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/Button";
 import { useRouter } from "next/navigation";
@@ -40,8 +40,6 @@ export function NieuweUpdate({ showForm }: Props) {
   const router = useRouter();
   const naam = useNaam();
   const supabase = createClient();
-  const fileRef = useRef<HTMLInputElement>(null);
-
   const [open, setOpen] = useState(showForm);
   const [titel, setTitel] = useState("");
   const [tekst, setTekst] = useState("");
@@ -73,7 +71,7 @@ export function NieuweUpdate({ showForm }: Props) {
       setFotoFout("Foto kon niet worden geladen. Probeer een andere foto.");
     }
     setFotoLoading(false);
-    if (fileRef.current) fileRef.current.value = "";
+    // input reset niet nodig — input zit in label, wordt automatisch gereset
   }
 
   async function plaatsen() {
@@ -199,38 +197,25 @@ export function NieuweUpdate({ showForm }: Props) {
         </div>
       )}
 
-      {/* Foto's */}
+      {/* Foto's — label ipv hidden input + ref voor iOS compatibiliteit */}
       <div>
-        <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
-          Foto&apos;s (max 4)
-        </label>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
-          onChange={onFotoKeuze}
-          className="hidden"
-        />
-        {/* Foto previews + toevoegen knop */}
+        <p className="text-[var(--rho-cream)]/60 text-xs font-body mb-2">
+          Foto&apos;s (max 4, één per keer)
+        </p>
         <div className="flex flex-wrap gap-2">
           {fotoDataUrls.map((src, i) => (
             <div key={i} className="relative w-20 h-20 shrink-0">
               <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
               <button
                 type="button"
-                onClick={() => setFotoDataUrls(fotoDataUrls.filter((_, j) => j !== i))}
+                onClick={() => setFotoDataUrls((prev) => prev.filter((_, j) => j !== i))}
                 className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center leading-none"
               >×</button>
             </div>
           ))}
 
           {fotoDataUrls.length < 4 && (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              disabled={fotoLoading}
-              className="w-20 h-20 shrink-0 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 flex flex-col items-center justify-center gap-1 text-[var(--rho-cream)]/40 hover:border-[var(--rho-cream)]/40 hover:text-[var(--rho-cream)]/60 transition-colors disabled:opacity-40"
-            >
+            <label className="w-20 h-20 shrink-0 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 flex flex-col items-center justify-center gap-1 text-[var(--rho-cream)]/40 cursor-pointer hover:border-[var(--rho-cream)]/40 hover:text-[var(--rho-cream)]/60 transition-colors">
               {fotoLoading ? (
                 <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
@@ -242,7 +227,14 @@ export function NieuweUpdate({ showForm }: Props) {
                   <span className="text-[10px] font-body">{fotoDataUrls.length === 0 ? "Foto" : "+"}</span>
                 </>
               )}
-            </button>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={onFotoKeuze}
+                className="sr-only"
+                disabled={fotoLoading}
+              />
+            </label>
           )}
         </div>
       </div>
