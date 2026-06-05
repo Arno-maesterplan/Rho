@@ -1,59 +1,41 @@
-import { createClient } from "@/lib/supabase/server";
-
 export const dynamic = "force-dynamic";
 
-export default async function GroeiPage() {
-  try {
-    const supabase = createClient();
+export default function GroeiPage() {
+  return (
+    <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
+      <header>
+        <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
+          Kind en Gezin groeicurves
+        </p>
+        <h1 className="font-display text-4xl text-[var(--rho-cream)]">Groei</h1>
+      </header>
 
-    const { data: metingen, error } = await supabase
-      .from("measurements")
-      .select("*")
-      .order("date", { ascending: true });
+      <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl p-6">
+        <p className="text-[var(--rho-cream)] font-body text-sm">
+          🚧 Groeicurves pagina in voorbereiding...
+        </p>
+        <p className="text-[var(--rho-cream)]/60 font-body text-xs mt-2">
+          Deze pagina toont binnenkort Kind en Gezin groeicurves met percentiles.
+        </p>
+      </div>
 
-    if (error) {
-      throw error;
-    }
+      <div className="space-y-3">
+        <h2 className="font-display text-lg text-[var(--rho-cream)]">Komende features:</h2>
+        <ul className="space-y-2 text-[var(--rho-cream)]/70 font-body text-sm">
+          <li>✓ Gewicht-voor-leeftijd grafiek</li>
+          <li>✓ Lengte-voor-leeftijd grafiek</li>
+          <li>✓ Hoofdomtrek-voor-leeftijd grafiek</li>
+          <li>✓ Gewicht-voor-lengte scatter chart</li>
+          <li>✓ Kind en Gezin percentiles (P1-P99)</li>
+        </ul>
+      </div>
 
-    return (
-      <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
-        <header>
-          <h1 className="font-display text-4xl text-[var(--rho-cream)]">Groei</h1>
-        </header>
-
-        <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl p-4">
-          <p className="text-[var(--rho-cream)] font-body">
-            Metingen in database: <strong>{metingen?.length || 0}</strong>
-          </p>
-        </div>
-
-        {metingen && metingen.length === 0 && (
-          <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
-            <p className="text-[var(--rho-cream)]/40 font-body text-sm">
-              Geen metingen. Voeg je eerste meting toe!
-            </p>
-          </div>
-        )}
-
-        {metingen && metingen.length > 0 && (
-          <div className="bg-[var(--rho-gold)]/10 border border-[var(--rho-gold)]/25 rounded-xl p-4">
-            <p className="text-[var(--rho-cream)] font-body text-sm">
-              ✓ {metingen.length} meting(en) gevonden!
-            </p>
-          </div>
-        )}
-      </main>
-    );
-  } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    return (
-      <main className="min-h-screen max-w-lg mx-auto px-5 py-8">
-        <h1 className="font-display text-4xl text-[var(--rho-cream)] mb-4">Groei</h1>
-        <div className="bg-red-900/30 border border-red-500/50 rounded-xl p-6">
-          <p className="text-red-300 font-body text-sm mb-2">❌ Error:</p>
-          <p className="text-red-200 font-mono text-xs break-words">{errorMsg}</p>
-        </div>
-      </main>
-    );
-  }
+      <a
+        href="/?new=1"
+        className="block text-center bg-[var(--rho-gold)]/20 hover:bg-[var(--rho-gold)]/30 text-[var(--rho-gold)] font-body py-3 rounded-xl transition-colors"
+      >
+        Terug naar startpagina
+      </a>
+    </main>
+  );
 }
