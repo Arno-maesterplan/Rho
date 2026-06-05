@@ -40,7 +40,7 @@ export default async function Dashboard() {
     <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-5">
       <header className="text-center pt-2 pb-1 flex flex-col items-center">
         <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
-          {formatDutchDate("2025-05-13")}
+          {formatDutchDate("2026-05-13")}
         </p>
         <h1 className="font-display text-5xl text-[var(--rho-cream)] leading-tight">Rho</h1>
         <p className="text-[var(--rho-cream)]/60 font-body text-sm mt-1">
