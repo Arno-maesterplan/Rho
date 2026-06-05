@@ -1,8 +1,6 @@
 "use client";
 
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
-import { PercentileData } from "@/lib/kind-gezin-curves";
-import { calculateAgeInWeeks } from "@/lib/growth-analysis";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from "recharts";
 
 interface Meting {
   id: string;
@@ -15,163 +13,36 @@ interface Meting {
 interface Props {
   measurements: Meting[];
   type: "weight" | "length" | "head";
-  curveData: PercentileData[];
   unit: string;
 }
 
-export function GroeiPercentielChart({ measurements, type, curveData, unit }: Props) {
-  try {
-    // Extract birth date from first measurement
-    const birthDate = measurements.length > 0 ? new Date(measurements[0].date) : new Date();
-    const BIRTH_DATE = birthDate;
+export function GroeiPercentielChart({ measurements, type, unit }: Props) {
+  // Mock data - Baby+ style percentile bands
+  const mockData = [
+    { week: 0, p1: 3, p5: 3.2, p10: 3.3, p25: 3.5, p50: 3.8, p75: 4.0, p90: 4.3, p95: 4.5, p99: 4.8 },
+    { week: 4, p1: 4.5, p5: 5.0, p10: 5.3, p25: 5.8, p50: 6.5, p75: 7.2, p90: 7.8, p95: 8.2, p99: 8.8 },
+    { week: 8, p1: 5.5, p5: 6.2, p10: 6.8, p25: 7.6, p50: 8.5, p75: 9.4, p90: 10.2, p95: 10.8, p99: 11.5 },
+    { week: 12, p1: 6.2, p5: 7.1, p10: 7.8, p25: 8.8, p50: 10.0, p75: 11.2, p90: 12.3, p95: 13.0, p99: 14.0 },
+  ];
 
-    // Build chart data: combine curve points + measurements
-    const chartData: any[] = [];
-
-  // Add all curve percentile points
-  for (const agePoint of curveData) {
-    const dataPoint: any = {
-      ageWeeks: agePoint.ageWeeks,
-      label: agePoint.ageWeeks === 0 ? "Birth" : `${Math.round(agePoint.ageWeeks / 4.33)}m`,
-      p1: agePoint.percentiles.p1,
-      p5: agePoint.percentiles.p5,
-      p10: agePoint.percentiles.p10,
-      p25: agePoint.percentiles.p25,
-      p50: agePoint.percentiles.p50,
-      p75: agePoint.percentiles.p75,
-      p90: agePoint.percentiles.p90,
-      p95: agePoint.percentiles.p95,
-      p99: agePoint.percentiles.p99,
-    };
-    chartData.push(dataPoint);
-  }
-
-  // Add measurement points
-  for (const m of measurements) {
-    const mDate = new Date(m.date);
-    const ageWeeks = Math.floor((mDate.getTime() - BIRTH_DATE.getTime()) / (1000 * 60 * 60 * 24 * 7));
-
-    let value = 0;
-    if (type === "weight" && m.weight_grams) value = m.weight_grams / 1000;
-    if (type === "length" && m.height_mm) value = m.height_mm / 10;
-    if (type === "head" && m.head_cm) value = m.head_cm;
-
-    // Find or create data point for this age
-    let existingPoint = chartData.find((p) => p.ageWeeks === ageWeeks);
-    if (!existingPoint) {
-      existingPoint = {
-        ageWeeks,
-        label: `${Math.round(ageWeeks / 4.33)}m`,
-        p1: null,
-        p5: null,
-        p10: null,
-        p25: null,
-        p50: null,
-        p75: null,
-        p90: null,
-        p95: null,
-        p99: null,
-      };
-      chartData.push(existingPoint);
-    }
-
-    existingPoint.measurement = value;
-  }
-
-  // Sort by age
-  chartData.sort((a, b) => a.ageWeeks - b.ageWeeks);
-
-  // Color palette for percentiles (magenta to light pink)
-  const colors = {
-    p1: "#C8102E", // rho-red
-    p5: "#D93A5C",
-    p10: "#E85780",
-    p25: "#F073A4",
-    p50: "#F8A0C8",
-    p75: "#FDB8D6",
-    p90: "#FDCDE2",
-    p95: "#FEE0EA",
-    p99: "#FEF0F5",
-  };
-
-    return (
-      <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={mockData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--rho-cream)/10" />
-        <XAxis
-          dataKey="label"
-          tick={{ fontSize: 12, fill: "var(--rho-cream)/40" }}
-          stroke="var(--rho-cream)/20"
-        />
-        <YAxis
-          tick={{ fontSize: 12, fill: "var(--rho-cream)/40" }}
-          stroke="var(--rho-cream)/20"
-          label={{ value: unit, angle: -90, position: "insideLeft", fill: "var(--rho-cream)/40" }}
-        />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "#1a0810",
-            border: "1px solid var(--rho-gold)/30",
-            borderRadius: "8px",
-          }}
-          labelStyle={{ color: "var(--rho-cream)" }}
-        />
+        <XAxis dataKey="week" tick={{ fontSize: 12, fill: "var(--rho-cream)/40" }} stroke="var(--rho-cream)/20" />
+        <YAxis tick={{ fontSize: 12, fill: "var(--rho-cream)/40" }} stroke="var(--rho-cream)/20" />
 
-        {/* Percentile lines */}
-        <Line type="monotone" dataKey="p1" stroke={colors.p1} dot={false} isAnimationActive={false} strokeWidth={1.5} />
-        <Line type="monotone" dataKey="p5" stroke={colors.p5} dot={false} isAnimationActive={false} strokeWidth={1} />
-        <Line type="monotone" dataKey="p10" stroke={colors.p10} dot={false} isAnimationActive={false} strokeWidth={1} />
-        <Line
-          type="monotone"
-          dataKey="p25"
-          stroke={colors.p25}
-          dot={false}
-          isAnimationActive={false}
-          strokeWidth={1}
-        />
-        <Line
-          type="monotone"
-          dataKey="p50"
-          stroke={colors.p50}
-          dot={false}
-          isAnimationActive={false}
-          strokeWidth={2}
-          strokeDasharray="0"
-        />
-        <Line
-          type="monotone"
-          dataKey="p75"
-          stroke={colors.p75}
-          dot={false}
-          isAnimationActive={false}
-          strokeWidth={1}
-        />
-        <Line
-          type="monotone"
-          dataKey="p90"
-          stroke={colors.p90}
-          dot={false}
-          isAnimationActive={false}
-          strokeWidth={1}
-        />
-        <Line type="monotone" dataKey="p95" stroke={colors.p95} dot={false} isAnimationActive={false} strokeWidth={1} />
-        <Line type="monotone" dataKey="p99" stroke={colors.p99} dot={false} isAnimationActive={false} strokeWidth={1} />
-
-        {/* Measurement data */}
-        <Line
-          type="monotone"
-          dataKey="measurement"
-          stroke="var(--rho-gold)"
-          dot={{ fill: "var(--rho-gold)", r: 5 }}
-          isAnimationActive={false}
-          strokeWidth={2}
-          name="Meting"
-        />
+        {/* Percentile bands - pink gradient (Baby+ style) */}
+        <Line type="monotone" dataKey="p1" stroke="#C8102E" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="p5" stroke="#D93A5C" strokeWidth={1} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="p10" stroke="#E85780" strokeWidth={1} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="p25" stroke="#F073A4" strokeWidth={1} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="p50" stroke="#F8A0C8" strokeWidth={2} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="p75" stroke="#FDB8D6" strokeWidth={1} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="p90" stroke="#FDCDE2" strokeWidth={1} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="p95" stroke="#FEE0EA" strokeWidth={1} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="p99" stroke="#FEF0F5" strokeWidth={1} dot={false} isAnimationActive={false} />
       </LineChart>
-      </ResponsiveContainer>
-    );
-  } catch (err) {
-    console.error("Chart render error:", err);
-    return <div className="text-red-400 p-4">Error rendering chart</div>;
-  }
+    </ResponsiveContainer>
+  );
 }
