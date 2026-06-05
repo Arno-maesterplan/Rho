@@ -20,12 +20,13 @@ interface Props {
 }
 
 export function GroeiPercentielChart({ measurements, type, curveData, unit }: Props) {
-  // Extract birth date from first measurement
-  const birthDate = measurements.length > 0 ? new Date(measurements[0].date) : new Date();
-  const BIRTH_DATE = birthDate;
+  try {
+    // Extract birth date from first measurement
+    const birthDate = measurements.length > 0 ? new Date(measurements[0].date) : new Date();
+    const BIRTH_DATE = birthDate;
 
-  // Build chart data: combine curve points + measurements
-  const chartData: any[] = [];
+    // Build chart data: combine curve points + measurements
+    const chartData: any[] = [];
 
   // Add all curve percentile points
   for (const agePoint of curveData) {
@@ -93,8 +94,8 @@ export function GroeiPercentielChart({ measurements, type, curveData, unit }: Pr
     p99: "#FEF0F5",
   };
 
-  return (
-    <ResponsiveContainer width="100%" height={300}>
+    return (
+      <ResponsiveContainer width="100%" height={300}>
       <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--rho-cream)/10" />
         <XAxis
@@ -167,6 +168,10 @@ export function GroeiPercentielChart({ measurements, type, curveData, unit }: Pr
           name="Meting"
         />
       </LineChart>
-    </ResponsiveContainer>
-  );
+      </ResponsiveContainer>
+    );
+  } catch (err) {
+    console.error("Chart render error:", err);
+    return <div className="text-red-400 p-4">Error rendering chart</div>;
+  }
 }

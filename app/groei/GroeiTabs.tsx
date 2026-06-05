@@ -39,59 +39,70 @@ export function GroeiTabs({ measurements, onAddClick }: Props) {
     );
   }
 
-  return (
-    <div className="space-y-4">
-      {/* Tab Buttons */}
-      <div className="flex gap-2 border-b border-[var(--rho-cream)]/10 overflow-x-auto">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-3 font-body text-sm transition-colors whitespace-nowrap ${
-              activeTab === tab.id
-                ? "text-[var(--rho-gold)] border-b-2 border-[var(--rho-gold)]"
-                : "text-[var(--rho-cream)]/60 hover:text-[var(--rho-cream)]/80"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+  try {
+    return (
+      <div className="space-y-4">
+        {/* Tab Buttons */}
+        <div className="flex gap-2 border-b border-[var(--rho-cream)]/10 overflow-x-auto">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-3 font-body text-sm transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "text-[var(--rho-gold)] border-b-2 border-[var(--rho-gold)]"
+                  : "text-[var(--rho-cream)]/60 hover:text-[var(--rho-cream)]/80"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div>
+          {activeTab === "gewicht" && (
+            <GroeiTabContent
+              measurements={measurements}
+              type="weight"
+              label="Gewicht"
+              unit="kg"
+              onAddClick={() => onAddClick("weight")}
+            />
+          )}
+
+          {activeTab === "lengte" && (
+            <GroeiTabContent
+              measurements={measurements}
+              type="length"
+              label="Lengte"
+              unit="cm"
+              onAddClick={() => onAddClick("length")}
+            />
+          )}
+
+          {activeTab === "hoofd" && (
+            <GroeiTabContent
+              measurements={measurements}
+              type="head"
+              label="Hoofdomtrek"
+              unit="cm"
+              onAddClick={() => onAddClick("head")}
+            />
+          )}
+
+          {activeTab === "overzicht" && (
+            <GroeiOverzichtTab measurements={measurements} onAddClick={() => onAddClick()} />
+          )}
+        </div>
       </div>
-
-      {/* Tab Content */}
-      <div>
-        {activeTab === "gewicht" && (
-          <GroeiTabContent
-            measurements={measurements}
-            type="weight"
-            label="Gewicht"
-            unit="kg"
-            onAddClick={() => onAddClick("weight")}
-          />
-        )}
-
-        {activeTab === "lengte" && (
-          <GroeiTabContent
-            measurements={measurements}
-            type="length"
-            label="Lengte"
-            unit="cm"
-            onAddClick={() => onAddClick("length")}
-          />
-        )}
-
-        {activeTab === "hoofd" && (
-          <GroeiTabContent
-            measurements={measurements}
-            type="head"
-            label="Hoofdomtrek"
-            unit="cm"
-            onAddClick={() => onAddClick("head")}
-          />
-        )}
-
-        {activeTab === "overzicht" && <GroeiOverzichtTab measurements={measurements} onAddClick={() => onAddClick()} />}
+    );
+  } catch (err) {
+    console.error("GroeiTabs render error:", err);
+    return (
+      <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-4">
+        <p className="text-red-300 text-sm">Error rendering growth tabs</p>
       </div>
-    </div>
-  );
+    );
+  }
 }
