@@ -1,15 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { GroeiTabs } from "./GroeiTabs";
-import { MetingenTabel } from "./MetingenTabel";
-import { MetingFormulier } from "./MetingFormulier";
 
 export const dynamic = "force-dynamic";
 
-export default async function GroeiPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ new?: string }>;
-}) {
+export default async function GroeiPage() {
   try {
     const supabase = createClient();
 
@@ -19,66 +12,46 @@ export default async function GroeiPage({
       .order("date", { ascending: true });
 
     if (error) {
-      console.error("Supabase error:", error);
-      throw new Error(`Database error: ${error.message}`);
+      throw error;
     }
 
-    const params = await searchParams;
-    const showForm = params.new === "1";
-
-    return (
-      <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
-      <header>
-        <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
-          Kind en Gezin groeicurves
-        </p>
-        <h1 className="font-display text-4xl text-[var(--rho-cream)]">Groei</h1>
-      </header>
-
-      {/* Metingen tabel */}
-      {metingen && metingen.length > 0 && (
-        <div>
-          <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-2">
-            Alle metingen
-          </p>
-          <MetingenTabel measurements={metingen} />
-        </div>
-      )}
-
-      {/* Groei tabs - ALWAYS show, even without measurements */}
-      <div>
-        <GroeiTabs measurements={metingen ?? []} onAddClick={(type) => {}} />
-      </div>
-
-      {(!metingen || metingen.length === 0) && (
-        <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
-          <p className="text-[var(--rho-cream)]/40 font-body text-sm">
-            👇 Voeg jouw eerste meting toe om Rho's groei te volgen
-          </p>
-        </div>
-      )}
-
-      {/* Meting formulier */}
-      <MetingFormulier showForm={showForm} />
-
-      {/* Decoratief huisje */}
-      <div className="flex justify-end pt-6 pointer-events-none select-none opacity-25" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sprites/huisje.png" alt="" className="w-24 h-auto" style={{ transform: "rotate(-8deg)" }} />
-      </div>
-      </main>
-    );
-  } catch (error) {
-    console.error("Groei page error:", error);
     return (
       <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
         <header>
           <h1 className="font-display text-4xl text-[var(--rho-cream)]">Groei</h1>
         </header>
-        <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-6">
-          <p className="text-red-300 font-body">
-            Error loading groei page: {error instanceof Error ? error.message : "Unknown error"}
+
+        <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl p-4">
+          <p className="text-[var(--rho-cream)] font-body">
+            Metingen in database: <strong>{metingen?.length || 0}</strong>
           </p>
+        </div>
+
+        {metingen && metingen.length === 0 && (
+          <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
+            <p className="text-[var(--rho-cream)]/40 font-body text-sm">
+              Geen metingen. Voeg je eerste meting toe!
+            </p>
+          </div>
+        )}
+
+        {metingen && metingen.length > 0 && (
+          <div className="bg-[var(--rho-gold)]/10 border border-[var(--rho-gold)]/25 rounded-xl p-4">
+            <p className="text-[var(--rho-cream)] font-body text-sm">
+              ✓ {metingen.length} meting(en) gevonden!
+            </p>
+          </div>
+        )}
+      </main>
+    );
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    return (
+      <main className="min-h-screen max-w-lg mx-auto px-5 py-8">
+        <h1 className="font-display text-4xl text-[var(--rho-cream)] mb-4">Groei</h1>
+        <div className="bg-red-900/30 border border-red-500/50 rounded-xl p-6">
+          <p className="text-red-300 font-body text-sm mb-2">❌ Error:</p>
+          <p className="text-red-200 font-mono text-xs break-words">{errorMsg}</p>
         </div>
       </main>
     );
