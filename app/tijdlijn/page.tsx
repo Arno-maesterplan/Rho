@@ -219,11 +219,11 @@ export default async function TijdlijnPage() {
             if (item.type === "milestone") {
               const m = item.data;
               return (
-                <div key={`m-${m.title}-${i}`} className="relative pl-16 pb-4">
-                  <div className="absolute left-3.5 top-1 w-6 h-6 rounded-full bg-[var(--rho-gold)]/80 border-2 border-[var(--rho-gold)] flex items-center justify-center shadow-md shadow-[var(--rho-gold)]/20">
+                <div key={`m-${m.title}-${i}`} className="relative pl-16 pb-4 cursor-pointer group">
+                  <div className="absolute left-3.5 top-1 w-6 h-6 rounded-full bg-[var(--rho-gold)]/80 border-2 border-[var(--rho-gold)] flex items-center justify-center shadow-md shadow-[var(--rho-gold)]/20 transition-all group-hover:scale-110">
                     <span className="text-xs">{m.emoji}</span>
                   </div>
-                  <div className="bg-[var(--rho-gold)]/10 border border-[var(--rho-gold)]/25 rounded-xl p-3">
+                  <div className="bg-[var(--rho-gold)]/10 border border-[var(--rho-gold)]/25 rounded-xl p-3 transition-colors group-hover:bg-[var(--rho-gold)]/15">
                     <p className="text-[var(--rho-gold)] text-[10px] font-body uppercase tracking-wider">
                       Milestone · {weekLabel(item.datum)}
                     </p>
@@ -242,11 +242,11 @@ export default async function TijdlijnPage() {
             if (item.type === "update") {
               const u = item.data;
               return (
-                <div key={`u-${u.id}`} className="relative pl-16 pb-4">
-                  <div className="absolute left-4 top-1.5 w-5 h-5 rounded-full bg-[var(--rho-cream)]/15 border-2 border-[var(--rho-cream)]/20 flex items-center justify-center">
+                <div key={`u-${u.id}`} className="relative pl-16 pb-4 cursor-pointer group">
+                  <div className="absolute left-4 top-1.5 w-5 h-5 rounded-full bg-[var(--rho-cream)]/15 border-2 border-[var(--rho-cream)]/20 flex items-center justify-center transition-all group-hover:bg-[var(--rho-cream)]/25 group-hover:scale-110">
                     <span className="text-[8px]">✍</span>
                   </div>
-                  <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl overflow-hidden">
+                  <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl overflow-hidden transition-colors group-hover:bg-[var(--rho-cream)]/8">
                     {u.photo_urls && u.photo_urls.length > 0 && (
                       <img src={u.photo_urls[0]} alt="" className="w-full aspect-video object-cover" />
                     )}
