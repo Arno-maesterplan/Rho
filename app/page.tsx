@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getRhoAge, getCurrentLeap, formatDutchDate } from "@/lib/rho";
 import { differenceInDays } from "date-fns";
 import { NaamWeergave } from "@/components/NaamWeergave";
+import { SprongDetail } from "@/components/SprongDetail";
 
 export default async function Dashboard() {
   const supabase = createClient();
@@ -90,71 +91,75 @@ export default async function Dashboard() {
           )}
         </div>
 
-        {activeLeap ? (
-          <div className="relative space-y-2">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">{isInStorm ? "⛈️" : activeLeap.emoji}</span>
-              <span
-                className={`text-xs font-body uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                  isInStorm
-                    ? "bg-purple-500/20 text-purple-200"
-                    : "bg-[var(--rho-cream)]/10 text-[var(--rho-cream)]/70"
-                }`}
-              >
-                {isInStorm ? "Storm" : "Sprong in zicht"}
-              </span>
-            </div>
-            <h2 className="font-display text-xl text-[var(--rho-cream)] leading-snug">
-              Sprong {activeLeap.number}: {activeLeap.name}
-            </h2>
-            <p className="text-[var(--rho-cream)]/70 text-sm font-body leading-relaxed">
-              {activeLeap.description}
-            </p>
-            {isInStorm && (
-              <div className="mt-3 pt-3 border-t border-[var(--rho-cream)]/10 space-y-1">
-                {activeLeap.tips.slice(0, 3).map((tip, i) => (
-                  <p key={i} className="text-[var(--rho-gold)] text-sm font-body">✦ {tip}</p>
-                ))}
+        <SprongDetail sprongNum={activeLeap?.number ?? null}>
+          {activeLeap ? (
+            <div className="relative space-y-2">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">{isInStorm ? "⛈️" : activeLeap.emoji}</span>
+                <span
+                  className={`text-xs font-body uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    isInStorm
+                      ? "bg-purple-500/20 text-purple-200"
+                      : "bg-[var(--rho-cream)]/10 text-[var(--rho-cream)]/70"
+                  }`}
+                >
+                  {isInStorm ? "Storm" : "Sprong in zicht"}
+                </span>
               </div>
-            )}
-          </div>
-        ) : (
-          <div className="relative space-y-2">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">☀️</span>
-              <span className="text-xs font-body uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--rho-gold)]/20 text-[var(--rho-gold)]">
-                Zonneschijn
-              </span>
+              <h2 className="font-display text-xl text-[var(--rho-cream)] leading-snug">
+                Sprong {activeLeap.number}: {activeLeap.name}
+              </h2>
+              <p className="text-[var(--rho-cream)]/70 text-sm font-body leading-relaxed">
+                {activeLeap.description}
+              </p>
+              {isInStorm && (
+                <div className="mt-3 pt-3 border-t border-[var(--rho-cream)]/10 space-y-1">
+                  {activeLeap.tips.slice(0, 3).map((tip, i) => (
+                    <p key={i} className="text-[var(--rho-gold)] text-sm font-body">✦ {tip}</p>
+                  ))}
+                </div>
+              )}
             </div>
-            <h2 className="font-display text-xl text-[var(--rho-cream)]">Rustige periode</h2>
-            <p className="text-[var(--rho-cream)]/70 text-sm font-body">
-              Rho zit tussen twee sprongen in. Geniet van de zonneschijn!
-            </p>
-          </div>
-        )}
+          ) : (
+            <div className="relative space-y-2">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">☀️</span>
+                <span className="text-xs font-body uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--rho-gold)]/20 text-[var(--rho-gold)]">
+                  Zonneschijn
+                </span>
+              </div>
+              <h2 className="font-display text-xl text-[var(--rho-cream)]">Rustige periode</h2>
+              <p className="text-[var(--rho-cream)]/70 text-sm font-body">
+                Rho zit tussen twee sprongen in. Geniet van de zonneschijn!
+              </p>
+            </div>
+          )}
+        </SprongDetail>
       </div>
 
       {/* Volgende sprong */}
       {nextLeap && daysUntilNext !== null && (
-        <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4 flex items-center gap-4">
-          <span className="text-2xl">{nextLeap.emoji}</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
-              Volgende sprong
-            </p>
-            <p className="text-[var(--rho-cream)] font-display text-base leading-snug truncate">
-              {nextLeap.name}
-            </p>
+        <SprongDetail sprongNum={nextLeap.number}>
+          <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4 flex items-center gap-4 hover:bg-[var(--rho-cream)]/12 transition-colors">
+            <span className="text-2xl">{nextLeap.emoji}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
+                Volgende sprong
+              </p>
+              <p className="text-[var(--rho-cream)] font-display text-base leading-snug truncate">
+                {nextLeap.name}
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="font-display text-2xl text-[var(--rho-gold)]">
+                {daysUntilNext > 0 ? daysUntilNext : 0}
+              </p>
+              <p className="text-[var(--rho-cream)]/40 text-xs font-body">
+                {daysUntilNext === 1 ? "dag" : "dagen"}
+              </p>
+            </div>
           </div>
-          <div className="text-right shrink-0">
-            <p className="font-display text-2xl text-[var(--rho-gold)]">
-              {daysUntilNext > 0 ? daysUntilNext : 0}
-            </p>
-            <p className="text-[var(--rho-cream)]/40 text-xs font-body">
-              {daysUntilNext === 1 ? "dag" : "dagen"}
-            </p>
-          </div>
-        </div>
+        </SprongDetail>
       )}
 
       {/* Laatste milestone */}
