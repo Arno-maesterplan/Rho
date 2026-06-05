@@ -3,6 +3,8 @@ import { GroeiTabs } from "./GroeiTabs";
 import { MetingenTabel } from "./MetingenTabel";
 import { MetingFormulier } from "./MetingFormulier";
 
+export const dynamic = "force-dynamic";
+
 export default async function GroeiPage({
   searchParams,
 }: {
