@@ -61,17 +61,17 @@ export default async function Dashboard() {
           <NaamWeergave />
         </div>
 
-        {/* Kat links */}
+        {/* Kat links op koord */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sprites/kat-links.png" alt="" aria-hidden="true"
-          className="zweef absolute left-0 top-0 w-20 h-auto pointer-events-none select-none"
-          style={{ opacity: 0.7, animationDelay: "2s" }} />
+        <img src="/sprites/kat-koord.png" alt="" aria-hidden="true"
+          className="zweef absolute left-2 top-12 w-24 h-auto pointer-events-none select-none"
+          style={{ opacity: 0.85, animationDelay: "1s" }} />
 
-        {/* Meisje rechts */}
+        {/* Meisje rechts op koord */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sprites/meisje.png" alt="" aria-hidden="true"
-          className="zweef absolute right-0 bottom-4 w-16 h-auto pointer-events-none select-none"
-          style={{ opacity: 0.75 }} />
+        <img src="/sprites/meisje-new.png" alt="" aria-hidden="true"
+          className="zweef absolute right-2 top-8 w-32 h-auto pointer-events-none select-none"
+          style={{ opacity: 0.85 }} />
 
       </header>
 
