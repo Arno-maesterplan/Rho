@@ -141,38 +141,46 @@ export default async function Dashboard() {
 
       {/* Laatste milestone */}
       {lastMilestone && (
-        <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4">
-          <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider mb-2">
-            Laatste milestone
-          </p>
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{lastMilestone.emoji}</span>
-            <div>
-              <p className="text-[var(--rho-cream)] font-body text-sm font-medium">
-                {lastMilestone.title}
-              </p>
-              <p className="text-[var(--rho-cream)]/40 text-xs font-body">
-                {formatDutchDate(lastMilestone.date)}
-              </p>
-            </div>
+        <a
+          href="/milestones"
+          className="flex items-center gap-3 bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4 hover:bg-[var(--rho-cream)]/12 transition-colors"
+        >
+          <span className="text-2xl">{lastMilestone.emoji}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
+              Laatste milestone
+            </p>
+            <p className="text-[var(--rho-cream)] font-body text-sm font-medium truncate">
+              {lastMilestone.title}
+            </p>
+            <p className="text-[var(--rho-cream)]/40 text-xs font-body">
+              {formatDutchDate(lastMilestone.date)}
+            </p>
           </div>
-        </div>
+          <p className="text-[var(--rho-gold)] text-xs font-body shrink-0">→</p>
+        </a>
       )}
 
       {/* Laatste update */}
       {lastUpdate && (
-        <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4">
-          <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider mb-2">
-            Laatste update
-          </p>
+        <a
+          href="/updates"
+          className="block bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl px-5 py-4 hover:bg-[var(--rho-cream)]/12 transition-colors"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[var(--rho-cream)]/50 text-xs font-body uppercase tracking-wider">
+              Laatste update
+            </p>
+            <p className="text-[var(--rho-gold)] text-xs font-body">Lees meer →</p>
+          </div>
           {lastUpdate.title && (
             <p className="text-[var(--rho-cream)] font-display text-base mb-1">{lastUpdate.title}</p>
           )}
-          <p className="text-[var(--rho-cream)]/70 text-sm font-body line-clamp-2">{lastUpdate.body}</p>
+          <p className="text-[var(--rho-cream)]/70 text-sm font-body line-clamp-3">{lastUpdate.body}</p>
           <p className="text-[var(--rho-cream)]/30 text-xs font-body mt-2">
             {formatDutchDate(lastUpdate.created_at)}
           </p>
-        </div>
+        </a>
       )}
 
       {/* Snelle acties */}
