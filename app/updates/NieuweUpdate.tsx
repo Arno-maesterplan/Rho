@@ -78,6 +78,10 @@ export function NieuweUpdate({ showForm }: Props) {
     setLoading(true);
     setFout(null);
 
+    // Debug: toon hoeveel fotos en grootte
+    const totaalKB = fotos.reduce((acc, f) => acc + Math.round(f.length / 1024), 0);
+    console.log(`Plaatsen: ${fotos.length} fotos, totaal ~${totaalKB}KB`);
+
     const { error } = await supabase.from("updates").insert({
       title: titel.trim() || null,
       body: tekst.trim(),
@@ -90,7 +94,7 @@ export function NieuweUpdate({ showForm }: Props) {
     setLoading(false);
 
     if (error) {
-      setFout(`Kon niet opslaan: ${error.message}`);
+      setFout(`Fout bij opslaan: ${error.message} (${fotos.length} fotos, ~${totaalKB}KB)`);
       return;
     }
 
@@ -195,6 +199,14 @@ export function NieuweUpdate({ showForm }: Props) {
           </div>
         )}
       </div>
+
+      {/* Debug info */}
+      {fotos.length > 0 && (
+        <p className="text-[var(--rho-cream)]/40 text-xs font-body">
+          ✓ {fotos.length} foto{fotos.length > 1 ? "'s" : ""} geladen
+          (~{fotos.reduce((a, f) => a + Math.round(f.length / 1024), 0)}KB)
+        </p>
+      )}
 
       {fout && (
         <p className="text-red-300 text-xs font-body bg-red-900/20 rounded-lg px-3 py-2">{fout}</p>
