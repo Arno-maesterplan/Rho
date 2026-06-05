@@ -136,18 +136,33 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   async function bewerkOpslaan() {
     if (!editMilestone) return;
     setLoading(true);
-    await supabase.from("milestones").update({
+
+    console.log("Milestone bewerken:", {
+      title: editMilestone.title,
+      datum,
+      nota: nota || null,
+      fotos: fotos.length,
+    });
+
+    const { error } = await supabase.from("milestones").update({
       date: datum,
       description: nota || null,
       photo_urls: fotos.length > 0 ? fotos : null,
       photo_url: fotos.length > 0 ? fotos[0] : null,
     }).eq("title", editMilestone.title);
+
     setLoading(false);
-    setEditMilestone(null);
-    setNota("");
-    setFotos([]);
-    setBekeken(null);
-    router.refresh();
+
+    if (error) {
+      console.error("Milestone opslaan fout:", error);
+    } else {
+      console.log("✓ Milestone opgeslagen");
+      setEditMilestone(null);
+      setNota("");
+      setFotos([]);
+      setBekeken(null);
+      router.refresh();
+    }
   }
 
   const inputClass = "w-full bg-[var(--rho-cream)]/10 border border-[var(--rho-cream)]/20 rounded-xl px-4 py-3 text-[var(--rho-cream)] text-sm font-body focus:outline-none focus:border-[var(--rho-gold)]/50 transition-colors";

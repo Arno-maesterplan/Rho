@@ -212,7 +212,7 @@ export default async function Dashboard() {
             )}
             <p className="text-[var(--rho-cream)]/70 text-sm font-body line-clamp-2">{lastUpdate.body}</p>
             <p className="text-[var(--rho-cream)]/30 text-xs font-body mt-2">
-              {formatDutchDate(lastUpdate.created_at)}
+              {formatDutchDate(lastUpdate.date ?? lastUpdate.created_at)}
             </p>
           </div>
         </a>
