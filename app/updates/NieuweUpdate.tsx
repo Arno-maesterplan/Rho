@@ -26,6 +26,7 @@ export function NieuweUpdate({ showForm }: Props) {
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [fotoFout, setFotoFout] = useState<string | null>(null);
 
   const { weeks } = getRhoAge();
 
@@ -45,9 +46,16 @@ export function NieuweUpdate({ showForm }: Props) {
     setLoading(true);
 
     const fotoUrls: string[] = [];
+    setFotoFout(null);
     for (const foto of fotos) {
       const pad = `updates/${Date.now()}-${foto.name.replace(/\s/g, "_")}`;
-      const { data } = await supabase.storage.from("photos").upload(pad, foto);
+      const { data, error } = await supabase.storage.from("photos").upload(pad, foto);
+      if (error) {
+        console.error("Upload fout:", error);
+        setFotoFout(`Foto kon niet worden opgeslagen: ${error.message}`);
+        setLoading(false);
+        return;
+      }
       if (data) {
         const { data: url } = supabase.storage.from("photos").getPublicUrl(data.path);
         fotoUrls.push(url.publicUrl);
@@ -208,6 +216,12 @@ export function NieuweUpdate({ showForm }: Props) {
           </button>
         )}
       </div>
+
+      {fotoFout && (
+        <p className="text-red-300 text-xs font-body bg-red-900/20 rounded-lg px-3 py-2">
+          {fotoFout}
+        </p>
+      )}
 
       <div className="flex gap-3">
         <Button variant="ghost" className="flex-1" onClick={() => setOpen(false)} disabled={loading}>

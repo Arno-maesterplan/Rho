@@ -71,8 +71,10 @@ function UpdateKaart({ update }: { update: Update }) {
     const geuploadUrls: string[] = [];
     for (const foto of nieuwefotos) {
       const pad = `updates/${Date.now()}-${foto.name.replace(/\s/g, "_")}`;
-      const { data } = await supabase.storage.from("photos").upload(pad, foto);
-      if (data) {
+      const { data, error } = await supabase.storage.from("photos").upload(pad, foto);
+      if (error) {
+        console.error("Upload fout bij bewerken:", error);
+      } else if (data) {
         const { data: url } = supabase.storage.from("photos").getPublicUrl(data.path);
         geuploadUrls.push(url.publicUrl);
       }
