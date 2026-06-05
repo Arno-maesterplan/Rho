@@ -28,16 +28,7 @@ const TABS: Array<{ id: TabType; label: string }> = [
 
 export function GroeiTabs({ measurements, onAddClick }: Props) {
   const [activeTab, setActiveTab] = useState<TabType>("gewicht");
-
-  if (!measurements || measurements.length === 0) {
-    return (
-      <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl p-6 text-center">
-        <p className="text-[var(--rho-cream)]/60 font-body text-sm">
-          Voeg metingen toe om de groeicurves te zien
-        </p>
-      </div>
-    );
-  }
+  const safeMetings = measurements || [];
 
   try {
     return (
@@ -63,7 +54,7 @@ export function GroeiTabs({ measurements, onAddClick }: Props) {
         <div>
           {activeTab === "gewicht" && (
             <GroeiTabContent
-              measurements={measurements}
+              measurements={safeMetings}
               type="weight"
               label="Gewicht"
               unit="kg"
@@ -73,7 +64,7 @@ export function GroeiTabs({ measurements, onAddClick }: Props) {
 
           {activeTab === "lengte" && (
             <GroeiTabContent
-              measurements={measurements}
+              measurements={safeMetings}
               type="length"
               label="Lengte"
               unit="cm"
@@ -83,7 +74,7 @@ export function GroeiTabs({ measurements, onAddClick }: Props) {
 
           {activeTab === "hoofd" && (
             <GroeiTabContent
-              measurements={measurements}
+              measurements={safeMetings}
               type="head"
               label="Hoofdomtrek"
               unit="cm"
@@ -92,7 +83,7 @@ export function GroeiTabs({ measurements, onAddClick }: Props) {
           )}
 
           {activeTab === "overzicht" && (
-            <GroeiOverzichtTab measurements={measurements} onAddClick={() => onAddClick()} />
+            <GroeiOverzichtTab measurements={safeMetings} onAddClick={() => onAddClick()} />
           )}
         </div>
       </div>
