@@ -145,7 +145,7 @@ function UpdateKaart({ update }: { update: Update }) {
     const geuploadUrls: string[] = [];
     for (const foto of nieuwefotos) {
       try {
-        const dataUrl = await leesAlsDataUrl(foto);
+        const dataUrl = await comprimeerFoto(foto);
         geuploadUrls.push(dataUrl);
       } catch (e) {
         console.error("Foto laden mislukt:", e);
