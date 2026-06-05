@@ -9,23 +9,12 @@ import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 import { Button } from "@/components/Button";
 
-function fotoNaarDataUrl(file: File): Promise<string> {
+function leesAlsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      const maxBreedte = 1200;
-      const schaal = Math.min(1, maxBreedte / img.width);
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width * schaal;
-      canvas.height = img.height * schaal;
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL("image/jpeg", 0.82));
-    };
-    img.onerror = reject;
-    img.src = objectUrl;
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Kon foto niet lezen"));
+    reader.readAsDataURL(file);
   });
 }
 
@@ -75,10 +64,17 @@ function UpdateKaart({ update }: { update: Update }) {
 
   const isEigenUpdate = !update.author_name || update.author_name === naam || naam === "Arno" || naam === "Céline";
 
-  function onNieuweFoto(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []).slice(0, 4 - bewerkFotos.length);
-    setNieuwefotos(files);
-    setNieuwePreviews(files.map((f) => URL.createObjectURL(f)));
+  async function onNieuweFoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await leesAlsDataUrl(file);
+      setNieuwefotos((prev) => [...prev, file]);
+      setNieuwePreviews((prev) => [...prev, dataUrl]);
+    } catch {
+      console.error("Foto laden mislukt");
+    }
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   function fotoVerwijderen(url: string) {
@@ -91,7 +87,7 @@ function UpdateKaart({ update }: { update: Update }) {
     const geuploadUrls: string[] = [];
     for (const foto of nieuwefotos) {
       try {
-        const dataUrl = await fotoNaarDataUrl(foto);
+        const dataUrl = await leesAlsDataUrl(foto);
         geuploadUrls.push(dataUrl);
       } catch (e) {
         console.error("Foto laden mislukt:", e);
@@ -202,7 +198,7 @@ function UpdateKaart({ update }: { update: Update }) {
             <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
               Foto&apos;s toevoegen {bewerkFotos.length > 0 ? `(nog ${4 - bewerkFotos.length} mogelijk)` : ""}
             </label>
-            <input ref={fileRef} type="file" accept="image/*" multiple onChange={onNieuweFoto} className="hidden" />
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/heic,image/heif,image/webp" onChange={onNieuweFoto} className="hidden" />
             {nieuwePreviews.length > 0 ? (
               <div className="grid grid-cols-4 gap-2">
                 {nieuwePreviews.map((src, i) => (

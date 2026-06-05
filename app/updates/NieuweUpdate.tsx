@@ -7,27 +7,11 @@ import { useRouter } from "next/navigation";
 import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 
-function fotoNaarDataUrl(file: File): Promise<string> {
+function leesAlsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
-      // Verklein via canvas
-      const img = new Image();
-      img.onload = () => {
-        const maxBreedte = 1200;
-        const schaal = Math.min(1, maxBreedte / img.width);
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * schaal);
-        canvas.height = Math.round(img.height * schaal);
-        const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.82));
-      };
-      img.onerror = reject;
-      img.src = dataUrl;
-    };
-    reader.onerror = reject;
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Kon foto niet lezen"));
     reader.readAsDataURL(file);
   });
 }
@@ -61,18 +45,17 @@ export function NieuweUpdate({ showForm }: Props) {
   );
 
   async function onFotoKeuze(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []).slice(0, 4);
-    if (files.length === 0) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
     setFotoLoading(true);
     setFotoFout(null);
     try {
-      const urls = await Promise.all(files.map(fotoNaarDataUrl));
-      setFotoDataUrls(urls);
+      const dataUrl = await leesAlsDataUrl(file);
+      setFotoDataUrls((prev) => [...prev, dataUrl].slice(0, 4));
     } catch {
       setFotoFout("Foto kon niet worden geladen. Probeer een andere foto.");
     }
     setFotoLoading(false);
-    // Reset input zodat dezelfde foto opnieuw gekozen kan worden
     if (fileRef.current) fileRef.current.value = "";
   }
 
@@ -207,8 +190,7 @@ export function NieuweUpdate({ showForm }: Props) {
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
-          multiple
+          accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
           onChange={onFotoKeuze}
           className="hidden"
         />
