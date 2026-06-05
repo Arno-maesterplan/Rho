@@ -11,7 +11,7 @@ export default async function MilestonesPage() {
     .order("date", { ascending: true });
 
   return (
-    <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6">
+    <main className="min-h-screen max-w-lg mx-auto px-5 py-8 space-y-6 pb-20">
       <header>
         <p className="text-[var(--rho-gold)] text-xs tracking-widest uppercase font-body mb-1">
           Rho&apos;s eerste jaar
