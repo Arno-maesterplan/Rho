@@ -9,22 +9,26 @@ import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 
 function fotoNaarDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    // Verklein de foto eerst voor opslag
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      const maxBreedte = 1200;
-      const schaal = Math.min(1, maxBreedte / img.width);
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width * schaal;
-      canvas.height = img.height * schaal;
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL("image/jpeg", 0.82));
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      // Verklein via canvas
+      const img = new Image();
+      img.onload = () => {
+        const maxBreedte = 1200;
+        const schaal = Math.min(1, maxBreedte / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * schaal);
+        canvas.height = Math.round(img.height * schaal);
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.onerror = reject;
+      img.src = dataUrl;
     };
-    img.onerror = reject;
-    img.src = objectUrl;
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
 
@@ -43,8 +47,8 @@ export function NieuweUpdate({ showForm }: Props) {
   const [tekst, setTekst] = useState("");
   const [datum, setDatum] = useState(new Date().toISOString().split("T")[0]);
   const [gelinkteSprong, setGelinkteSprong] = useState<number | null>(null);
-  const [fotos, setFotos] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [fotoDataUrls, setFotoDataUrls] = useState<string[]>([]);
+  const [fotoLoading, setFotoLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [fotoFout, setFotoFout] = useState<string | null>(null);
@@ -56,28 +60,27 @@ export function NieuweUpdate({ showForm }: Props) {
     (ww) => ww.weekStart <= weeks + 4
   );
 
-  function onFotoKeuze(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onFotoKeuze(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []).slice(0, 4);
-    setFotos(files);
-    setPreviews(files.map((f) => URL.createObjectURL(f)));
+    if (files.length === 0) return;
+    setFotoLoading(true);
+    setFotoFout(null);
+    try {
+      const urls = await Promise.all(files.map(fotoNaarDataUrl));
+      setFotoDataUrls(urls);
+    } catch {
+      setFotoFout("Foto kon niet worden geladen. Probeer een andere foto.");
+    }
+    setFotoLoading(false);
+    // Reset input zodat dezelfde foto opnieuw gekozen kan worden
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   async function plaatsen() {
     if (!tekst.trim()) return;
     setLoading(true);
 
-    const fotoUrls: string[] = [];
-    setFotoFout(null);
-    for (const foto of fotos) {
-      try {
-        const dataUrl = await fotoNaarDataUrl(foto);
-        fotoUrls.push(dataUrl);
-      } catch (e) {
-        setFotoFout("Foto kon niet worden geladen. Probeer een kleinere foto.");
-        setLoading(false);
-        return;
-      }
-    }
+    const fotoUrls = fotoDataUrls;
 
     await supabase.from("updates").insert({
       title: titel.trim() || null,
@@ -93,7 +96,7 @@ export function NieuweUpdate({ showForm }: Props) {
     setTimeout(() => {
       setSuccess(false);
       setOpen(false);
-      setTitel(""); setTekst(""); setFotos([]); setPreviews([]);
+      setTitel(""); setTekst(""); setFotoDataUrls([]);
       setDatum(new Date().toISOString().split("T")[0]);
       setGelinkteSprong(null);
       router.refresh();
@@ -209,21 +212,34 @@ export function NieuweUpdate({ showForm }: Props) {
           onChange={onFotoKeuze}
           className="hidden"
         />
-        {previews.length > 0 ? (
+        {fotoLoading && (
+          <div className="w-full py-6 flex items-center justify-center gap-2 text-[var(--rho-cream)]/40 text-sm font-body">
+            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            Foto&apos;s laden...
+          </div>
+        )}
+        {!fotoLoading && fotoDataUrls.length > 0 ? (
           <div className="grid grid-cols-4 gap-2">
-            {previews.map((src, i) => (
-              <img key={i} src={src} alt="" className="aspect-square object-cover rounded-lg" />
+            {fotoDataUrls.map((src, i) => (
+              <div key={i} className="relative">
+                <img src={src} alt="" className="aspect-square object-cover rounded-lg" />
+                <button
+                  onClick={() => setFotoDataUrls(fotoDataUrls.filter((_, j) => j !== i))}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center"
+                >×</button>
+              </div>
             ))}
-            {previews.length < 4 && (
+            {fotoDataUrls.length < 4 && (
               <button
                 onClick={() => fileRef.current?.click()}
                 className="aspect-square rounded-lg border border-[var(--rho-cream)]/20 flex items-center justify-center text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/60 transition-colors text-xl"
-              >
-                +
-              </button>
+              >+</button>
             )}
           </div>
-        ) : (
+        ) : !fotoLoading ? (
           <button
             onClick={() => fileRef.current?.click()}
             className="w-full border border-dashed border-[var(--rho-cream)]/20 rounded-xl py-6 flex flex-col items-center gap-2 text-[var(--rho-cream)]/30 hover:text-[var(--rho-cream)]/50 hover:border-[var(--rho-cream)]/30 transition-colors"
@@ -231,7 +247,7 @@ export function NieuweUpdate({ showForm }: Props) {
             <span className="text-2xl">📷</span>
             <span className="text-xs font-body">Foto&apos;s toevoegen</span>
           </button>
-        )}
+        ) : null}
       </div>
 
       {fotoFout && (
