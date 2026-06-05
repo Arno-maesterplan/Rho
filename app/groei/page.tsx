@@ -29,7 +29,7 @@ export default async function GroeiPage({
         <h1 className="font-display text-4xl text-[var(--rho-cream)]">Groei</h1>
       </header>
 
-      {/* Metingen tabel */}
+      {/* Metingen tabel - alleen als er data is */}
       {metingen && metingen.length > 0 && (
         <div>
           <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-2">
@@ -39,18 +39,17 @@ export default async function GroeiPage({
         </div>
       )}
 
+      {/* Groei tabs - ALTIJD tonen (curves zijn templates) */}
+      <div>
+        <GroeiTabs measurements={metingen ?? []} onAddClick={() => {}} />
+      </div>
+
+      {/* Empty state - alleen als geen metingen */}
       {(!metingen || metingen.length === 0) && (
         <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
           <p className="text-[var(--rho-cream)]/40 font-body text-sm">
-            👇 Voeg jouw eerste meting toe om Rho's groei te volgen
+            👇 Voeg metingen toe om je baby op de curve te volgen
           </p>
-        </div>
-      )}
-
-      {/* Groei tabs */}
-      {metingen && metingen.length > 0 && (
-        <div>
-          <GroeiTabs measurements={metingen} onAddClick={() => {}} />
         </div>
       )}
 
