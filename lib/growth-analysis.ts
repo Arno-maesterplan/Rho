@@ -4,6 +4,7 @@
 
 import { KG_WEIGHT, KG_LENGTH, KG_HEAD, KG_WEIGHT_FOR_LENGTH, PercentileData } from "./kind-gezin-curves";
 import { calculateWeightPercentile as whoCalculateWeightPercentile } from "./who-growth-standards";
+import { BIRTH_DATE } from "./rho";
 
 export interface PercentileResult {
   percentile: number; // 1-99
@@ -221,26 +222,22 @@ function getPercentileLabel(percentile: number): string {
 }
 
 /**
- * Calculate age in weeks at a specific date (or now if not specified)
- * @param measurementDate - The date to calculate age for (default: today)
- * @param birthDate - The birth date (imported from BIRTH_DATE constant)
+ * Calculate age in weeks at a specific date
+ * @param measurementDate - The date to calculate age for
  */
-export function calculateAgeInWeeks(measurementDate: string | Date, birthDate?: string | Date): number {
-  const { BIRTH_DATE } = require("./rho");
-  const birth = new Date(birthDate || BIRTH_DATE);
+export function calculateAgeInWeeks(measurementDate: string | Date): number {
+  const birth = new Date(BIRTH_DATE);
   const measurement = new Date(measurementDate);
   const diffMs = measurement.getTime() - birth.getTime();
   return Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
 }
 
 /**
- * Calculate age in days at a specific date (or now if not specified)
- * @param measurementDate - The date to calculate age for (default: today)
- * @param birthDate - The birth date (imported from BIRTH_DATE constant)
+ * Calculate age in days at a specific date
+ * @param measurementDate - The date to calculate age for
  */
-export function calculateAgeInDays(measurementDate: string | Date, birthDate?: string | Date): number {
-  const { BIRTH_DATE } = require("./rho");
-  const birth = new Date(birthDate || BIRTH_DATE);
+export function calculateAgeInDays(measurementDate: string | Date): number {
+  const birth = new Date(BIRTH_DATE);
   const measurement = new Date(measurementDate);
   const diffMs = measurement.getTime() - birth.getTime();
   return Math.floor(diffMs / (1000 * 60 * 60 * 24));
