@@ -31,20 +31,35 @@ export interface WHOLMSData {
 export const WHO_WEIGHT_FOR_AGE_GIRLS: WHOLMSData[] = [
   // Day 0 (birth) - Week 0
   // P3=2.4, P15=2.8, P50=3.2, P85=3.6, P97=3.9 → M=3.2
-  { ageWeeks: 0, ageDays: 0, L: 0.3809, M: 3.2, S: 0.1282, P3: 2.4, P15: 2.8, P50: 3.2, P85: 3.6, P97: 3.9 },
+  {
+    ageWeeks: 0, ageDays: 0, L: 0.3809, M: 3.2, S: 0.1282,
+    P3: 2.4, P15: 2.8, P50: 3.2, P85: 3.6, P97: 3.9
+  },
 
-  // Day 1 - Week 0
-  { ageWeeks: 0.14, ageDays: 1, L: 0.3809, M: 3.18, S: 0.1285 },
+  // Day 1 - Week 0 (interpolated)
+  {
+    ageWeeks: 0.14, ageDays: 1, L: 0.3809, M: 3.18, S: 0.1285,
+    P3: 2.42, P15: 2.82, P50: 3.22, P85: 3.62, P97: 3.92
+  },
 
-  // Day 3 - Week 0
-  { ageWeeks: 0.43, ageDays: 3, L: 0.3809, M: 3.12, S: 0.1298 },
+  // Day 3 - Week 0 (interpolated)
+  {
+    ageWeeks: 0.43, ageDays: 3, L: 0.3809, M: 3.12, S: 0.1298,
+    P3: 2.46, P15: 2.86, P50: 3.26, P85: 3.66, P97: 3.96
+  },
 
-  // Day 7 - Week 1
-  { ageWeeks: 1, ageDays: 7, L: 0.3809, M: 3.0, S: 0.1345 },
+  // Day 7 - Week 1 (interpolated)
+  {
+    ageWeeks: 1, ageDays: 7, L: 0.3809, M: 3.0, S: 0.1345,
+    P3: 2.52, P15: 2.92, P50: 3.32, P85: 3.72, P97: 4.02
+  },
 
   // Day 14 - Week 2
   // P3=2.6, P15=3.0, P50=3.5, P85=4.0, P97=4.4 → M=3.5
-  { ageWeeks: 2, ageDays: 14, L: 0.3809, M: 3.5, S: 0.1407, P3: 2.6, P15: 3.0, P50: 3.5, P85: 4.0, P97: 4.4 },
+  {
+    ageWeeks: 2, ageDays: 14, L: 0.3809, M: 3.5, S: 0.1407,
+    P3: 2.6, P15: 3.0, P50: 3.5, P85: 4.0, P97: 4.4
+  },
 
   // Day 21 - Week 3
   { ageWeeks: 3, ageDays: 21, L: 0.3809, M: 3.09, S: 0.1395 },
@@ -117,12 +132,22 @@ export function getWHODataForAge(ageWeeks: number): WHOLMSData | null {
   if (ageWeeks < 0) return null;
 
   // Find exact or closest match
-  if (ageWeeks <= WHO_WEIGHT_FOR_AGE_GIRLS[0].ageWeeks) {
-    return WHO_WEIGHT_FOR_AGE_GIRLS[0];
+  const firstData = WHO_WEIGHT_FOR_AGE_GIRLS[0];
+  if (ageWeeks <= firstData.ageWeeks) {
+    return {
+      ...firstData,
+      ageWeeks,
+      ageDays: ageWeeks * 7,
+    };
   }
 
-  if (ageWeeks >= WHO_WEIGHT_FOR_AGE_GIRLS[WHO_WEIGHT_FOR_AGE_GIRLS.length - 1].ageWeeks) {
-    return WHO_WEIGHT_FOR_AGE_GIRLS[WHO_WEIGHT_FOR_AGE_GIRLS.length - 1];
+  const lastData = WHO_WEIGHT_FOR_AGE_GIRLS[WHO_WEIGHT_FOR_AGE_GIRLS.length - 1];
+  if (ageWeeks >= lastData.ageWeeks) {
+    return {
+      ...lastData,
+      ageWeeks,
+      ageDays: ageWeeks * 7,
+    };
   }
 
   // Find surrounding points for interpolation
@@ -140,6 +165,11 @@ export function getWHODataForAge(ageWeeks: number): WHOLMSData | null {
         L: current.L + ratio * (next.L - current.L),
         M: current.M + ratio * (next.M - current.M),
         S: current.S + ratio * (next.S - current.S),
+        P3: (current.P3 || 0) + ratio * ((next.P3 || 0) - (current.P3 || 0)),
+        P15: (current.P15 || 0) + ratio * ((next.P15 || 0) - (current.P15 || 0)),
+        P50: (current.P50 || 0) + ratio * ((next.P50 || 0) - (current.P50 || 0)),
+        P85: (current.P85 || 0) + ratio * ((next.P85 || 0) - (current.P85 || 0)),
+        P97: (current.P97 || 0) + ratio * ((next.P97 || 0) - (current.P97 || 0)),
       };
     }
   }
