@@ -18,9 +18,9 @@ interface Props {
 type TabType = "weight" | "length" | "head";
 
 const TABS: { id: TabType; label: string; unit: string }[] = [
-  { id: "weight", label: "Weight", unit: "kg" },
-  { id: "length", label: "Height", unit: "cm" },
-  { id: "head", label: "Head Size", unit: "cm" },
+  { id: "weight", label: "Gewicht", unit: "kg" },
+  { id: "length", label: "Lengte", unit: "cm" },
+  { id: "head", label: "Hoofd", unit: "cm" },
 ];
 
 export function GrowthTabs({ measurements }: Props) {
@@ -28,7 +28,7 @@ export function GrowthTabs({ measurements }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Tab buttons */}
+      {/* Tab buttons - pill-shaped */}
       <div className="flex gap-2 justify-center flex-wrap">
         {TABS.map((tab) => (
           <button

@@ -3,7 +3,6 @@
  */
 
 import { KG_WEIGHT, KG_LENGTH, KG_HEAD, KG_WEIGHT_FOR_LENGTH, PercentileData } from "./kind-gezin-curves";
-import { calculateWeightPercentile as whoCalculateWeightPercentile } from "./who-growth-standards";
 import { BIRTH_DATE } from "./rho";
 
 export interface PercentileResult {
@@ -93,13 +92,6 @@ function getAgeData(ageWeeks: number, curveData: PercentileData[]): PercentileDa
 }
 
 /**
- * Calculate percentile for weight using WHO LMS method
- */
-export function calculateWeightPercentile(weightKg: number, ageWeeks: number): number {
-  return whoCalculateWeightPercentile(weightKg, ageWeeks);
-}
-
-/**
  * Calculate percentile for a weight/length/head measurement at given age
  */
 export function calculatePercentile(
@@ -117,17 +109,7 @@ export function calculatePercentile(
       return { percentile: 50, band: "P50", label: "Invalid age" };
     }
 
-    // For weight, use WHO LMS method
-    if (measurementType === "weight") {
-      const percentile = calculateWeightPercentile(value, ageWeeks);
-      return {
-        percentile: Math.max(1, Math.min(99, percentile)),
-        band: getPercentileBand(percentile),
-        label: getPercentileLabel(percentile),
-      };
-    }
-
-    // For length and head, use old method (TODO: implement WHO for these)
+    // For length and head
     let curveData: PercentileData[];
 
     switch (measurementType) {

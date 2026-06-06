@@ -1,227 +1,134 @@
 /**
- * WHO Child Growth Standards - Weight-for-Age (Girls)
- * Source: https://www.who.int/tools/child-growth-standards/standards
- *
- * Data structure: LMS method values
- * L = Box-Cox lambda (skewness)
- * M = Median
- * S = Generalized coefficient of variation
- *
- * Formula: Z = ((value/M)^L - 1) / (L*S)
- * Then convert Z-score to percentile via normal CDF
+ * WHO Child Growth Standards - Hardcoded LMS data
+ * For girls, 0-13 weeks
  */
 
-export interface WHOLMSData {
-  ageWeeks: number;
-  ageDays: number;
-  L: number;  // Skewness lambda
-  M: number;  // Median (kg)
-  S: number;  // Generalized CV
-  P3?: number;   // Calculated percentile values (for reference)
-  P15?: number;
-  P50?: number;
-  P85?: number;
-  P97?: number;
-}
-
-/**
- * WHO Weight-for-Age LMS values for girls (0-130 weeks)
- * These are the official WHO values used in growth standards
- */
-export const WHO_WEIGHT_FOR_AGE_GIRLS: WHOLMSData[] = [
-  // Day 0 (birth) - Week 0
-  // P3=2.4, P15=2.8, P50=3.2, P85=3.6, P97=3.9 → M=3.2
-  {
-    ageWeeks: 0, ageDays: 0, L: 0.3809, M: 3.2, S: 0.1282,
-    P3: 2.4, P15: 2.8, P50: 3.2, P85: 3.6, P97: 3.9
-  },
-
-  // Day 1 - Week 0 (interpolated)
-  {
-    ageWeeks: 0.14, ageDays: 1, L: 0.3809, M: 3.18, S: 0.1285,
-    P3: 2.42, P15: 2.82, P50: 3.22, P85: 3.62, P97: 3.92
-  },
-
-  // Day 3 - Week 0 (interpolated)
-  {
-    ageWeeks: 0.43, ageDays: 3, L: 0.3809, M: 3.12, S: 0.1298,
-    P3: 2.46, P15: 2.86, P50: 3.26, P85: 3.66, P97: 3.96
-  },
-
-  // Day 7 - Week 1 (interpolated)
-  {
-    ageWeeks: 1, ageDays: 7, L: 0.3809, M: 3.0, S: 0.1345,
-    P3: 2.52, P15: 2.92, P50: 3.32, P85: 3.72, P97: 4.02
-  },
-
-  // Day 14 - Week 2
-  // P3=2.6, P15=3.0, P50=3.5, P85=4.0, P97=4.4 → M=3.5
-  {
-    ageWeeks: 2, ageDays: 14, L: 0.3809, M: 3.5, S: 0.1407,
-    P3: 2.6, P15: 3.0, P50: 3.5, P85: 4.0, P97: 4.4
-  },
-
-  // Day 21 - Week 3 (calculated percentiles)
-  {
-    ageWeeks: 3, ageDays: 21, L: 0.3809, M: 3.09, S: 0.1395,
-    P3: 2.58, P15: 3.08, P50: 3.59, P85: 4.10, P97: 4.60
-  },
-
-  // Day 28 - Week 4 (calculated percentiles)
-  {
-    ageWeeks: 4, ageDays: 28, L: 0.3809, M: 3.45, S: 0.1318,
-    P3: 2.82, P15: 3.38, P50: 4.12, P85: 4.85, P97: 5.39
-  },
-
-  // Day 56 - Week 8 (calculated percentiles)
-  {
-    ageWeeks: 8, ageDays: 56, L: 0.3809, M: 4.78, S: 0.1235,
-    P3: 3.92, P15: 4.57, P50: 5.70, P85: 6.83, P97: 7.48
-  },
-
-  // Day 84 - Week 12 (calculated percentiles)
-  {
-    ageWeeks: 12, ageDays: 84, L: 0.3809, M: 5.95, S: 0.1188,
-    P3: 4.90, P15: 5.68, P50: 7.08, P85: 8.48, P97: 9.26
-  },
-
-  // Day 112 - Week 16 (calculated percentiles)
-  {
-    ageWeeks: 16, ageDays: 112, L: 0.3809, M: 6.88, S: 0.1176,
-    P3: 5.68, P15: 6.56, P50: 8.19, P85: 9.82, P97: 10.70
-  },
-
-  // Day 140 - Week 20 (calculated percentiles)
-  {
-    ageWeeks: 20, ageDays: 140, L: 0.3809, M: 7.62, S: 0.1178,
-    P3: 6.28, P15: 7.25, P50: 9.04, P85: 10.83, P97: 11.80
-  },
-
-  // Day 168 - Week 24 (calculated percentiles)
-  {
-    ageWeeks: 24, ageDays: 168, L: 0.3809, M: 8.22, S: 0.1188,
-    P3: 6.75, P15: 7.82, P50: 9.74, P85: 11.66, P97: 12.73
-  },
-
-  // Day 196 - Week 28 (calculated percentiles)
-  {
-    ageWeeks: 28, ageDays: 196, L: 0.3809, M: 8.73, S: 0.1200,
-    P3: 7.16, P15: 8.31, P50: 10.35, P85: 12.39, P97: 13.54
-  },
-
-  // Day 224 - Week 32 (calculated percentiles)
-  {
-    ageWeeks: 32, ageDays: 224, L: 0.3809, M: 9.18, S: 0.1213,
-    P3: 7.53, P15: 8.73, P50: 10.88, P85: 13.03, P97: 14.23
-  },
-
-  // Day 252 - Week 36 (calculated percentiles)
-  {
-    ageWeeks: 36, ageDays: 252, L: 0.3809, M: 9.58, S: 0.1226,
-    P3: 7.86, P15: 9.09, P50: 11.33, P85: 13.57, P97: 14.80
-  },
+// WHO LMS parameters - meisjes
+// Gewicht (kg) - week 0-13
+export const WHO_WEIGHT_LMS = [
+  { week: 0,  L: 0.3809, M: 3.2322, S: 0.14171 },
+  { week: 1,  L: 0.3809, M: 3.3498, S: 0.13998 },
+  { week: 2,  L: 0.3809, M: 3.5166, S: 0.13756 },
+  { week: 3,  L: 0.3809, M: 3.6908, S: 0.13589 },
+  { week: 4,  L: 0.3809, M: 3.8561, S: 0.13421 },
+  { week: 5,  L: 0.3809, M: 4.0128, S: 0.13228 },
+  { week: 6,  L: 0.3809, M: 4.1614, S: 0.13044 },
+  { week: 7,  L: 0.3809, M: 4.3018, S: 0.12877 },
+  { week: 8,  L: 0.3809, M: 4.4347, S: 0.12709 },
+  { week: 9,  L: 0.3809, M: 4.5604, S: 0.12558 },
+  { week: 10, L: 0.3809, M: 4.6794, S: 0.12422 },
+  { week: 11, L: 0.3809, M: 4.7924, S: 0.12296 },
+  { week: 12, L: 0.3809, M: 4.8999, S: 0.12180 },
+  { week: 13, L: 0.3809, M: 5.0025, S: 0.12073 },
 ];
 
-/**
- * Convert Z-score to percentile using standard normal CDF
- * Uses error function approximation (Abramowitz and Stegun)
- */
-export function zScoreToPercentile(z: number): number {
-  const a1 =  0.254829592;
-  const a2 = -0.284496736;
-  const a3 =  1.421413741;
-  const a4 = -1.453152027;
-  const a5 =  1.061405429;
-  const p  =  0.3275911;
+// Lengte (cm) - week 0-13
+export const WHO_LENGTH_LMS = [
+  { week: 0,  L: 1, M: 49.1477, S: 0.03790 },
+  { week: 1,  L: 1, M: 50.3913, S: 0.03628 },
+  { week: 2,  L: 1, M: 51.5920, S: 0.03591 },
+  { week: 3,  L: 1, M: 52.5855, S: 0.03574 },
+  { week: 4,  L: 1, M: 53.4685, S: 0.03567 },
+  { week: 5,  L: 1, M: 54.2441, S: 0.03563 },
+  { week: 6,  L: 1, M: 54.9351, S: 0.03563 },
+  { week: 7,  L: 1, M: 55.5620, S: 0.03561 },
+  { week: 8,  L: 1, M: 56.1376, S: 0.03568 },
+  { week: 9,  L: 1, M: 56.6707, S: 0.03574 },
+  { week: 10, L: 1, M: 57.1688, S: 0.03581 },
+  { week: 11, L: 1, M: 57.6367, S: 0.03590 },
+  { week: 12, L: 1, M: 58.0789, S: 0.03600 },
+  { week: 13, L: 1, M: 58.4996, S: 0.03610 },
+];
 
-  const sign = z < 0 ? -1 : 1;
-  const absZ = Math.abs(z) / Math.sqrt(2);
+// Hoofdomtrek (cm) - week 0-13
+export const WHO_HEAD_LMS = [
+  { week: 0,  L: 1, M: 33.8787, S: 0.03496 },
+  { week: 1,  L: 1, M: 34.6486, S: 0.03344 },
+  { week: 2,  L: 1, M: 35.4164, S: 0.03246 },
+  { week: 3,  L: 1, M: 36.1002, S: 0.03182 },
+  { week: 4,  L: 1, M: 36.6990, S: 0.03127 },
+  { week: 5,  L: 1, M: 37.2223, S: 0.03081 },
+  { week: 6,  L: 1, M: 37.6820, S: 0.03043 },
+  { week: 7,  L: 1, M: 38.0849, S: 0.03011 },
+  { week: 8,  L: 1, M: 38.4374, S: 0.02983 },
+  { week: 9,  L: 1, M: 38.7454, S: 0.02959 },
+  { week: 10, L: 1, M: 39.0135, S: 0.02939 },
+  { week: 11, L: 1, M: 39.2461, S: 0.02920 },
+  { week: 12, L: 1, M: 39.4470, S: 0.02904 },
+  { week: 13, L: 1, M: 39.6193, S: 0.02890 },
+];
 
-  const t = 1.0 / (1.0 + p * absZ);
-  const y = 1.0 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Math.exp(-absZ * absZ);
-
-  const cdf = (1.0 + sign * y) / 2.0;
-  return Math.round(cdf * 100);
+// Standaard normaalverdeling CDF (Abramowitz & Stegun approximatie)
+export function normalCDF(z: number): number {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989423 * Math.exp(-z * z / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.7814779
+            + t * (-1.8212560 + t * 1.3302744))));
+  return z > 0 ? 1 - p : p;
 }
 
-/**
- * Calculate Z-score using LMS method
- * Z = ((value/M)^L - 1) / (L*S)
- */
-export function calculateZScore(value: number, L: number, M: number, S: number): number {
-  if (!L || !M || !S || M === 0 || value <= 0) return 0;
+export function normalCDFInverse(p: number): number {
+  // Rational approximation
+  const a = [0, -3.969683028665376e+01, 2.209460984245205e+02,
+    -2.759285104469687e+02, 1.383577518672690e+02,
+    -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [0, -5.447609879822406e+01, 1.615858368580409e+02,
+    -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01,
+    -2.400758277161838e+00, -2.549732539343734e+00,
+    4.374664141464968e+00, 2.938163982698783e+00];
+  const d2 = [7.784695709041462e-03, 3.224671290700398e-01,
+    2.445134137142996e+00, 3.754408661907416e+00];
+  const pLow = 0.02425, pHigh = 1 - pLow;
+  let q: number;
 
-  const zScore = (Math.pow(value / M, L) - 1) / (L * S);
-  return zScore;
+  if (p < pLow) {
+    q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+           ((((d2[0]*q+d2[1])*q+d2[2])*q+d2[3])*q+1);
+  } else if (p <= pHigh) {
+    q = p - 0.5;
+    const r = q * q;
+    return (((((a[1]*r+a[2])*r+a[3])*r+a[4])*r+a[5])*r+a[6])*q /
+           (((((b[1]*r+b[2])*r+b[3])*r+b[4])*r+b[5])*r+1);
+  } else {
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+            ((((d2[0]*q+d2[1])*q+d2[2])*q+d2[3])*q+1);
+  }
 }
 
-/**
- * Get closest WHO LMS data point for given age (in weeks)
- */
-export function getWHODataForAge(ageWeeks: number): WHOLMSData | null {
-  if (ageWeeks < 0) return null;
-
-  // Find exact or closest match
-  const firstData = WHO_WEIGHT_FOR_AGE_GIRLS[0];
-  if (ageWeeks <= firstData.ageWeeks) {
-    return {
-      ...firstData,
-      ageWeeks,
-      ageDays: ageWeeks * 7,
-    };
-  }
-
-  const lastData = WHO_WEIGHT_FOR_AGE_GIRLS[WHO_WEIGHT_FOR_AGE_GIRLS.length - 1];
-  if (ageWeeks >= lastData.ageWeeks) {
-    return {
-      ...lastData,
-      ageWeeks,
-      ageDays: ageWeeks * 7,
-    };
-  }
-
-  // Find surrounding points for interpolation
-  for (let i = 0; i < WHO_WEIGHT_FOR_AGE_GIRLS.length - 1; i++) {
-    const current = WHO_WEIGHT_FOR_AGE_GIRLS[i];
-    const next = WHO_WEIGHT_FOR_AGE_GIRLS[i + 1];
-
-    if (ageWeeks >= current.ageWeeks && ageWeeks <= next.ageWeeks) {
-      // Interpolate LMS values
-      const ratio = (ageWeeks - current.ageWeeks) / (next.ageWeeks - current.ageWeeks);
-
-      return {
-        ageWeeks,
-        ageDays: ageWeeks * 7,
-        L: current.L + ratio * (next.L - current.L),
-        M: current.M + ratio * (next.M - current.M),
-        S: current.S + ratio * (next.S - current.S),
-        P3: current.P3 ? current.P3 + ratio * ((next.P3 || current.P3) - current.P3) : undefined,
-        P15: current.P15 ? current.P15 + ratio * ((next.P15 || current.P15) - current.P15) : undefined,
-        P50: current.P50 ? current.P50 + ratio * ((next.P50 || current.P50) - current.P50) : undefined,
-        P85: current.P85 ? current.P85 + ratio * ((next.P85 || current.P85) - current.P85) : undefined,
-        P97: current.P97 ? current.P97 + ratio * ((next.P97 || current.P97) - current.P97) : undefined,
-      };
-    }
-  }
-
-  return null;
+// LMS Z-score → percentiel functie
+export function lmsToPercentile(value: number, L: number, M: number, S: number): number {
+  const z = (Math.pow(value / M, L) - 1) / (L * S);
+  return normalCDF(z) * 100;
 }
 
-/**
- * Calculate percentile for a weight measurement
- * Uses LMS method with Z-score to percentile conversion
- */
-export function calculateWeightPercentile(weightKg: number, ageWeeks: number): number {
-  const whoData = getWHODataForAge(ageWeeks);
+// Percentiel waarde → kg/cm functie
+export function lmsPercentileValue(L: number, M: number, S: number, pct: number): number {
+  const z = normalCDFInverse(pct / 100);
+  return M * Math.pow(1 + L * S * z, 1 / L);
+}
 
-  if (!whoData) {
-    console.warn(`No WHO data for age ${ageWeeks} weeks`);
-    return 50;
+// Get closest LMS data for a week
+export function getLMSForWeek(week: number, type: 'weight' | 'length' | 'head') {
+  const data = type === 'weight' ? WHO_WEIGHT_LMS : type === 'length' ? WHO_LENGTH_LMS : WHO_HEAD_LMS;
+
+  const week0 = Math.floor(week);
+  const week1 = Math.ceil(week);
+
+  if (week0 === week1 || week0 >= data.length - 1) {
+    return data[Math.min(week0, data.length - 1)];
   }
 
-  const zScore = calculateZScore(weightKg, whoData.L, whoData.M, whoData.S);
-  const percentile = zScoreToPercentile(zScore);
+  const d0 = data[week0];
+  const d1 = data[week1];
+  const ratio = week - week0;
 
-  // Clamp between 1 and 99
-  return Math.max(1, Math.min(99, percentile));
+  return {
+    week,
+    L: d0.L + ratio * (d1.L - d0.L),
+    M: d0.M + ratio * (d1.M - d0.M),
+    S: d0.S + ratio * (d1.S - d0.S),
+  };
 }
