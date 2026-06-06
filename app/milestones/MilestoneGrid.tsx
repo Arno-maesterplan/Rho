@@ -97,6 +97,7 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   const [fotoLoading, setFotoLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [bekeken, setBekeken] = useState<Behaald | null>(null);
+  const [successMsg, setSuccessMsg] = useState("");
 
   const behaaldMap = new Map(behaald.map((b) => [b.title, b]));
 
@@ -139,10 +140,14 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       alert("Fout bij opslaan: " + (error.message || "Onbekend probleem"));
     } else {
       console.log("✅ Milestone opgeslagen!");
-      setActiveModal(null);
-      setNota("");
-      setFotos([]);
-      router.refresh();
+      setSuccessMsg("✓ Milestone opgeslagen!");
+      setTimeout(() => setSuccessMsg(""), 2000);
+      setTimeout(() => {
+        setActiveModal(null);
+        setNota("");
+        setFotos([]);
+        router.refresh();
+      }, 800);
     }
   }
 
@@ -170,10 +175,31 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       console.error("Milestone opslaan fout:", error);
     } else {
       console.log("✓ Milestone opgeslagen");
+      setSuccessMsg("✓ Opgeslagen!");
+      setTimeout(() => setSuccessMsg(""), 2000);
+      setTimeout(() => {
+        setEditMilestone(null);
+        setNota("");
+        setFotos([]);
+        setBekeken(null);
+        router.refresh();
+      }, 800);
+    }
+  }
+
+  async function deleteJaMilestone() {
+    if (!editMilestone || !window.confirm("Milestone verwijderen? Dit kan niet ongedaan gemaakt worden.")) return;
+
+    setLoading(true);
+    const { error } = await supabase.from("milestones").delete().eq("title", editMilestone.title);
+    setLoading(false);
+
+    if (error) {
+      console.error("Delete fout:", error);
+      alert("Fout bij verwijderen");
+    } else {
+      console.log("✓ Milestone verwijderd");
       setEditMilestone(null);
-      setNota("");
-      setFotos([]);
-      setBekeken(null);
       router.refresh();
     }
   }
@@ -288,8 +314,10 @@ export function MilestoneGrid({ templates, behaald }: Props) {
             </div>
 
             <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1" onClick={() => setActiveModal(null)}>Annuleer</Button>
-              <Button variant="gold" className="flex-1" loading={loading} onClick={aanvinken}>Milestone behaald!</Button>
+              <Button variant="ghost" className="flex-1" onClick={() => setActiveModal(null)} disabled={loading}>Annuleer</Button>
+              <Button variant="gold" className="flex-1" loading={loading} onClick={aanvinken}>
+                {successMsg || "Milestone behaald!"}
+              </Button>
             </div>
           </div>
         </div>
@@ -392,9 +420,16 @@ export function MilestoneGrid({ templates, behaald }: Props) {
               )}
             </div>
 
-            <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1" onClick={() => setEditMilestone(null)}>Annuleer</Button>
-              <Button variant="gold" className="flex-1" loading={loading} onClick={bewerkOpslaan}>Opslaan</Button>
+            <div className="flex gap-3 flex-col-reverse">
+              <div className="flex gap-3">
+                <Button variant="ghost" className="flex-1" onClick={() => setEditMilestone(null)} disabled={loading}>Annuleer</Button>
+                <Button variant="gold" className="flex-1" loading={loading} onClick={bewerkOpslaan}>
+                  {successMsg || "Opslaan"}
+                </Button>
+              </div>
+              <Button variant="ghost" className="w-full !text-red-400 hover:!text-red-300 text-sm py-2" onClick={deleteJaMilestone} disabled={loading}>
+                🗑️ Milestone verwijderen
+              </Button>
             </div>
           </div>
         </div>
