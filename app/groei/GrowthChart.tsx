@@ -50,9 +50,6 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
       if (type === "weight") {
         value = m.weight_grams! / 1000;
         percentile = calculateWeightPercentile(value, ageWeeks);
-        if (value === 3.25 && ageWeeks === 0) {
-          console.log(`[DEBUG] 3.25kg at week 0 → P${percentile} (expected P55)`);
-        }
       } else if (type === "length") {
         value = m.height_mm! / 10;
         // TODO: Add length percentile calculation
