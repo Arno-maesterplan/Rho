@@ -272,6 +272,14 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
           </div>
         </div>
       )}
+
+      {/* Add measurement button */}
+      <a
+        href="?new=1"
+        className="block w-full text-center bg-[var(--rho-cream)]/10 hover:bg-[var(--rho-cream)]/15 text-[var(--rho-cream)]/70 hover:text-[var(--rho-cream)] font-body py-2.5 rounded-lg text-sm transition-colors border border-[var(--rho-cream)]/20"
+      >
+        + {label} toevoegen
+      </a>
     </div>
   );
 }
