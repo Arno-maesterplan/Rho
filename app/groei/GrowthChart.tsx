@@ -168,18 +168,16 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
               <Line type="monotone" dataKey="p85" stroke="#E85780" strokeWidth={1} dot={false} isAnimationActive={false} />
               <Line type="monotone" dataKey="p97" stroke="#C8102E" strokeWidth={1.5} dot={false} isAnimationActive={false} />
 
-              {/* Data points */}
-              {dataPoints.map((point, idx) => (
-                <circle
-                  key={idx}
-                  cx={0}
-                  cy={0}
-                  r={5}
-                  fill="#2C5AA0"
-                  onClick={() => setSelectedPoint(point)}
-                  style={{ cursor: "pointer" }}
-                />
-              ))}
+              {/* Data points as Scatter */}
+              <Scatter
+                name="Metingen"
+                data={dataPoints}
+                fill="#2C5AA0"
+                shape="circle"
+                onClick={(data: any) => {
+                  if (data.payload) setSelectedPoint(data.payload);
+                }}
+              />
             </LineChart>
           </ResponsiveContainer>
         ) : (
