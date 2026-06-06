@@ -95,21 +95,23 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
   // Build combined chart data - merge curves and data points
   const chartDataMap = new Map<number, any>();
 
-  // Add curve points
-  curveData.forEach((point) => {
-    chartDataMap.set(point.ageWeeks, {
-      age: point.ageWeeks,
-      p1: point.percentiles.p1,
-      p5: point.percentiles.p5,
-      p10: point.percentiles.p10,
-      p25: point.percentiles.p25,
-      p50: point.percentiles.p50,
-      p75: point.percentiles.p75,
-      p90: point.percentiles.p90,
-      p95: point.percentiles.p95,
-      p99: point.percentiles.p99,
+  // Add curve points - limit to 0-52 weeks for visibility
+  curveData
+    .filter((point) => point.ageWeeks <= 52)
+    .forEach((point) => {
+      chartDataMap.set(point.ageWeeks, {
+        age: point.ageWeeks,
+        p1: point.percentiles.p1,
+        p5: point.percentiles.p5,
+        p10: point.percentiles.p10,
+        p25: point.percentiles.p25,
+        p50: point.percentiles.p50,
+        p75: point.percentiles.p75,
+        p90: point.percentiles.p90,
+        p95: point.percentiles.p95,
+        p99: point.percentiles.p99,
+      });
     });
-  });
 
   // Add data points to map
   scatterData.forEach((point) => {
