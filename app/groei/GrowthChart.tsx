@@ -88,6 +88,14 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
     }
   }
 
+  // Calculate Y-axis range
+  const allValues = [
+    ...chartData.map((d) => d.p3),
+    ...dataPoints.map((p) => p.value),
+  ].filter(Boolean);
+  const minY = Math.floor(Math.min(...allValues) * 10) / 10;
+  const maxY = Math.ceil(Math.max(...allValues, dataPoints.length > 0 ? Math.max(...dataPoints.map((p) => p.value)) : 0) * 10) / 10;
+
   // DIAGNOSE: Log WHO data at birth (day 0)
   if (chartData.length > 0) {
     const day0Data = chartData[0];
@@ -109,14 +117,6 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
     p50: chartData[chartData.length - 1]?.p50,
     p97: chartData[chartData.length - 1]?.p97,
   });
-
-  // Calculate Y-axis range
-  const allValues = [
-    ...chartData.map((d) => d.p3),
-    ...dataPoints.map((p) => p.value),
-  ].filter(Boolean);
-  const minY = Math.floor(Math.min(...allValues) * 10) / 10;
-  const maxY = Math.ceil(Math.max(...allValues, dataPoints.length > 0 ? Math.max(...dataPoints.map((p) => p.value)) : 0) * 10) / 10;
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("nl-NL");
