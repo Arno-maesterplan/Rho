@@ -60,7 +60,8 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
       return false;
     })
     .map((m) => {
-      const ageWeeks = calculateAgeInWeeks(birthDate);
+      const ageWeeks = calculateAgeInWeeks(new Date(m.date));
+      const ageDays = calculateAgeInDays(new Date(m.date));
       let value = 0;
 
       if (type === "weight") value = m.weight_grams! / 1000;
@@ -75,6 +76,7 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
         percentile: percentileResult.percentile,
         date: m.date,
         metingId: m.id,
+        ageDays,
       };
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -113,15 +115,12 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
   const chartData = Array.from(chartDataMap.values()).sort((a, b) => a.age - b.age);
 
   const handlePointClick = (data: any) => {
-    const ageWeeks = calculateAgeInWeeks(birthDate);
-    const ageDays = calculateAgeInDays(birthDate);
-
     setSelectedPoint({
       date: data.date,
       value: data.value,
       percentile: data.percentile,
-      ageWeeks,
-      ageDays,
+      ageWeeks: data.age,
+      ageDays: data.ageDays,
       metingId: data.metingId,
     });
     setEditValue(data.value.toString());
