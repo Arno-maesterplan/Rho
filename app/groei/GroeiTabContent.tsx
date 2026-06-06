@@ -30,6 +30,17 @@ interface SelectedPoint {
   metingId: string;
 }
 
+// Custom data point shape with ring
+const DataPointCircle = (props: any) => {
+  const { cx, cy, fill } = props;
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={6} fill={fill} opacity={0.9} />
+      <circle cx={cx} cy={cy} r={9} fill="none" stroke={fill} strokeWidth={1.5} opacity={0.4} />
+    </g>
+  );
+};
+
 export function GroeiTabContent({ measurements, type, label, unit }: Props) {
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(null);
   const [editValue, setEditValue] = useState<string>("");
@@ -135,62 +146,84 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Chart Container */}
-      <div className="bg-[var(--rho-cream)]/3 border border-[var(--rho-cream)]/10 rounded-2xl p-4 overflow-hidden">
+      {/* Chart Container - Baby+ Style */}
+      <div className="bg-gradient-to-b from-[var(--rho-cream)]/5 to-[var(--rho-cream)]/2 border border-[var(--rho-cream)]/10 rounded-3xl p-6 overflow-hidden">
         {chartData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width="100%" height={500}>
             <ComposedChart
               data={chartData}
-              margin={{ top: 20, right: 60, left: 0, bottom: 40 }}
+              margin={{ top: 30, right: 80, left: 40, bottom: 50 }}
             >
+              {/* Grid */}
+              <defs>
+                <linearGradient id="percentileGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#FDB8D6" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#F8A0C8" stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
+
+              {/* Axes */}
               <XAxis
                 dataKey="age"
                 type="number"
-                tick={{ fontSize: 11, fill: "var(--rho-cream)/60" }}
-                stroke="var(--rho-cream)/20"
-                label={{ value: "weeks", position: "insideBottomRight", offset: -10, fill: "var(--rho-cream)/40" }}
+                tick={{ fontSize: 12, fill: "var(--rho-cream)/70" }}
+                axisLine={{ stroke: "var(--rho-cream)/20" }}
+                tickLine={{ stroke: "var(--rho-cream)/20" }}
+                label={{ value: "Weken oud →", position: "bottom", offset: 10, fill: "var(--rho-cream)/60", fontSize: 12 }}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: "var(--rho-cream)/60" }}
-                stroke="var(--rho-cream)/20"
+                tick={{ fontSize: 12, fill: "var(--rho-cream)/70" }}
+                axisLine={{ stroke: "var(--rho-cream)/20" }}
+                tickLine={{ stroke: "var(--rho-cream)/20" }}
+                label={{ value: `← ${label} (${unit})`, angle: -90, position: "left", fill: "var(--rho-cream)/60", fontSize: 12 }}
               />
+
+              {/* Tooltip - Baby+ style */}
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#1a0810",
-                  border: "1px solid var(--rho-gold)/30",
-                  borderRadius: "8px",
-                  padding: "8px",
+                  backgroundColor: "rgba(26, 8, 16, 0.95)",
+                  border: "2px solid var(--rho-gold)",
+                  borderRadius: "12px",
+                  padding: "12px",
+                  boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
                 }}
-                cursor={false}
+                cursor={{ strokeDasharray: "5 5", stroke: "var(--rho-gold)/50" }}
+                formatter={(value: any) => {
+                  if (typeof value === "number") {
+                    return [value.toFixed(2), "Waarde"];
+                  }
+                  return [value || "", ""];
+                }}
               />
 
-              {/* Reference Curves - Percentile Lines */}
-              <Line type="monotone" dataKey="p1" stroke="#FEF0F5" strokeWidth={1} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="p5" stroke="#FDE5F0" strokeWidth={1} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="p10" stroke="#FDD9E9" strokeWidth={1} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="p25" stroke="#FCC2DC" strokeWidth={1} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="p50" stroke="#F8A0C8" strokeWidth={2} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="p75" stroke="#F078B0" strokeWidth={1} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="p90" stroke="#E85780" strokeWidth={1} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="p95" stroke="#D93A5C" strokeWidth={1} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="p99" stroke="#C8102E" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+              {/* Reference Curves - Clean percentile lines */}
+              <Line type="monotone" dataKey="p99" stroke="#FEE0EA" strokeWidth={1.5} dot={false} isAnimationActive={false} name="P99" />
+              <Line type="monotone" dataKey="p95" stroke="#FDD9E9" strokeWidth={1.5} dot={false} isAnimationActive={false} name="P95" />
+              <Line type="monotone" dataKey="p90" stroke="#FCC2DC" strokeWidth={1.5} dot={false} isAnimationActive={false} name="P90" />
+              <Line type="monotone" dataKey="p75" stroke="#F8A0C8" strokeWidth={2} dot={false} isAnimationActive={false} name="P75" />
+              <Line type="monotone" dataKey="p50" stroke="#F073A4" strokeWidth={2.5} dot={false} isAnimationActive={false} name="P50" />
+              <Line type="monotone" dataKey="p25" stroke="#E85780" strokeWidth={1.5} dot={false} isAnimationActive={false} name="P25" />
+              <Line type="monotone" dataKey="p10" stroke="#D93A5C" strokeWidth={1.5} dot={false} isAnimationActive={false} name="P10" />
+              <Line type="monotone" dataKey="p5" stroke="#C8102E" strokeWidth={1.5} dot={false} isAnimationActive={false} name="P5" />
+              <Line type="monotone" dataKey="p1" stroke="#A00620" strokeWidth={1} dot={false} isAnimationActive={false} name="P1" />
 
-              {/* Data Points */}
+              {/* Data Points - Baby+ style with rings */}
               <Scatter
                 dataKey="value"
                 fill="#2C5AA0"
-                fillOpacity={0.8}
+                fillOpacity={0.9}
                 onClick={(state: any) => {
                   if (state && state.payload && state.payload.metingId) {
                     handlePointClick(state.payload);
                   }
                 }}
+                shape={<DataPointCircle />}
               />
             </ComposedChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-96 flex items-center justify-center text-[var(--rho-cream)]/40">
-            Laden...
+          <div className="h-96 flex items-center justify-center">
+            <p className="text-[var(--rho-cream)]/40 font-body">Geen metingen beschikbaar</p>
           </div>
         )}
       </div>
