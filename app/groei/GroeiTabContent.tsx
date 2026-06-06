@@ -169,7 +169,7 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
                 dataKey="age"
                 type="number"
                 domain={[0, 52]}
-                ticks={[0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52]}
+                ticks={[0, 8, 16, 24, 32, 40, 52]}
                 tick={{ fontSize: 12, fill: "var(--rho-cream)/70" }}
                 axisLine={{ stroke: "var(--rho-cream)/20" }}
                 tickLine={{ stroke: "var(--rho-cream)/20" }}
