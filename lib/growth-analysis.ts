@@ -91,6 +91,15 @@ function getAgeData(ageWeeks: number, curveData: PercentileData[]): PercentileDa
 }
 
 /**
+ * Calculate percentile for weight using WHO LMS method
+ */
+export function calculateWeightPercentile(weightKg: number, ageWeeks: number): number {
+  // Import WHO function directly
+  const { calculateWeightPercentile: whoCalculate } = require("./who-growth-standards");
+  return whoCalculate(weightKg, ageWeeks);
+}
+
+/**
  * Calculate percentile for a weight/length/head measurement at given age
  */
 export function calculatePercentile(
@@ -108,12 +117,20 @@ export function calculatePercentile(
       return { percentile: 50, band: "P50", label: "Invalid age" };
     }
 
+    // For weight, use WHO LMS method
+    if (measurementType === "weight") {
+      const percentile = calculateWeightPercentile(value, ageWeeks);
+      return {
+        percentile: Math.max(1, Math.min(99, percentile)),
+        band: getPercentileBand(percentile),
+        label: getPercentileLabel(percentile),
+      };
+    }
+
+    // For length and head, use old method (TODO: implement WHO for these)
     let curveData: PercentileData[];
 
     switch (measurementType) {
-      case "weight":
-        curveData = KG_WEIGHT;
-        break;
       case "length":
         curveData = KG_LENGTH;
         break;
