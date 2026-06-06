@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Scatter, Tooltip } from "recharts";
-import { calculateWeightPercentile, getWHODataForAge } from "@/lib/who-growth-standards";
-import { calculateAgeInWeeks, calculateAgeInDays } from "@/lib/growth-analysis";
+import { getWHODataForAge } from "@/lib/who-growth-standards";
+import { calculateAgeInWeeks, calculateAgeInDays, calculateWeightPercentile } from "@/lib/growth-analysis";
 import { BIRTH_DATE } from "@/lib/rho";
 
 interface Measurement {
