@@ -15,6 +15,7 @@ type Behaald = {
   description: string | null;
   photo_url: string | null;
   photo_urls: string[] | null;
+  author_name?: string;
 };
 
 interface Props {
@@ -89,6 +90,7 @@ export function MilestoneGrid({ templates, behaald }: Props) {
 
   const [activeModal, setActiveModal] = useState<Template | null>(null);
   const [editMilestone, setEditMilestone] = useState<Behaald | null>(null);
+  const [viewMilestone, setViewMilestone] = useState<Behaald | null>(null);
   const [datum, setDatum] = useState(new Date().toISOString().split("T")[0]);
   const [nota, setNota] = useState("");
   const [fotos, setFotos] = useState<string[]>([]);
@@ -194,10 +196,7 @@ export function MilestoneGrid({ templates, behaald }: Props) {
                     key={t.title}
                     onClick={() => {
                       if (gedaan) {
-                        setEditMilestone(gedaan);
-                        setDatum(gedaan.date);
-                        setNota(gedaan.description || "");
-                        setFotos(getFotos(gedaan));
+                        setViewMilestone(gedaan);
                       } else {
                         setActiveModal(t);
                         setDatum(new Date().toISOString().split("T")[0]);
@@ -291,6 +290,50 @@ export function MilestoneGrid({ templates, behaald }: Props) {
             <div className="flex gap-3">
               <Button variant="ghost" className="flex-1" onClick={() => setActiveModal(null)}>Annuleer</Button>
               <Button variant="gold" className="flex-1" loading={loading} onClick={aanvinken}>Milestone behaald!</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: milestone weergeven (read-only) */}
+      {viewMilestone && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setViewMilestone(null)}>
+          <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{viewMilestone.emoji}</span>
+              <h3 className="font-display text-lg text-[var(--rho-cream)] leading-snug">{viewMilestone.title}</h3>
+            </div>
+
+            <p className="text-[var(--rho-cream)]/70 text-sm">✓ {formatDutchDate(viewMilestone.date)}</p>
+
+            {viewMilestone.description && <p className="text-[var(--rho-cream)]/60 text-sm">{viewMilestone.description}</p>}
+
+            {/* Fotos read-only */}
+            {getFotos(viewMilestone).length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[var(--rho-cream)]/60 text-xs font-body">Foto&apos;s ({getFotos(viewMilestone).length})</p>
+                <div className="flex flex-wrap gap-2">
+                  {getFotos(viewMilestone).map((src, i) => (
+                    <div key={i} className="w-24 h-24 shrink-0 rounded-xl overflow-hidden">
+                      <img src={src} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-4 border-t border-[var(--rho-cream)]/10">
+              <Button variant="ghost" className="flex-1" onClick={() => setViewMilestone(null)}>Sluiten</Button>
+              {/* Edit knop: only if viewer is creator or parent */}
+              {(viewMilestone.author_name === naam || naam === "Mama" || naam === "Papa") && (
+                <Button variant="gold" className="flex-1" onClick={() => {
+                  setViewMilestone(null);
+                  setEditMilestone(viewMilestone);
+                  setDatum(viewMilestone.date);
+                  setNota(viewMilestone.description || "");
+                  setFotos(getFotos(viewMilestone));
+                }}>Bewerk</Button>
+              )}
             </div>
           </div>
         </div>
