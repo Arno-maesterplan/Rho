@@ -117,7 +117,12 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   async function aanvinken() {
     if (!activeModal) return;
     setLoading(true);
-    await supabase.from("milestones").insert({
+    console.log("📸 Milestone inserting:", {
+      title: activeModal.title,
+      fotos: fotos.length,
+      datum,
+    });
+    const { error } = await supabase.from("milestones").insert({
       title: activeModal.title,
       emoji: activeModal.emoji,
       date: datum,
@@ -127,10 +132,16 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       author_name: naam || "Onbekend",
     });
     setLoading(false);
-    setActiveModal(null);
-    setNota("");
-    setFotos([]);
-    router.refresh();
+    if (error) {
+      console.error("❌ Milestone insert failed:", error);
+      alert("Fout bij opslaan: " + (error.message || "Onbekend probleem"));
+    } else {
+      console.log("✅ Milestone opgeslagen!");
+      setActiveModal(null);
+      setNota("");
+      setFotos([]);
+      router.refresh();
+    }
   }
 
   async function bewerkOpslaan() {
