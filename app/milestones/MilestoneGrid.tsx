@@ -370,57 +370,59 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       {/* Modal: milestone bewerken */}
       {editMilestone && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setEditMilestone(null)}>
-          <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">{editMilestone.emoji}</span>
-              <h3 className="font-display text-lg text-[var(--rho-cream)] leading-snug">{editMilestone.title}</h3>
-            </div>
+          <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto flex flex-col">
+            <div className="overflow-y-auto flex-1 space-y-4 pr-2">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{editMilestone.emoji}</span>
+                <h3 className="font-display text-lg text-[var(--rho-cream)] leading-snug">{editMilestone.title}</h3>
+              </div>
 
-            <div>
-              <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Datum</label>
-              <input type="date" value={datum} onChange={(e) => setDatum(e.target.value)} className={inputClass} />
-            </div>
+              <div>
+                <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Datum</label>
+                <input type="date" value={datum} onChange={(e) => setDatum(e.target.value)} className={inputClass} />
+              </div>
 
-            <div>
-              <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Notitie</label>
-              <textarea placeholder="Notities..." value={nota} onChange={(e) => setNota(e.target.value)} rows={2} className={`${inputClass} resize-none`} />
-            </div>
+              <div>
+                <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Notitie</label>
+                <textarea placeholder="Notities..." value={nota} onChange={(e) => setNota(e.target.value)} rows={2} className={`${inputClass} resize-none`} />
+              </div>
 
-            <div className="space-y-2">
-              <p className="text-[var(--rho-cream)]/60 text-xs font-body">Foto&apos;s ({fotos.length}/4)</p>
-              {fotos.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {fotos.map((src, i) => (
-                    <div key={i} className="relative w-20 h-20 shrink-0">
-                      <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
-                      <button type="button" onClick={() => setFotos((prev) => prev.filter((_, j) => j !== i))}
-                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-sm flex items-center justify-center shadow-md">×</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {fotos.length < 4 && (
-                <div className="relative">
-                  <div className="w-full py-3 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 flex items-center justify-center gap-2 text-[var(--rho-cream)]/40 pointer-events-none">
-                    {fotoLoading ? (
-                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                      </svg>
-                    ) : (
-                      <>
-                        <span className="text-lg">📷</span>
-                        <span className="text-sm font-body">{fotos.length === 0 ? "Foto toevoegen" : `Nog ${4 - fotos.length} foto${4 - fotos.length > 1 ? "'s" : ""}`}</span>
-                      </>
-                    )}
+              <div className="space-y-2">
+                <p className="text-[var(--rho-cream)]/60 text-xs font-body">Foto&apos;s ({fotos.length}/4)</p>
+                {fotos.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {fotos.map((src, i) => (
+                      <div key={i} className="relative w-20 h-20 shrink-0">
+                        <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
+                        <button type="button" onClick={() => setFotos((prev) => prev.filter((_, j) => j !== i))}
+                          className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-sm flex items-center justify-center shadow-md">×</button>
+                      </div>
+                    ))}
                   </div>
-                  <input key={fotos.length} type="file" accept="image/*" onChange={onFotoKeuze}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" disabled={fotoLoading} />
-                </div>
-              )}
+                )}
+                {fotos.length < 4 && (
+                  <div className="relative">
+                    <div className="w-full py-3 rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 flex items-center justify-center gap-2 text-[var(--rho-cream)]/40 pointer-events-none">
+                      {fotoLoading ? (
+                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                      ) : (
+                        <>
+                          <span className="text-lg">📷</span>
+                          <span className="text-sm font-body">{fotos.length === 0 ? "Foto toevoegen" : `Nog ${4 - fotos.length} foto${4 - fotos.length > 1 ? "'s" : ""}`}</span>
+                        </>
+                      )}
+                    </div>
+                    <input key={fotos.length} type="file" accept="image/*" onChange={onFotoKeuze}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" disabled={fotoLoading} />
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex gap-3 flex-col-reverse">
+            <div className="flex gap-3 flex-col-reverse border-t border-[var(--rho-cream)]/10 pt-4 mt-4">
               <div className="flex gap-3">
                 <Button variant="ghost" className="flex-1" onClick={() => setEditMilestone(null)} disabled={loading}>Annuleer</Button>
                 <Button variant="gold" className="flex-1" loading={loading} onClick={bewerkOpslaan}>
