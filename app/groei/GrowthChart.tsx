@@ -77,14 +77,22 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
     const whoData = getWHODataForAge(week);
     if (whoData && (type === "weight" || true)) {
       // TODO: Add length and head WHO data
-      chartData.push({
-        age: week,
-        p3: whoData.P3,
-        p15: whoData.P15,
-        p50: whoData.P50,
-        p85: whoData.P85,
-        p97: whoData.P97,
-      });
+      const p3 = typeof whoData.P3 === 'number' ? whoData.P3 : undefined;
+      const p15 = typeof whoData.P15 === 'number' ? whoData.P15 : undefined;
+      const p50 = typeof whoData.P50 === 'number' ? whoData.P50 : undefined;
+      const p85 = typeof whoData.P85 === 'number' ? whoData.P85 : undefined;
+      const p97 = typeof whoData.P97 === 'number' ? whoData.P97 : undefined;
+
+      if (p3 !== undefined && p50 !== undefined && p97 !== undefined) {
+        chartData.push({
+          age: week,
+          p3,
+          p15,
+          p50,
+          p85,
+          p97,
+        });
+      }
     }
   }
 
