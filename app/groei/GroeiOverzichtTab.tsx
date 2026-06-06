@@ -64,7 +64,7 @@ export function GroeiOverzichtTab({ measurements, onAddClick }: Props) {
       {/* Chart */}
       <div className="bg-[var(--rho-cream)]/3 border border-[var(--rho-cream)]/10 rounded-xl p-4">
         <ResponsiveContainer width="100%" height={300}>
-          <ScatterChart margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+          <ScatterChart data={completeData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--rho-cream)/10" />
             <XAxis
               type="number"
