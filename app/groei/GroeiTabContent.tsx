@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ComposedChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Scatter, ScatterChart } from "recharts";
 import { calculatePercentile, calculateAgeInDays, calculateAgeInWeeks } from "@/lib/growth-analysis";
 import { KG_WEIGHT, KG_LENGTH, KG_HEAD } from "@/lib/kind-gezin-curves";
+import { BIRTH_DATE } from "@/lib/rho";
 
 interface Meting {
   id: string;
@@ -48,9 +49,7 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
   };
 
   const curveData = getCurveData();
-
-  // Birth date (you'll need to get this from context/props)
-  const birthDate = new Date("2026-05-04"); // Rho's birth date
+  const birthDate = BIRTH_DATE;
 
   // Transform curve data for chart
   const chartData = curveData.map((point) => ({
