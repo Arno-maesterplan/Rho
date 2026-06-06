@@ -25,16 +25,33 @@ function interpolate(x: number, x1: number, y1: number, x2: number, y2: number):
 function findPercentileRank(value: number, ageData: PercentileData): number {
   const p = ageData.percentiles;
 
-  if (value <= p.p1) return 1;
-  if (value <= p.p5) return interpolate(value, p.p1, 1, p.p5, 5);
-  if (value <= p.p10) return interpolate(value, p.p5, 5, p.p10, 10);
-  if (value <= p.p25) return interpolate(value, p.p10, 10, p.p25, 25);
-  if (value <= p.p50) return interpolate(value, p.p25, 25, p.p50, 50);
-  if (value <= p.p75) return interpolate(value, p.p50, 50, p.p75, 75);
-  if (value <= p.p90) return interpolate(value, p.p75, 75, p.p90, 90);
-  if (value <= p.p95) return interpolate(value, p.p90, 90, p.p95, 95);
-  if (value <= p.p99) return interpolate(value, p.p95, 95, p.p99, 99);
-  return 99;
+  // Build percentile points array (value, percentile)
+  const points: [number, number][] = [
+    [p.p1, 1],
+    [p.p5, 5],
+    [p.p10, 10],
+    [p.p25, 25],
+    [p.p50, 50],
+    [p.p75, 75],
+    [p.p90, 90],
+    [p.p95, 95],
+    [p.p99, 99],
+  ];
+
+  // Find where value fits
+  if (value <= points[0][0]) return 1;
+  if (value >= points[points.length - 1][0]) return 99;
+
+  // Find surrounding points and interpolate
+  for (let i = 0; i < points.length - 1; i++) {
+    if (value >= points[i][0] && value <= points[i + 1][0]) {
+      const [v1, p1] = points[i];
+      const [v2, p2] = points[i + 1];
+      return interpolate(value, v1, p1, v2, p2);
+    }
+  }
+
+  return 50; // Fallback
 }
 
 /**

@@ -166,12 +166,15 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
               <XAxis
                 dataKey="age"
                 type="number"
+                domain={[0, 52]}
+                ticks={[0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52]}
                 tick={{ fontSize: 12, fill: "var(--rho-cream)/70" }}
                 axisLine={{ stroke: "var(--rho-cream)/20" }}
                 tickLine={{ stroke: "var(--rho-cream)/20" }}
                 label={{ value: "Weken oud →", position: "bottom", offset: 10, fill: "var(--rho-cream)/60", fontSize: 12 }}
               />
               <YAxis
+                domain={["dataMin - 0.5", "dataMax + 0.5"]}
                 tick={{ fontSize: 12, fill: "var(--rho-cream)/70" }}
                 axisLine={{ stroke: "var(--rho-cream)/20" }}
                 tickLine={{ stroke: "var(--rho-cream)/20" }}
