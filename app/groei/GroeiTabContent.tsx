@@ -51,21 +51,7 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
   const curveData = getCurveData();
   const birthDate = BIRTH_DATE;
 
-  // Transform curve data for chart
-  const chartData = curveData.map((point) => ({
-    age: point.ageWeeks,
-    p1: point.percentiles.p1,
-    p5: point.percentiles.p5,
-    p10: point.percentiles.p10,
-    p25: point.percentiles.p25,
-    p50: point.percentiles.p50,
-    p75: point.percentiles.p75,
-    p90: point.percentiles.p90,
-    p95: point.percentiles.p95,
-    p99: point.percentiles.p99,
-  }));
-
-  // Transform measurements for scatter
+  // Transform measurements for scatter FIRST
   const scatterData = measurements
     .filter((m) => {
       if (type === "weight") return m.weight_grams;
@@ -93,6 +79,39 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
+  // Build combined chart data - merge curves and data points
+  const chartDataMap = new Map<number, any>();
+
+  // Add curve points
+  curveData.forEach((point) => {
+    chartDataMap.set(point.ageWeeks, {
+      age: point.ageWeeks,
+      p1: point.percentiles.p1,
+      p5: point.percentiles.p5,
+      p10: point.percentiles.p10,
+      p25: point.percentiles.p25,
+      p50: point.percentiles.p50,
+      p75: point.percentiles.p75,
+      p90: point.percentiles.p90,
+      p95: point.percentiles.p95,
+      p99: point.percentiles.p99,
+    });
+  });
+
+  // Add data points to map
+  scatterData.forEach((point) => {
+    const existing = chartDataMap.get(point.age) || { age: point.age };
+    chartDataMap.set(point.age, {
+      ...existing,
+      value: point.value,
+      metingDate: point.date,
+      metingId: point.metingId,
+      percentile: point.percentile,
+    });
+  });
+
+  const chartData = Array.from(chartDataMap.values()).sort((a, b) => a.age - b.age);
+
   const handlePointClick = (data: any) => {
     const ageWeeks = calculateAgeInWeeks(birthDate);
     const ageDays = calculateAgeInDays(birthDate);
@@ -119,59 +138,62 @@ export function GroeiTabContent({ measurements, type, label, unit }: Props) {
     <div className="space-y-4">
       {/* Chart Container */}
       <div className="bg-[var(--rho-cream)]/3 border border-[var(--rho-cream)]/10 rounded-2xl p-4 overflow-hidden">
-        <ResponsiveContainer width="100%" height={400}>
-          <ComposedChart
-            data={chartData}
-            margin={{ top: 20, right: 60, left: 0, bottom: 40 }}
-          >
-            <XAxis
-              dataKey="age"
-              type="number"
-              tick={{ fontSize: 11, fill: "var(--rho-cream)/60" }}
-              stroke="var(--rho-cream)/20"
-              label={{ value: "days", position: "insideBottomRight", offset: -10, fill: "var(--rho-cream)/40" }}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: "var(--rho-cream)/60" }}
-              stroke="var(--rho-cream)/20"
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#1a0810",
-                border: "1px solid var(--rho-gold)/30",
-                borderRadius: "8px",
-                padding: "8px",
-              }}
-              cursor={false}
-            />
+        {chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={400}>
+            <ComposedChart
+              data={chartData}
+              margin={{ top: 20, right: 60, left: 0, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="age"
+                type="number"
+                tick={{ fontSize: 11, fill: "var(--rho-cream)/60" }}
+                stroke="var(--rho-cream)/20"
+                label={{ value: "weeks", position: "insideBottomRight", offset: -10, fill: "var(--rho-cream)/40" }}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "var(--rho-cream)/60" }}
+                stroke="var(--rho-cream)/20"
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#1a0810",
+                  border: "1px solid var(--rho-gold)/30",
+                  borderRadius: "8px",
+                  padding: "8px",
+                }}
+                cursor={false}
+              />
 
-            {/* Reference Curves - Percentile Lines */}
-            <Line type="monotone" dataKey="p1" stroke="#FEF0F5" strokeWidth={1} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="p5" stroke="#FDE5F0" strokeWidth={1} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="p10" stroke="#FDD9E9" strokeWidth={1} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="p25" stroke="#FCC2DC" strokeWidth={1} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="p50" stroke="#F8A0C8" strokeWidth={2} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="p75" stroke="#F078B0" strokeWidth={1} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="p90" stroke="#E85780" strokeWidth={1} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="p95" stroke="#D93A5C" strokeWidth={1} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="p99" stroke="#C8102E" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+              {/* Reference Curves - Percentile Lines */}
+              <Line type="monotone" dataKey="p1" stroke="#FEF0F5" strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="p5" stroke="#FDE5F0" strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="p10" stroke="#FDD9E9" strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="p25" stroke="#FCC2DC" strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="p50" stroke="#F8A0C8" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="p75" stroke="#F078B0" strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="p90" stroke="#E85780" strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="p95" stroke="#D93A5C" strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="p99" stroke="#C8102E" strokeWidth={1.5} dot={false} isAnimationActive={false} />
 
-            {/* Data Points - need to pass scatterData separately */}
-            {scatterData.length > 0 && (
+              {/* Data Points */}
               <Scatter
                 dataKey="value"
-                data={scatterData}
                 fill="#2C5AA0"
                 fillOpacity={0.8}
                 onClick={(state: any) => {
-                  if (state && state.payload) {
+                  if (state && state.payload && state.payload.metingId) {
                     handlePointClick(state.payload);
                   }
                 }}
               />
-            )}
-          </ComposedChart>
-        </ResponsiveContainer>
+            </ComposedChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-96 flex items-center justify-center text-[var(--rho-cream)]/40">
+            Laden...
+          </div>
+        )}
       </div>
 
       {/* Selected Point Detail Card */}
