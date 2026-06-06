@@ -221,21 +221,27 @@ function getPercentileLabel(percentile: number): string {
 }
 
 /**
- * Calculate age in weeks from birth date
+ * Calculate age in weeks at a specific date (or now if not specified)
+ * @param measurementDate - The date to calculate age for (default: today)
+ * @param birthDate - The birth date (imported from BIRTH_DATE constant)
  */
-export function calculateAgeInWeeks(birthDate: string | Date): number {
-  const birth = new Date(birthDate);
-  const now = new Date();
-  const diffMs = now.getTime() - birth.getTime();
+export function calculateAgeInWeeks(measurementDate: string | Date, birthDate?: string | Date): number {
+  const { BIRTH_DATE } = require("./rho");
+  const birth = new Date(birthDate || BIRTH_DATE);
+  const measurement = new Date(measurementDate);
+  const diffMs = measurement.getTime() - birth.getTime();
   return Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
 }
 
 /**
- * Calculate age in days from birth date
+ * Calculate age in days at a specific date (or now if not specified)
+ * @param measurementDate - The date to calculate age for (default: today)
+ * @param birthDate - The birth date (imported from BIRTH_DATE constant)
  */
-export function calculateAgeInDays(birthDate: string | Date): number {
-  const birth = new Date(birthDate);
-  const now = new Date();
-  const diffMs = now.getTime() - birth.getTime();
+export function calculateAgeInDays(measurementDate: string | Date, birthDate?: string | Date): number {
+  const { BIRTH_DATE } = require("./rho");
+  const birth = new Date(birthDate || BIRTH_DATE);
+  const measurement = new Date(measurementDate);
+  const diffMs = measurement.getTime() - birth.getTime();
   return Math.floor(diffMs / (1000 * 60 * 60 * 24));
 }
