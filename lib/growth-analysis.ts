@@ -229,7 +229,13 @@ export function calculateAgeInWeeks(measurementDate: string | Date): number {
   const birth = new Date(BIRTH_DATE);
   const measurement = new Date(measurementDate);
   const diffMs = measurement.getTime() - birth.getTime();
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
+  const weeks = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
+
+  if (weeks < -10 || weeks > 300) {
+    console.warn(`[calculateAgeInWeeks] SUSPICIOUS: birth=${birth.toISOString()}, measurement=${measurement.toISOString()}, weeks=${weeks}`);
+  }
+
+  return weeks;
 }
 
 /**
