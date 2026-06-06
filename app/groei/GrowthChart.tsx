@@ -104,28 +104,6 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
   const minY = Math.floor(Math.min(...allValues) * 10) / 10;
   const maxY = Math.ceil(Math.max(...allValues, dataPoints.length > 0 ? Math.max(...dataPoints.map((p) => p.value)) : 0) * 10) / 10;
 
-  // DIAGNOSE: Log WHO data at birth (day 0)
-  if (chartData.length > 0) {
-    const day0Data = chartData[0];
-    console.log("=== DIAGNOSIS: WHO Data at Day 0 (Birth) ===");
-    console.log("P3 at day 0:", day0Data.p3, "(Expected: ~2.4)");
-    console.log("P50 at day 0:", day0Data.p50, "(Expected: ~3.2)");
-    console.log("P97 at day 0:", day0Data.p97, "(Expected: ~3.9)");
-    console.log("Total chart data points:", chartData.length);
-    console.log("Max age weeks:", maxAge);
-    console.log("Chart data sample:", { week0: chartData[0], week7: chartData[Math.floor(14 / 0.5)] });
-  }
-
-  // DIAGNOSE: Log Y-axis range
-  console.log("=== DIAGNOSIS: Y-Axis Range ===");
-  console.log("Min Y (calculated):", minY);
-  console.log("Max Y (calculated):", maxY);
-  console.log("All percentile values at max age:", {
-    p3: chartData[chartData.length - 1]?.p3,
-    p50: chartData[chartData.length - 1]?.p50,
-    p97: chartData[chartData.length - 1]?.p97,
-  });
-
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("nl-NL");
   };
