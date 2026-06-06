@@ -38,7 +38,7 @@ export default async function GroeiPage({
         </div>
       )}
 
-      <GroeiTabs measurements={metingen ?? []} onAddClick={() => {}} />
+      <GroeiTabs measurements={metingen ?? []} />
 
       {(!metingen || metingen.length === 0) && (
         <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-2xl p-8 text-center">
@@ -48,7 +48,7 @@ export default async function GroeiPage({
         </div>
       )}
 
-      <MetingFormulier showForm={showForm} />
+      {showForm && <MetingFormulier showForm={true} />}
 
       <div className="flex justify-end pt-6 pointer-events-none select-none opacity-25" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}

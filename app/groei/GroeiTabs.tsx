@@ -14,7 +14,6 @@ interface Meting {
 
 interface Props {
   measurements: Meting[];
-  onAddClick: (type?: "weight" | "length" | "head") => void;
 }
 
 type TabType = "gewicht" | "lengte" | "hoofd" | "overzicht";
@@ -26,7 +25,7 @@ const TABS: Array<{ id: TabType; label: string }> = [
   { id: "overzicht", label: "Overzicht" },
 ];
 
-export function GroeiTabs({ measurements, onAddClick }: Props) {
+export function GroeiTabs({ measurements }: Props) {
   const [activeTab, setActiveTab] = useState<TabType>("gewicht");
   const safeMetings = measurements || [];
 
@@ -58,7 +57,6 @@ export function GroeiTabs({ measurements, onAddClick }: Props) {
               type="weight"
               label="Gewicht"
               unit="kg"
-              onAddClick={() => onAddClick("weight")}
             />
           )}
 
@@ -68,7 +66,6 @@ export function GroeiTabs({ measurements, onAddClick }: Props) {
               type="length"
               label="Lengte"
               unit="cm"
-              onAddClick={() => onAddClick("length")}
             />
           )}
 
@@ -78,12 +75,11 @@ export function GroeiTabs({ measurements, onAddClick }: Props) {
               type="head"
               label="Hoofdomtrek"
               unit="cm"
-              onAddClick={() => onAddClick("head")}
             />
           )}
 
           {activeTab === "overzicht" && (
-            <GroeiOverzichtTab measurements={safeMetings} onAddClick={() => onAddClick()} />
+            <GroeiOverzichtTab measurements={safeMetings} />
           )}
         </div>
       </div>

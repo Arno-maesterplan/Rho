@@ -12,10 +12,9 @@ interface Meting {
 
 interface Props {
   measurements: Meting[];
-  onAddClick: () => void;
 }
 
-export function GroeiOverzichtTab({ measurements, onAddClick }: Props) {
+export function GroeiOverzichtTab({ measurements }: Props) {
   if (measurements.length === 0) {
     return <div className="text-[var(--rho-cream)]/40 py-8">Geen metingen beschikbaar</div>;
   }
@@ -101,12 +100,12 @@ export function GroeiOverzichtTab({ measurements, onAddClick }: Props) {
       </div>
 
       {/* Add Button */}
-      <button
-        onClick={onAddClick}
-        className="w-full bg-[var(--rho-gold)]/20 hover:bg-[var(--rho-gold)]/30 text-[var(--rho-gold)] font-body py-3 rounded-xl transition-colors"
+      <a
+        href="/groei?new=1"
+        className="w-full block text-center bg-[var(--rho-gold)]/20 hover:bg-[var(--rho-gold)]/30 text-[var(--rho-gold)] font-body py-3 rounded-xl transition-colors"
       >
         + Nieuwe meting toevoegen
-      </button>
+      </a>
     </div>
   );
 }

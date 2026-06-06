@@ -13,10 +13,9 @@ interface Props {
   type: "weight" | "length" | "head";
   label: string;
   unit: string;
-  onAddClick: () => void;
 }
 
-export function GroeiTabContent({ measurements, type, label, unit, onAddClick }: Props) {
+export function GroeiTabContent({ measurements, type, label, unit }: Props) {
   return (
     <div className="space-y-4">
       <div className="bg-[var(--rho-cream)]/5 border border-[var(--rho-cream)]/10 rounded-xl p-4">
@@ -24,12 +23,12 @@ export function GroeiTabContent({ measurements, type, label, unit, onAddClick }:
           📊 {label} grafiek met {measurements?.length || 0} meting(en)
         </p>
       </div>
-      <button
-        onClick={onAddClick}
-        className="w-full bg-[var(--rho-gold)]/20 hover:bg-[var(--rho-gold)]/30 text-[var(--rho-gold)] font-body py-3 rounded-xl"
+      <a
+        href="/groei?new=1"
+        className="w-full block text-center bg-[var(--rho-gold)]/20 hover:bg-[var(--rho-gold)]/30 text-[var(--rho-gold)] font-body py-3 rounded-xl"
       >
         + {label} toevoegen
-      </button>
+      </a>
     </div>
   );
 }
