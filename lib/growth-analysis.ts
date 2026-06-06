@@ -3,6 +3,7 @@
  */
 
 import { KG_WEIGHT, KG_LENGTH, KG_HEAD, KG_WEIGHT_FOR_LENGTH, PercentileData } from "./kind-gezin-curves";
+import { calculateWeightPercentile as whoCalculateWeightPercentile } from "./who-growth-standards";
 
 export interface PercentileResult {
   percentile: number; // 1-99
@@ -94,9 +95,7 @@ function getAgeData(ageWeeks: number, curveData: PercentileData[]): PercentileDa
  * Calculate percentile for weight using WHO LMS method
  */
 export function calculateWeightPercentile(weightKg: number, ageWeeks: number): number {
-  // Import WHO function directly
-  const { calculateWeightPercentile: whoCalculate } = require("./who-growth-standards");
-  return whoCalculate(weightKg, ageWeeks);
+  return whoCalculateWeightPercentile(weightKg, ageWeeks);
 }
 
 /**

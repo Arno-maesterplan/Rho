@@ -61,35 +61,65 @@ export const WHO_WEIGHT_FOR_AGE_GIRLS: WHOLMSData[] = [
     P3: 2.6, P15: 3.0, P50: 3.5, P85: 4.0, P97: 4.4
   },
 
-  // Day 21 - Week 3
-  { ageWeeks: 3, ageDays: 21, L: 0.3809, M: 3.09, S: 0.1395 },
+  // Day 21 - Week 3 (calculated percentiles)
+  {
+    ageWeeks: 3, ageDays: 21, L: 0.3809, M: 3.09, S: 0.1395,
+    P3: 2.58, P15: 3.08, P50: 3.59, P85: 4.10, P97: 4.60
+  },
 
-  // Day 28 - Week 4
-  { ageWeeks: 4, ageDays: 28, L: 0.3809, M: 3.45, S: 0.1318 },
+  // Day 28 - Week 4 (calculated percentiles)
+  {
+    ageWeeks: 4, ageDays: 28, L: 0.3809, M: 3.45, S: 0.1318,
+    P3: 2.82, P15: 3.38, P50: 4.12, P85: 4.85, P97: 5.39
+  },
 
-  // Day 56 - Week 8
-  { ageWeeks: 8, ageDays: 56, L: 0.3809, M: 4.78, S: 0.1235 },
+  // Day 56 - Week 8 (calculated percentiles)
+  {
+    ageWeeks: 8, ageDays: 56, L: 0.3809, M: 4.78, S: 0.1235,
+    P3: 3.92, P15: 4.57, P50: 5.70, P85: 6.83, P97: 7.48
+  },
 
-  // Day 84 - Week 12
-  { ageWeeks: 12, ageDays: 84, L: 0.3809, M: 5.95, S: 0.1188 },
+  // Day 84 - Week 12 (calculated percentiles)
+  {
+    ageWeeks: 12, ageDays: 84, L: 0.3809, M: 5.95, S: 0.1188,
+    P3: 4.90, P15: 5.68, P50: 7.08, P85: 8.48, P97: 9.26
+  },
 
-  // Day 112 - Week 16
-  { ageWeeks: 16, ageDays: 112, L: 0.3809, M: 6.88, S: 0.1176 },
+  // Day 112 - Week 16 (calculated percentiles)
+  {
+    ageWeeks: 16, ageDays: 112, L: 0.3809, M: 6.88, S: 0.1176,
+    P3: 5.68, P15: 6.56, P50: 8.19, P85: 9.82, P97: 10.70
+  },
 
-  // Day 140 - Week 20
-  { ageWeeks: 20, ageDays: 140, L: 0.3809, M: 7.62, S: 0.1178 },
+  // Day 140 - Week 20 (calculated percentiles)
+  {
+    ageWeeks: 20, ageDays: 140, L: 0.3809, M: 7.62, S: 0.1178,
+    P3: 6.28, P15: 7.25, P50: 9.04, P85: 10.83, P97: 11.80
+  },
 
-  // Day 168 - Week 24
-  { ageWeeks: 24, ageDays: 168, L: 0.3809, M: 8.22, S: 0.1188 },
+  // Day 168 - Week 24 (calculated percentiles)
+  {
+    ageWeeks: 24, ageDays: 168, L: 0.3809, M: 8.22, S: 0.1188,
+    P3: 6.75, P15: 7.82, P50: 9.74, P85: 11.66, P97: 12.73
+  },
 
-  // Day 196 - Week 28
-  { ageWeeks: 28, ageDays: 196, L: 0.3809, M: 8.73, S: 0.1200 },
+  // Day 196 - Week 28 (calculated percentiles)
+  {
+    ageWeeks: 28, ageDays: 196, L: 0.3809, M: 8.73, S: 0.1200,
+    P3: 7.16, P15: 8.31, P50: 10.35, P85: 12.39, P97: 13.54
+  },
 
-  // Day 224 - Week 32
-  { ageWeeks: 32, ageDays: 224, L: 0.3809, M: 9.18, S: 0.1213 },
+  // Day 224 - Week 32 (calculated percentiles)
+  {
+    ageWeeks: 32, ageDays: 224, L: 0.3809, M: 9.18, S: 0.1213,
+    P3: 7.53, P15: 8.73, P50: 10.88, P85: 13.03, P97: 14.23
+  },
 
-  // Day 252 - Week 36
-  { ageWeeks: 36, ageDays: 252, L: 0.3809, M: 9.58, S: 0.1226 },
+  // Day 252 - Week 36 (calculated percentiles)
+  {
+    ageWeeks: 36, ageDays: 252, L: 0.3809, M: 9.58, S: 0.1226,
+    P3: 7.86, P15: 9.09, P50: 11.33, P85: 13.57, P97: 14.80
+  },
 ];
 
 /**
@@ -165,11 +195,11 @@ export function getWHODataForAge(ageWeeks: number): WHOLMSData | null {
         L: current.L + ratio * (next.L - current.L),
         M: current.M + ratio * (next.M - current.M),
         S: current.S + ratio * (next.S - current.S),
-        P3: (current.P3 || 0) + ratio * ((next.P3 || 0) - (current.P3 || 0)),
-        P15: (current.P15 || 0) + ratio * ((next.P15 || 0) - (current.P15 || 0)),
-        P50: (current.P50 || 0) + ratio * ((next.P50 || 0) - (current.P50 || 0)),
-        P85: (current.P85 || 0) + ratio * ((next.P85 || 0) - (current.P85 || 0)),
-        P97: (current.P97 || 0) + ratio * ((next.P97 || 0) - (current.P97 || 0)),
+        P3: current.P3 ? current.P3 + ratio * ((next.P3 || current.P3) - current.P3) : undefined,
+        P15: current.P15 ? current.P15 + ratio * ((next.P15 || current.P15) - current.P15) : undefined,
+        P50: current.P50 ? current.P50 + ratio * ((next.P50 || current.P50) - current.P50) : undefined,
+        P85: current.P85 ? current.P85 + ratio * ((next.P85 || current.P85) - current.P85) : undefined,
+        P97: current.P97 ? current.P97 + ratio * ((next.P97 || current.P97) - current.P97) : undefined,
       };
     }
   }
