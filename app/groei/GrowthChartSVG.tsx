@@ -129,8 +129,18 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
           })}
         </g>
 
-        {/* WHO Percentile curves - coming soon */}
-        {/* Temporarily disabled - debugging percentile calc */}
+        {/* WHO Percentile curves */}
+        {[3, 15, 50, 85, 97].map((p) => (
+          <polyline
+            key={`curve-p${p}`}
+            points={generateCurve(p)}
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.3)"
+            strokeWidth={p === 50 ? "2.5" : "1"}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        ))}
 
         {/* Y Axis */}
         <line
@@ -205,12 +215,15 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
           Weken oud
         </text>
 
-        {/* Data points */}
+        {/* Data points with tooltips */}
         {dataPoints.map((point, idx) => {
           const x = scaleX(point.ageWeeks);
           const y = scaleY(point.value);
+          const dateStr = new Date(point.date).toLocaleDateString("nl-NL");
+          const tooltip = `${dateStr}\n${point.value.toFixed(2)} ${unit}\nP${point.percentile}`;
           return (
             <g key={`point-${idx}`}>
+              <title>{tooltip}</title>
               <circle cx={x} cy={y} r="4" fill="white" stroke="rgba(255, 255, 255, 0.5)" strokeWidth="1" />
             </g>
           );
