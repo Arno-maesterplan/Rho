@@ -42,6 +42,33 @@ interface DataPoint {
   date: string;
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    payload: DataPoint;
+  }>;
+}
+
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
+  if (!active || !payload?.[0]) return null;
+
+  const data = payload[0].payload as DataPoint;
+  const date = new Date(data.date).toLocaleDateString("nl-NL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  return (
+    <div className="bg-black/90 border border-white/30 rounded-lg px-3 py-2 text-xs">
+      <p className="text-white/70">{date}</p>
+      <p className="text-white font-semibold">{data.value.toFixed(2)}</p>
+      <p className="text-amber-300">Percentiel: P{data.percentile}</p>
+    </div>
+  );
+}
+
 export function GrowthChart({ measurements, type, label, unit }: Props) {
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null);
 
@@ -162,6 +189,7 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
                 label={{ value: label, angle: -90, position: "left", offset: 10 }}
                 tick={{ fontSize: 11, fill: "var(--rho-cream)/70" }}
               />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(255, 255, 255, 0.2)" }} />
 
               {/* Percentile lines */}
               <Line
@@ -215,18 +243,18 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
                 name="P97"
               />
 
-              {/* Data points - white circles connected by line */}
+              {/* Data points - larger white circles with prominent ring */}
               <Line
                 data={dataPoints}
                 type="monotone"
                 dataKey="value"
-                stroke="rgba(255, 255, 255, 0.6)"
+                stroke="rgba(255, 255, 255, 0.5)"
                 strokeWidth={2}
                 dot={{
                   fill: "white",
-                  r: 5,
-                  stroke: "rgba(255, 255, 255, 0.4)",
-                  strokeWidth: 2,
+                  r: 7,
+                  stroke: "rgba(255, 255, 255, 0.6)",
+                  strokeWidth: 3,
                 }}
                 isAnimationActive={false}
                 onClick={(e: any) => {
