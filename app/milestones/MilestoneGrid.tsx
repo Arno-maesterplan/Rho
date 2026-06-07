@@ -119,15 +119,26 @@ export function MilestoneGrid({ templates, behaald }: Props) {
 
   async function aanvinken() {
     if (!activeModal) return;
+
+    // Optimistic UI: show success and close immediately
+    setSuccessMsg("✓ Milestone opgeslagen!");
+    const toInsert = activeModal;
+
+    setTimeout(() => {
+      setActiveModal(null);
+      setNota("");
+      setFotos([]);
+    }, 100);
+
     setLoading(true);
     console.log("📸 Milestone inserting:", {
-      title: activeModal.title,
+      title: toInsert.title,
       fotos: fotos.length,
       datum,
     });
     const { error } = await supabase.from("milestones").insert({
-      title: activeModal.title,
-      emoji: activeModal.emoji,
+      title: toInsert.title,
+      emoji: toInsert.emoji,
       date: datum,
       description: nota || null,
       photo_urls: fotos.length > 0 ? fotos : null,
@@ -135,28 +146,36 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       author_name: naam || "Onbekend",
     });
     setLoading(false);
+    setSuccessMsg("");
+
     if (error) {
       console.error("❌ Milestone insert failed:", error);
       alert("Fout bij opslaan: " + (error.message || "Onbekend probleem"));
     } else {
       console.log("✅ Milestone opgeslagen!");
-      setSuccessMsg("✓ Milestone opgeslagen!");
-      setTimeout(() => setSuccessMsg(""), 2000);
-      setTimeout(() => {
-        setActiveModal(null);
-        setNota("");
-        setFotos([]);
-        router.refresh();
-      }, 800);
+      router.refresh();
     }
   }
 
   async function bewerkOpslaan() {
     if (!editMilestone) return;
+
+    // Optimistic UI: show success immediately
+    setSuccessMsg("✓ Opgeslagen!");
+    const toUpdate = editMilestone;
+
+    // Close modal immediately
+    setTimeout(() => {
+      setEditMilestone(null);
+      setNota("");
+      setFotos([]);
+      setBekeken(null);
+    }, 100);
+
     setLoading(true);
 
     console.log("Milestone bewerken:", {
-      title: editMilestone.title,
+      title: toUpdate.title,
       datum,
       nota: nota || null,
       fotos: fotos.length,
@@ -167,36 +186,33 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       description: nota || null,
       photo_urls: fotos.length > 0 ? fotos : null,
       photo_url: fotos.length > 0 ? fotos[0] : null,
-    }).eq("title", editMilestone.title);
+    }).eq("title", toUpdate.title);
 
     setLoading(false);
+    setSuccessMsg("");
 
     if (error) {
       console.error("Milestone opslaan fout:", error);
     } else {
       console.log("✓ Milestone opgeslagen");
-      setSuccessMsg("✓ Opgeslagen!");
-      setTimeout(() => setSuccessMsg(""), 2000);
-      setTimeout(() => {
-        setEditMilestone(null);
-        setNota("");
-        setFotos([]);
-        setBekeken(null);
-        router.refresh();
-      }, 800);
+      router.refresh();
     }
   }
 
   async function deleteJaMilestone() {
     if (!editMilestone || !window.confirm("Milestone verwijderen? Dit kan niet ongedaan gemaakt worden.")) return;
 
+    // Optimistic UI: close modal immediately
+    const toDelete = editMilestone;
+    setEditMilestone(null);
     setLoading(true);
-    const { error } = await supabase.from("milestones").delete().eq("title", editMilestone.title);
+
+    const { error } = await supabase.from("milestones").delete().eq("title", toDelete.title);
     setLoading(false);
 
     if (error) {
       console.error("Delete fout:", error);
-      alert("Fout bij verwijderen");
+      alert("Fout bij verwijderen - milestone is niet verwijderd");
     } else {
       console.log("✓ Milestone verwijderd");
       setEditMilestone(null);
