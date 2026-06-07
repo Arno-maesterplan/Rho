@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,6 +31,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("✅ Milestone deleted:", data);
+
+    // Invalidate milestones page cache so new data is fetched
+    revalidatePath("/milestones");
 
     return NextResponse.json({ success: true, data });
   } catch (err) {

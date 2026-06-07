@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { MILESTONE_TEMPLATES } from "@/lib/milestones";
 import { MilestoneGrid } from "./MilestoneGrid";
 
+export const dynamic = "force-dynamic";
+
 export default async function MilestonesPage() {
   const supabase = createClient();
 
