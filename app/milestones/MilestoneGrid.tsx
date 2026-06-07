@@ -277,7 +277,7 @@ export function MilestoneGrid({ templates, behaald }: Props) {
 
       {/* Modal: nieuwe milestone */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setActiveModal(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setActiveModal(null)}>
           <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-3">
               <span className="text-3xl">{activeModal.emoji}</span>
@@ -341,7 +341,7 @@ export function MilestoneGrid({ templates, behaald }: Props) {
 
       {/* Modal: milestone weergeven (read-only) */}
       {viewMilestone && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setViewMilestone(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setViewMilestone(null)}>
           <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-3">
               <span className="text-3xl">{viewMilestone.emoji}</span>
@@ -385,7 +385,7 @@ export function MilestoneGrid({ templates, behaald }: Props) {
 
       {/* Modal: milestone bewerken */}
       {editMilestone && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setEditMilestone(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setEditMilestone(null)}>
           <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto flex flex-col">
             <div className="overflow-y-auto flex-1 space-y-4 pr-2">
               <div className="flex items-center gap-3">
