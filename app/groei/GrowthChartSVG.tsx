@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { lmsToPercentile, lmsPercentileValue, getLMSForWeek } from "@/lib/who-growth-standards";
 import { BIRTH_DATE } from "@/lib/rho";
 
@@ -18,7 +19,16 @@ interface Props {
   unit: string;
 }
 
+interface DataPoint {
+  ageWeeks: number;
+  value: number;
+  percentile: number;
+  date: string;
+}
+
 export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
+  const [hoveredPoint, setHoveredPoint] = useState<DataPoint | null>(null);
+
   // Calculate age in weeks from birth
   const calculateAgeInWeeks = (date: string | Date): number => {
     const birth = new Date(BIRTH_DATE);
@@ -110,7 +120,15 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
   };
 
   return (
-    <div className="bg-gradient-to-b from-[var(--rho-cream)]/5 to-transparent rounded-2xl p-4 overflow-hidden">
+    <div className="bg-gradient-to-b from-[var(--rho-cream)]/5 to-transparent rounded-2xl p-4 overflow-hidden relative">
+      {/* Hover tooltip */}
+      {hoveredPoint && (
+        <div className="absolute top-4 right-4 bg-black/90 border border-white/30 rounded-lg px-3 py-2 text-xs z-10">
+          <p className="text-white/70">{new Date(hoveredPoint.date).toLocaleDateString("nl-NL")}</p>
+          <p className="text-white font-semibold">{hoveredPoint.value.toFixed(2)} {unit}</p>
+          <p className="text-amber-300">P{hoveredPoint.percentile}</p>
+        </div>
+      )}
       <svg width="100%" height="700" viewBox={`0 0 ${width} ${height}`} className="text-[var(--rho-cream)]">
         {/* Background */}
         <rect width={width} height={height} fill="none" />
@@ -215,16 +233,25 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
           Weken oud
         </text>
 
-        {/* Data points with tooltips */}
+        {/* Data points with hover */}
         {dataPoints.map((point, idx) => {
           const x = scaleX(point.ageWeeks);
           const y = scaleY(point.value);
-          const dateStr = new Date(point.date).toLocaleDateString("nl-NL");
-          const tooltip = `${dateStr}\n${point.value.toFixed(2)} ${unit}\nP${point.percentile}`;
           return (
-            <g key={`point-${idx}`}>
-              <title>{tooltip}</title>
-              <circle cx={x} cy={y} r="4" fill="white" stroke="rgba(255, 255, 255, 0.5)" strokeWidth="1" />
+            <g
+              key={`point-${idx}`}
+              onMouseEnter={() => setHoveredPoint(point)}
+              onMouseLeave={() => setHoveredPoint(null)}
+              style={{ cursor: "pointer" }}
+            >
+              <circle
+                cx={x}
+                cy={y}
+                r="4"
+                fill="white"
+                stroke="rgba(255, 255, 255, 0.5)"
+                strokeWidth="1"
+              />
             </g>
           );
         })}
