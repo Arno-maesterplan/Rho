@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GrowthChart } from "./GrowthChart";
+import { GrowthChartSVG } from "./GrowthChartSVG";
 
 interface Measurement {
   id: string;
@@ -48,7 +48,7 @@ export function GrowthTabs({ measurements }: Props) {
       {/* Chart for active tab */}
       {TABS.map((tab) => (
         <div key={tab.id} className={activeTab === tab.id ? "block" : "hidden"}>
-          <GrowthChart measurements={measurements} type={tab.id} label={tab.label} unit={tab.unit} />
+          <GrowthChartSVG measurements={measurements} type={tab.id} label={tab.label} unit={tab.unit} />
         </div>
       ))}
     </div>
