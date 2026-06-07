@@ -6,6 +6,7 @@ import { formatDutchDate } from "@/lib/rho";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { useNaam } from "@/lib/useNaam";
+import { deleteMilestoneAction } from "./delete-action";
 
 type Template = { emoji: string; title: string; category: string };
 type Behaald = {
@@ -210,20 +211,19 @@ export function MilestoneGrid({ templates, behaald }: Props) {
     setEditMilestone(null);
     setLoading(true);
 
-    console.log("📡 Sending delete request to Supabase for ID:", toDelete.id);
-    const { error } = await supabase.from("milestones").delete().eq("id", toDelete.id);
-
-    console.log("📊 Delete response:", { error });
-    setLoading(false);
-
-    if (error) {
-      console.error("❌ Delete error:", error);
-      alert("Fout bij verwijderen - milestone is niet verwijderd\n\nFout: " + error.message);
+    try {
+      console.log("📡 Calling server action to delete milestone...");
+      await deleteMilestoneAction(toDelete.id);
+      console.log("✅ Server action succeeded, refreshing page...");
+      router.refresh();
+    } catch (err) {
+      console.error("❌ Delete error:", err);
+      const errorMsg = err instanceof Error ? err.message : "Onbekende fout";
+      alert("Fout bij verwijderen:\n" + errorMsg);
       // Reopen the modal if delete failed
       setEditMilestone(toDelete);
-    } else {
-      console.log("✅ Milestone verwijderd, refreshing page...");
-      router.refresh();
+    } finally {
+      setLoading(false);
     }
   }
 
