@@ -202,20 +202,26 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   async function deleteJaMilestone() {
     if (!editMilestone || !window.confirm("Milestone verwijderen? Dit kan niet ongedaan gemaakt worden.")) return;
 
+    console.log("🗑️ Starting delete for milestone:", editMilestone.title);
+
     // Optimistic UI: close modal immediately
     const toDelete = editMilestone;
     setEditMilestone(null);
     setLoading(true);
 
-    const { error } = await supabase.from("milestones").delete().eq("title", toDelete.title);
+    console.log("📡 Sending delete request to Supabase...");
+    const { data, error, status } = await supabase.from("milestones").delete().eq("title", toDelete.title).select();
+
+    console.log("📊 Delete response:", { status, error, data });
     setLoading(false);
 
     if (error) {
-      console.error("Delete fout:", error);
-      alert("Fout bij verwijderen - milestone is niet verwijderd");
+      console.error("❌ Delete error:", error);
+      alert("Fout bij verwijderen - milestone is niet verwijderd\n\nFout: " + error.message);
+      // Reopen the modal if delete failed
+      setEditMilestone(toDelete);
     } else {
-      console.log("✓ Milestone verwijderd");
-      setEditMilestone(null);
+      console.log("✅ Milestone verwijderd, refreshing page...");
       router.refresh();
     }
   }
