@@ -219,27 +219,24 @@ export default async function TijdlijnPage() {
             if (item.type === "milestone") {
               const m = item.data;
               return (
-                <details key={`m-${m.title}-${i}`} className="relative pl-16 pb-4 group">
-                  <summary className="cursor-pointer list-none">
-                    <div className="absolute left-3.5 top-1 w-6 h-6 rounded-full bg-[var(--rho-gold)]/80 border-2 border-[var(--rho-gold)] flex items-center justify-center shadow-md shadow-[var(--rho-gold)]/20 transition-all group-hover:scale-110 pointer-events-none">
-                      <span className="text-xs">{m.emoji}</span>
-                    </div>
-                    <div className="bg-[var(--rho-gold)]/10 border border-[var(--rho-gold)]/25 rounded-xl p-3 transition-colors group-hover:bg-[var(--rho-gold)]/15">
-                      <p className="text-[var(--rho-gold)] text-[10px] font-body uppercase tracking-wider">
-                        Milestone · {weekLabel(item.datum)}
-                      </p>
-                      <p className="text-[var(--rho-cream)] font-display text-sm mt-0.5">{m.title}</p>
-                      <p className="text-[var(--rho-cream)]/30 text-[10px] font-body mt-1">
-                        {formatDutchDate(item.datum)}{m.author_name ? ` · ${m.author_name}` : ""}
-                      </p>
-                    </div>
-                  </summary>
-                  {m.description && (
-                    <div className="mt-2 ml-16 bg-[var(--rho-gold)]/5 border border-[var(--rho-gold)]/10 rounded-xl p-3">
-                      <p className="text-[var(--rho-cream)]/80 text-sm font-body">{m.description}</p>
-                    </div>
-                  )}
-                </details>
+                <a
+                  key={`m-${m.title}-${i}`}
+                  href="/milestones"
+                  className="relative pl-16 pb-4 group block hover:no-underline"
+                >
+                  <div className="absolute left-3.5 top-1 w-6 h-6 rounded-full bg-[var(--rho-gold)]/80 border-2 border-[var(--rho-gold)] flex items-center justify-center shadow-md shadow-[var(--rho-gold)]/20 transition-all group-hover:scale-110 pointer-events-none">
+                    <span className="text-xs">{m.emoji}</span>
+                  </div>
+                  <div className="bg-[var(--rho-gold)]/10 border border-[var(--rho-gold)]/25 rounded-xl p-3 transition-colors group-hover:bg-[var(--rho-gold)]/15 cursor-pointer">
+                    <p className="text-[var(--rho-gold)] text-[10px] font-body uppercase tracking-wider">
+                      Milestone · {weekLabel(item.datum)}
+                    </p>
+                    <p className="text-[var(--rho-cream)] font-display text-sm mt-0.5">{m.title}</p>
+                    <p className="text-[var(--rho-cream)]/30 text-[10px] font-body mt-1">
+                      {formatDutchDate(item.datum)}{m.author_name ? ` · ${m.author_name}` : ""}
+                    </p>
+                  </div>
+                </a>
               );
             }
 
