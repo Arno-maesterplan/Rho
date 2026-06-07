@@ -108,20 +108,20 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
 
   // Generate percentile curve data
   const percentileValues = {
-    p3: [] as Array<{ week: number; value: number }>,
-    p15: [] as Array<{ week: number; value: number }>,
-    p50: [] as Array<{ week: number; value: number }>,
-    p85: [] as Array<{ week: number; value: number }>,
-    p97: [] as Array<{ week: number; value: number }>,
+    p3: [] as Array<{ ageWeeks: number; value: number }>,
+    p15: [] as Array<{ ageWeeks: number; value: number }>,
+    p50: [] as Array<{ ageWeeks: number; value: number }>,
+    p85: [] as Array<{ ageWeeks: number; value: number }>,
+    p97: [] as Array<{ ageWeeks: number; value: number }>,
   };
 
   for (let week = 0; week <= maxAge; week += 0.25) {
     const lms = getLMSForWeek(week, type);
-    percentileValues.p3.push({ week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 3) });
-    percentileValues.p15.push({ week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 15) });
-    percentileValues.p50.push({ week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 50) });
-    percentileValues.p85.push({ week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 85) });
-    percentileValues.p97.push({ week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 97) });
+    percentileValues.p3.push({ ageWeeks: week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 3) });
+    percentileValues.p15.push({ ageWeeks: week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 15) });
+    percentileValues.p50.push({ ageWeeks: week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 50) });
+    percentileValues.p85.push({ ageWeeks: week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 85) });
+    percentileValues.p97.push({ ageWeeks: week, value: lmsPercentileValue(lms.L, lms.M, lms.S, 97) });
   }
 
   // Calculate Y-axis range
@@ -151,7 +151,7 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--rho-cream)/10" />
               <XAxis
                 type="number"
-                dataKey="week"
+                dataKey="ageWeeks"
                 domain={[0, maxAge]}
                 ticks={xAxisTicks}
                 label={{ value: "Weken oud", position: "bottom", offset: 10 }}
