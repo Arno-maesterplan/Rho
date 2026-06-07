@@ -106,10 +106,6 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
       const value = lmsPercentileValue(lms.L, lms.M, lms.S, percentile);
       points.push({ week, value });
     }
-    // DEBUG: log first and last points
-    if (percentile === 50) {
-      console.log(`P50 curve: week 0=${points[0].value.toFixed(2)}, week ${maxAge}=${points[points.length-1].value.toFixed(2)}, yMin=${yMin.toFixed(2)}, yMax=${yMax.toFixed(2)}`);
-    }
     return points.map((p) => `${scaleX(p.week)},${scaleY(p.value)}`).join(" ");
   };
 
@@ -133,16 +129,8 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
           })}
         </g>
 
-        {/* WHO Percentile curves - P50 ONLY for now */}
-        <polyline
-          key="curve-p50"
-          points={generateCurve(50)}
-          fill="none"
-          stroke="rgba(255, 255, 255, 0.7)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        {/* WHO Percentile curves - coming soon */}
+        {/* Temporarily disabled - debugging percentile calc */}
 
         {/* Y Axis */}
         <line
