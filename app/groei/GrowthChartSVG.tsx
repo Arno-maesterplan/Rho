@@ -117,18 +117,11 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
           })}
         </g>
 
-        {/* WHO Percentile curves */}
-        {[3, 15, 50, 85, 97].map((p) => (
-          <polyline
-            key={`curve-p${p}`}
-            points={generateCurve(p)}
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.3)"
-            strokeWidth={p === 50 ? "2.5" : "1"}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        ))}
+        {/* WHO Percentile curves - DEBUGGING */}
+        {/* Temporarily disabled - curves calculation needs fixing */}
+        <text x={width / 2} y={chartHeight / 2 + margin.top} textAnchor="middle" fontSize="14" fill="var(--rho-cream)" opacity="0.5">
+          WHO curves (debugging percentile calc)
+        </text>
 
         {/* Y Axis */}
         <line
