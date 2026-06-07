@@ -68,10 +68,22 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
 
   // Calculate dimensions
   const maxAge = Math.max(...dataPoints.map((p) => p.ageWeeks)) + 4;
+
+  // Get Y-axis range from WHO curves (P3 to P97), not just data points
   const allValues = dataPoints.map((p) => p.value);
-  const minValue = Math.min(...allValues);
-  const maxValue = Math.max(...allValues);
-  const padding = (maxValue - minValue) * 0.2;
+  let minValue = Math.min(...allValues);
+  let maxValue = Math.max(...allValues);
+
+  // Expand range to include WHO curves
+  for (let week = 0; week <= maxAge; week += 1) {
+    const lms = getLMSForWeek(week, type);
+    const p3 = lmsPercentileValue(lms.L, lms.M, lms.S, 3);
+    const p97 = lmsPercentileValue(lms.L, lms.M, lms.S, 97);
+    minValue = Math.min(minValue, p3);
+    maxValue = Math.max(maxValue, p97);
+  }
+
+  const padding = (maxValue - minValue) * 0.15;
   const yMin = minValue - padding;
   const yMax = maxValue + padding;
 
