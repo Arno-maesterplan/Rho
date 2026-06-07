@@ -9,6 +9,7 @@ import { useNaam } from "@/lib/useNaam";
 
 type Template = { emoji: string; title: string; category: string };
 type Behaald = {
+  id: string;
   title: string;
   date: string;
   emoji: string;
@@ -202,17 +203,17 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   async function deleteJaMilestone() {
     if (!editMilestone || !window.confirm("Milestone verwijderen? Dit kan niet ongedaan gemaakt worden.")) return;
 
-    console.log("🗑️ Starting delete for milestone:", editMilestone.title);
+    console.log("🗑️ Starting delete for milestone:", editMilestone.title, "ID:", editMilestone.id);
 
     // Optimistic UI: close modal immediately
     const toDelete = editMilestone;
     setEditMilestone(null);
     setLoading(true);
 
-    console.log("📡 Sending delete request to Supabase...");
-    const { data, error, status } = await supabase.from("milestones").delete().eq("title", toDelete.title).select();
+    console.log("📡 Sending delete request to Supabase for ID:", toDelete.id);
+    const { error } = await supabase.from("milestones").delete().eq("id", toDelete.id);
 
-    console.log("📊 Delete response:", { status, error, data });
+    console.log("📊 Delete response:", { error });
     setLoading(false);
 
     if (error) {
