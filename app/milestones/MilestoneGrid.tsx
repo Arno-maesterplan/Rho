@@ -6,6 +6,7 @@ import { formatDutchDate } from "@/lib/rho";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { useNaam } from "@/lib/useNaam";
+import { CommentSection } from "@/app/components/CommentSection";
 
 type Template = { emoji: string; title: string; category: string };
 type Behaald = {
@@ -383,6 +384,15 @@ export function MilestoneGrid({ templates, behaald }: Props) {
               </div>
             )}
 
+            {/* Comments */}
+            {naam && (
+              <CommentSection
+                itemId={viewMilestone.id}
+                itemType="milestone"
+                currentUserName={naam}
+              />
+            )}
+
             <div className="flex gap-3 pt-4 border-t border-[var(--rho-cream)]/10">
               <Button variant="ghost" className="flex-1" onClick={() => setViewMilestone(null)}>Sluiten</Button>
               {/* Edit knop: only if viewer is creator or parent */}
@@ -453,6 +463,15 @@ export function MilestoneGrid({ templates, behaald }: Props) {
                   </div>
                 )}
               </div>
+
+              {/* Comments */}
+              {naam && (
+                <CommentSection
+                  itemId={editMilestone.id}
+                  itemType="milestone"
+                  currentUserName={naam}
+                />
+              )}
             </div>
 
             <div className="flex gap-3 flex-col-reverse border-t border-[var(--rho-cream)]/10 pt-4 mt-4">

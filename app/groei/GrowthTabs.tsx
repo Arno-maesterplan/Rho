@@ -27,14 +27,14 @@ export function GrowthTabs({ measurements }: Props) {
   const [activeTab, setActiveTab] = useState<TabType>("weight");
 
   return (
-    <div className="space-y-6">
-      {/* Tab buttons - pill-shaped */}
-      <div className="flex gap-2 justify-center flex-wrap">
+    <div className="space-y-0">
+      {/* Tab buttons - pill-shaped, VERY compact */}
+      <div className="flex gap-1 justify-center flex-wrap">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-6 py-2 rounded-full font-body text-sm transition-all ${
+            className={`px-2 py-0.5 rounded-full font-body text-[9px] transition-all ${
               activeTab === tab.id
                 ? "bg-[var(--rho-cream)] text-[var(--rho-red-dark)]"
                 : "bg-[var(--rho-cream)]/20 text-[var(--rho-cream)]/70 hover:text-[var(--rho-cream)]"

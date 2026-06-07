@@ -178,11 +178,11 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
   ).filter((v, i, arr) => i === 0 || v > arr[i - 1]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Chart */}
-      <div className="bg-gradient-to-b from-[var(--rho-cream)]/5 to-transparent rounded-2xl p-6 overflow-hidden">
+      <div className="bg-gradient-to-b from-[var(--rho-cream)]/5 to-transparent rounded-2xl p-4 overflow-hidden h-[700px]">
         {dataPoints.length > 0 ? (
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart margin={{ top: 20, right: 30, left: 60, bottom: 40 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--rho-cream)/10" />
               <XAxis
@@ -273,7 +273,7 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-96 flex items-center justify-center text-[var(--rho-cream)]/40">
+          <div className="h-[700px] flex items-center justify-center text-[var(--rho-cream)]/40">
             Geen metingen beschikbaar
           </div>
         )}

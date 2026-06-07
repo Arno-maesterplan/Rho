@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 import { Button } from "@/components/Button";
+import { CommentSection } from "@/app/components/CommentSection";
 
 function leesDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -416,6 +417,15 @@ function UpdateKaart({ update }: { update: Update }) {
               </div>
             )}
           </div>
+        )}
+
+        {/* Comments section */}
+        {naam && (
+          <CommentSection
+            itemId={update.id}
+            itemType="update"
+            currentUserName={naam}
+          />
         )}
 
         <div className="flex gap-2 pt-1">

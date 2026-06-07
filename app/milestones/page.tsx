@@ -9,7 +9,7 @@ export default async function MilestonesPage() {
 
   const { data: behaald } = await supabase
     .from("milestones")
-    .select("id, title, date, emoji, description, photo_url, photo_urls")
+    .select("id, title, date, emoji, description, photo_url, photo_urls, author_name")
     .order("date", { ascending: true });
 
   return (
