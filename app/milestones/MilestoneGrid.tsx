@@ -6,7 +6,6 @@ import { formatDutchDate } from "@/lib/rho";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { useNaam } from "@/lib/useNaam";
-import { deleteMilestoneAction } from "./delete-action";
 
 type Template = { emoji: string; title: string; category: string };
 type Behaald = {
@@ -212,9 +211,20 @@ export function MilestoneGrid({ templates, behaald }: Props) {
     setLoading(true);
 
     try {
-      console.log("📡 Calling server action to delete milestone...");
-      await deleteMilestoneAction(toDelete.id);
-      console.log("✅ Server action succeeded, refreshing page...");
+      console.log("📡 Calling API to delete milestone...");
+      const response = await fetch("/api/delete-milestone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ milestoneId: toDelete.id }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Delete failed");
+      }
+
+      console.log("✅ API delete succeeded, refreshing page...");
       router.refresh();
     } catch (err) {
       console.error("❌ Delete error:", err);

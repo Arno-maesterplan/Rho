@@ -51,9 +51,18 @@ interface CustomTooltipProps {
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
-  if (!active || !payload?.[0]) return null;
+  if (!active || !payload) return null;
 
-  const data = payload[0].payload as DataPoint;
+  // Only show tooltip if hovering over actual data point (measurement data)
+  // Filter to only show data from dataPoints, not percentile curve data
+  const dataPoint = payload.find((p: any) => {
+    const data = p.payload as any;
+    return data.percentile !== undefined; // Only actual measurements have percentile
+  });
+
+  if (!dataPoint) return null;
+
+  const data = dataPoint.payload as DataPoint;
   const date = new Date(data.date).toLocaleDateString("nl-NL", {
     day: "2-digit",
     month: "2-digit",
@@ -243,7 +252,7 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
                 name="P97"
               />
 
-              {/* Data points - larger white circles with prominent ring */}
+              {/* Data points - smaller, cleaner circles */}
               <Line
                 data={dataPoints}
                 type="monotone"
@@ -252,9 +261,9 @@ export function GrowthChart({ measurements, type, label, unit }: Props) {
                 strokeWidth={2}
                 dot={{
                   fill: "white",
-                  r: 7,
-                  stroke: "rgba(255, 255, 255, 0.6)",
-                  strokeWidth: 3,
+                  r: 4,
+                  stroke: "rgba(255, 255, 255, 0.5)",
+                  strokeWidth: 1,
                 }}
                 isAnimationActive={false}
                 onClick={(e: any) => {
