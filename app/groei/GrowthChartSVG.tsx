@@ -106,6 +106,10 @@ export function GrowthChartSVG({ measurements, type, label, unit }: Props) {
       const value = lmsPercentileValue(lms.L, lms.M, lms.S, percentile);
       points.push({ week, value });
     }
+    // DEBUG: log first and last points
+    if (percentile === 50) {
+      console.log(`P50 curve: week 0=${points[0].value.toFixed(2)}, week ${maxAge}=${points[points.length-1].value.toFixed(2)}, yMin=${yMin.toFixed(2)}, yMax=${yMax.toFixed(2)}`);
+    }
     return points.map((p) => `${scaleX(p.week)},${scaleY(p.value)}`).join(" ");
   };
 
