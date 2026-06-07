@@ -20,10 +20,10 @@ export default async function GroeiPage({
   const showForm = params.new === "1";
 
   return (
-    <main className="min-h-screen max-w-lg mx-auto px-5 py-4 space-y-2">
-      <header className="text-center py-2">
-        <h1 className="font-display text-3xl text-[var(--rho-cream)]">Growth</h1>
-        <p className="text-[var(--rho-gold)] text-xs mt-0.5">Rho</p>
+    <main className="min-h-screen max-w-lg mx-auto px-5 py-6 space-y-3">
+      <header className="text-center py-3">
+        <h1 className="font-display text-4xl text-[var(--rho-cream)]">Growth</h1>
+        <p className="text-[var(--rho-gold)] text-sm mt-1">Rho</p>
       </header>
 
       <GrowthTabs measurements={measurements ?? []} />
