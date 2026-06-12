@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { useNaam } from "@/lib/useNaam";
 import { CommentSection } from "@/app/components/CommentSection";
+import { EmojiReactions } from "@/app/components/EmojiReactions";
 
 type Template = { emoji: string; title: string; category: string };
 type Behaald = {
@@ -478,6 +479,15 @@ export function MilestoneGrid({ templates, behaald }: Props) {
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* Emoji reacties */}
+            {naam && (
+              <EmojiReactions
+                itemId={viewMilestone.id}
+                itemType="milestone"
+                currentUserName={naam}
+              />
             )}
 
             {/* Comments */}

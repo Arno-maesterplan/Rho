@@ -9,6 +9,7 @@ import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 import { Button } from "@/components/Button";
 import { CommentSection } from "@/app/components/CommentSection";
+import { EmojiReactions } from "@/app/components/EmojiReactions";
 
 function leesDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -417,6 +418,15 @@ function UpdateKaart({ update }: { update: Update }) {
               </div>
             )}
           </div>
+        )}
+
+        {/* Emoji reacties */}
+        {naam && (
+          <EmojiReactions
+            itemId={update.id}
+            itemType="update"
+            currentUserName={naam}
+          />
         )}
 
         {/* Comments section */}
