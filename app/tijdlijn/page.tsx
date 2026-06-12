@@ -3,6 +3,8 @@ import { getRhoAge, getCurrentLeap, formatDutchDate, WONDER_WEEKS, BIRTH_DATE } 
 import { differenceInDays, differenceInWeeks } from "date-fns";
 import { TijdlijnClient } from "./TijdlijnClient";
 
+export const dynamic = "force-dynamic";
+
 type Update = {
   id: string;
   title: string | null;

@@ -4,6 +4,8 @@ import { differenceInDays } from "date-fns";
 import { NaamWeergave } from "@/components/NaamWeergave";
 import { SprongKaarten } from "@/components/SprongKaarten";
 
+export const dynamic = "force-dynamic";
+
 export default async function Dashboard() {
   const supabase = createClient();
 
