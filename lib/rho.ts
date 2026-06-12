@@ -1,7 +1,11 @@
-import { differenceInWeeks, differenceInDays, format } from "date-fns";
+import { differenceInWeeks, differenceInDays, addWeeks, format } from "date-fns";
 import { nl } from "date-fns/locale";
 
 export const BIRTH_DATE = new Date("2026-05-13");
+
+// Uitgerekende datum — sprongen (Wonder Weeks) worden hierop berekend,
+// niet op de geboortedatum
+export const DUE_DATE = new Date("2026-05-19");
 
 export function getRhoAge() {
   const today = new Date();
@@ -12,12 +16,17 @@ export function getRhoAge() {
   return { weeks, days, months, totalDays };
 }
 
+// Leeftijd in weken vanaf de uitgerekende datum (voor sprongberekening)
+export function getLeapWeeks() {
+  return differenceInWeeks(new Date(), DUE_DATE);
+}
+
 export function formatDutchDate(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return format(d, "d MMMM yyyy", { locale: nl });
 }
 
-export const WONDER_WEEKS = [
+const WONDER_WEEKS_RAW = [
   {
     number: 1,
     name: "De Wereld van Gewaarwordingen",
@@ -163,7 +172,17 @@ export const WONDER_WEEKS = [
   },
 ];
 
-export function getCurrentLeap(weeks: number) {
+// Sprongdata afgeleid van de uitgerekende datum (DUE_DATE), niet de geboortedatum
+export const WONDER_WEEKS = WONDER_WEEKS_RAW.map((ww) => ({
+  ...ww,
+  dateStart: format(addWeeks(DUE_DATE, ww.weekStart), "yyyy-MM-dd"),
+  dateEnd: format(addWeeks(DUE_DATE, ww.weekEnd), "yyyy-MM-dd"),
+}));
+
+// weekStart/weekEnd zijn weken vanaf de uitgerekende datum, dus we vergelijken
+// met de leeftijd vanaf DUE_DATE — het weeks-argument wordt genegeerd (compat)
+export function getCurrentLeap(_weeks?: number) {
+  const weeks = getLeapWeeks();
   const activeLeap = WONDER_WEEKS.find(
     (leap) => weeks >= leap.weekStart - 1 && weeks <= leap.weekEnd + 1
   );

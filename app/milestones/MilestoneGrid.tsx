@@ -91,6 +91,9 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   const supabase = createClient();
 
   const [activeModal, setActiveModal] = useState<Template | null>(null);
+  const [isCustom, setIsCustom] = useState(false);
+  const [customTitle, setCustomTitle] = useState("");
+  const [customEmoji, setCustomEmoji] = useState("✨");
   const [editMilestone, setEditMilestone] = useState<Behaald | null>(null);
   const [viewMilestone, setViewMilestone] = useState<Behaald | null>(null);
   const [datum, setDatum] = useState(new Date().toISOString().split("T")[0]);
@@ -121,13 +124,22 @@ export function MilestoneGrid({ templates, behaald }: Props) {
 
   async function aanvinken() {
     if (!activeModal) return;
+    if (isCustom && !customTitle.trim()) {
+      alert("Geef je milestone een titel");
+      return;
+    }
 
     // Optimistic UI: show success and close immediately
     setSuccessMsg("✓ Milestone opgeslagen!");
-    const toInsert = activeModal;
+    const toInsert = isCustom
+      ? { title: customTitle.trim(), emoji: customEmoji.trim() || "✨", category: "eigen" }
+      : activeModal;
 
     setTimeout(() => {
       setActiveModal(null);
+      setIsCustom(false);
+      setCustomTitle("");
+      setCustomEmoji("✨");
       setNota("");
       setFotos([]);
     }, 100);
@@ -241,9 +253,65 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   const inputClass = "w-full bg-[var(--rho-cream)]/10 border border-[var(--rho-cream)]/20 rounded-xl px-4 py-3 text-[var(--rho-cream)] text-sm font-body focus:outline-none focus:border-[var(--rho-gold)]/50 transition-colors";
   const grouped = CATEGORIES_ORDER.map((cat) => ({ cat, items: templates.filter((t) => t.category === cat) }));
 
+  // Eigen milestones = behaalde milestones die niet bij de templates horen
+  const templateTitles = new Set(templates.map((t) => t.title));
+  const eigenMilestones = behaald.filter((b) => !templateTitles.has(b.title));
+
+  function openCustomModal() {
+    setIsCustom(true);
+    setCustomTitle("");
+    setCustomEmoji("✨");
+    setActiveModal({ emoji: "✨", title: "", category: "eigen" });
+    setDatum(new Date().toISOString().split("T")[0]);
+    setNota("");
+    setFotos([]);
+  }
+
   return (
     <>
       <div className="space-y-6">
+        {/* Eigen milestones */}
+        <div>
+          <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-3">Eigen milestones</p>
+          <div className="grid grid-cols-2 gap-2">
+            {eigenMilestones.map((m) => {
+              const fotolijst = getFotos(m);
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setViewMilestone(m)}
+                  className="text-left rounded-xl border transition-all overflow-hidden cursor-pointer bg-[var(--rho-gold)]/15 border-[var(--rho-gold)]/30 hover:bg-[var(--rho-gold)]/25"
+                >
+                  {fotolijst.length > 0 && (
+                    <div className="relative">
+                      <img src={fotolijst[0]} alt="" className="w-full aspect-video object-cover" />
+                      {fotolijst.length > 1 && (
+                        <span className="absolute bottom-1 right-1 bg-black/50 text-white text-[10px] font-body px-1.5 py-0.5 rounded-full">+{fotolijst.length - 1}</span>
+                      )}
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <div className="flex items-start gap-2">
+                      <span className="text-xl shrink-0">{m.emoji}</span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-body leading-snug text-[var(--rho-cream)]">{m.title}</p>
+                        <p className="text-[var(--rho-gold)] text-[10px] font-body mt-0.5">✓ {formatDutchDate(m.date)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+            <button
+              onClick={openCustomModal}
+              className="text-left rounded-xl border-2 border-dashed border-[var(--rho-cream)]/20 hover:border-[var(--rho-gold)]/40 hover:bg-[var(--rho-cream)]/5 transition-all p-3 flex items-center gap-2 min-h-[60px]"
+            >
+              <span className="text-xl">➕</span>
+              <p className="text-xs font-body text-[var(--rho-cream)]/60 leading-snug">Eigen milestone toevoegen</p>
+            </button>
+          </div>
+        </div>
+
         {grouped.map(({ cat, items }) => (
           <div key={cat}>
             <p className="text-[var(--rho-cream)]/40 text-xs font-body uppercase tracking-wider mb-3">{CAT_LABELS[cat]}</p>
@@ -295,12 +363,40 @@ export function MilestoneGrid({ templates, behaald }: Props) {
 
       {/* Modal: nieuwe milestone */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && setActiveModal(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" onClick={(e) => e.target === e.currentTarget && (setActiveModal(null), setIsCustom(false))}>
           <div className="w-full max-w-sm bg-[#1a0810] border border-[var(--rho-cream)]/20 rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">{activeModal.emoji}</span>
-              <h3 className="font-display text-lg text-[var(--rho-cream)] leading-snug">{activeModal.title}</h3>
-            </div>
+            {isCustom ? (
+              <div className="space-y-3">
+                <h3 className="font-display text-lg text-[var(--rho-cream)] leading-snug">✨ Eigen milestone</h3>
+                <div className="flex gap-2">
+                  <div className="w-16">
+                    <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Emoji</label>
+                    <input
+                      type="text"
+                      value={customEmoji}
+                      onChange={(e) => setCustomEmoji(e.target.value)}
+                      maxLength={4}
+                      className={`${inputClass} text-center text-xl px-1`}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Titel</label>
+                    <input
+                      type="text"
+                      value={customTitle}
+                      onChange={(e) => setCustomTitle(e.target.value)}
+                      placeholder="Bv. Eerste keer mee onder de douche"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{activeModal.emoji}</span>
+                <h3 className="font-display text-lg text-[var(--rho-cream)] leading-snug">{activeModal.title}</h3>
+              </div>
+            )}
 
             <div>
               <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Wanneer was dit?</label>
@@ -348,7 +444,7 @@ export function MilestoneGrid({ templates, behaald }: Props) {
             </div>
 
             <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1" onClick={() => setActiveModal(null)} disabled={loading}>Annuleer</Button>
+              <Button variant="ghost" className="flex-1" onClick={() => { setActiveModal(null); setIsCustom(false); }} disabled={loading}>Annuleer</Button>
               <Button variant="gold" className="flex-1" loading={loading} onClick={aanvinken}>
                 {successMsg || "Milestone behaald!"}
               </Button>

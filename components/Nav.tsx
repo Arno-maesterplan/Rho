@@ -7,7 +7,9 @@ const links = [
   { href: "/", label: "Home", emoji: "🏠" },
   { href: "/tijdlijn", label: "Tijdlijn", emoji: "📅" },
   { href: "/groei", label: "Groei", emoji: "📈" },
-  { href: "/milestones", label: "Milestones", emoji: "⭐" },
+  { href: "/milestones", label: "Mijlpalen", emoji: "⭐" },
+  { href: "/ontwikkeling", label: "Weetjes", emoji: "💡" },
+  { href: "/slaap", label: "Slaap", emoji: "🌙" },
   { href: "/updates", label: "Updates", emoji: "💬" },
 ];
 
