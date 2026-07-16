@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { formatDutchDate } from "@/lib/rho";
 import { LeeftijdRegel } from "@/components/LeeftijdRegel";
+import { FotoUpload } from "./FotoUpload";
 
 export const dynamic = "force-dynamic";
 
@@ -14,12 +15,25 @@ type Foto = {
 export default async function FotosPage() {
   const supabase = createClient();
 
-  const [{ data: updates }, { data: milestones }] = await Promise.all([
+  const [{ data: updates }, { data: milestones }, { data: albumFiles }] = await Promise.all([
     supabase.from("updates").select("title, photo_urls, date, created_at, author_name"),
     supabase.from("milestones").select("title, photo_url, photo_urls, date, author_name"),
+    supabase.storage.from("photos").list("album", { limit: 1000 }),
   ]);
 
   const fotos: Foto[] = [];
+
+  // Losse albumfoto's — datum en naam zitten in de bestandsnaam
+  for (const f of albumFiles ?? []) {
+    const m = f.name.match(/^(\d{4}-\d{2}-\d{2})_([a-zA-Z0-9]*)_/);
+    const { data: pub } = supabase.storage.from("photos").getPublicUrl(`album/${f.name}`);
+    fotos.push({
+      src: pub.publicUrl,
+      datum: m?.[1] ?? f.created_at ?? new Date().toISOString(),
+      label: "Foto",
+      auteur: m?.[2] || undefined,
+    });
+  }
 
   for (const u of updates ?? []) {
     for (const src of u.photo_urls ?? []) {
@@ -61,6 +75,8 @@ export default async function FotosPage() {
           {fotos.length} foto&apos;s · tik op een foto om ze groot te zien en op te slaan
         </p>
       </header>
+
+      <FotoUpload />
 
       {fotos.length === 0 ? (
         <div className="text-center py-16 text-[var(--rho-cream)]/40 font-body">
