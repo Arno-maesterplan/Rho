@@ -36,6 +36,8 @@
 
 html {
   height: 100%;
+  /* Geen horizontaal scrollen/verschuiven op smartphone */
+  overflow-x: hidden;
 }
 
 body {
@@ -43,6 +45,8 @@ body {
   color: var(--rho-cream);
   font-family: var(--font-lora), Georgia, serif;
   min-height: 100%;
+  overflow-x: hidden;
+  max-width: 100vw;
   /* subtle papier-textuur via radial gradient */
   background-image:
     radial-gradient(ellipse at 20% 50%, rgba(155, 13, 34, 0.4) 0%, transparent 60%),

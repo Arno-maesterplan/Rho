@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Lora } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { WieBenJij } from "@/components/WieBenJij";
+import { Lightbox } from "@/app/components/Lightbox";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -60,6 +61,7 @@ export default function RootLayout({
         <WieBenJij />
         {children}
         <Nav />
+        <Lightbox />
       </body>
     </html>
   );
