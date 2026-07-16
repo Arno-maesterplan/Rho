@@ -1,3 +1,4 @@
+import { LeeftijdRegel } from "@/components/LeeftijdRegel";
 import { createClient } from "@/lib/supabase/server";
 import { GrowthTabs } from "./GrowthTabs";
 import { MetingFormulier } from "./MetingFormulier";
@@ -23,7 +24,7 @@ export default async function GroeiPage({
     <main className="min-h-screen max-w-lg mx-auto px-5 py-6 space-y-3">
       <header className="text-center py-3">
         <h1 className="font-display text-4xl text-[var(--rho-cream)]">Growth</h1>
-        <p className="text-[var(--rho-gold)] text-sm mt-1">Rho</p>
+        <LeeftijdRegel />
       </header>
 
       <GrowthTabs measurements={measurements ?? []} />

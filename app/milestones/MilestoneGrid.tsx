@@ -8,6 +8,7 @@ import { Button } from "@/components/Button";
 import { useNaam } from "@/lib/useNaam";
 import { CommentSection } from "@/app/components/CommentSection";
 import { EmojiReactions } from "@/app/components/EmojiReactions";
+import { stuurPushNaarFamilie } from "@/lib/push";
 
 type Template = { emoji: string; title: string; category: string };
 type Behaald = {
@@ -168,6 +169,13 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       alert("Fout bij opslaan: " + (error.message || "Onbekend probleem"));
     } else {
       console.log("✅ Milestone opgeslagen!");
+      // Pushmelding naar de familie (fire-and-forget)
+      stuurPushNaarFamilie({
+        title: `Nieuwe milestone van Rho! ${toInsert.emoji}`,
+        body: toInsert.title,
+        url: "/milestones",
+        vanNaam: naam,
+      });
       router.refresh();
     }
   }

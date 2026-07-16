@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { UpdateFeed } from "./UpdateFeed";
+import { LeeftijdRegel } from "@/components/LeeftijdRegel";
 import { NieuweUpdate } from "./NieuweUpdate";
 
 export default async function UpdatesPage({
@@ -24,6 +25,7 @@ export default async function UpdatesPage({
           Familie dagboek
         </p>
         <h1 className="font-display text-4xl text-[var(--rho-cream)]">Updates</h1>
+        <LeeftijdRegel />
       </header>
 
       <NieuweUpdate showForm={showForm} />

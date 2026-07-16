@@ -3,6 +3,7 @@ import { Playfair_Display, Lora } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { WieBenJij } from "@/components/WieBenJij";
 import { Lightbox } from "@/app/components/Lightbox";
+import { VerseData } from "@/app/components/VerseData";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -62,6 +63,7 @@ export default function RootLayout({
         {children}
         <Nav />
         <Lightbox />
+        <VerseData />
       </body>
     </html>
   );

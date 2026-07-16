@@ -1,3 +1,4 @@
+import { LeeftijdRegel } from "@/components/LeeftijdRegel";
 import { getRhoAge } from "@/lib/rho";
 import { SLAAP_FASES, getHuidigeSlaapFase } from "@/lib/slaap";
 
@@ -17,6 +18,7 @@ export default function SlaapPage() {
         <p className="text-[var(--rho-cream)]/50 text-sm font-body mt-1">
           Wat Rho nu nodig heeft om goed te slapen
         </p>
+        <LeeftijdRegel />
       </header>
 
       <div className="space-y-4">

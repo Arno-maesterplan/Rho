@@ -1,3 +1,4 @@
+import { LeeftijdRegel } from "@/components/LeeftijdRegel";
 import { createClient } from "@/lib/supabase/server";
 import { MILESTONE_TEMPLATES } from "@/lib/milestones";
 import { MilestoneGrid } from "./MilestoneGrid";
@@ -22,6 +23,7 @@ export default async function MilestonesPage() {
         <p className="text-[var(--rho-cream)]/50 text-sm font-body mt-1">
           {(behaald ?? []).length} van {MILESTONE_TEMPLATES.length} behaald
         </p>
+        <LeeftijdRegel />
       </header>
 
       <div className="h-1.5 bg-[var(--rho-cream)]/10 rounded-full overflow-hidden">

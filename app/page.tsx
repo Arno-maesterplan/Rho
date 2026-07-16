@@ -3,6 +3,7 @@ import { getRhoAge, getCurrentLeap, formatDutchDate } from "@/lib/rho";
 import { differenceInDays } from "date-fns";
 import { NaamWeergave } from "@/components/NaamWeergave";
 import { SprongKaarten } from "@/components/SprongKaarten";
+import { MeldingenBanner } from "@/app/components/MeldingenBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,8 @@ export default async function Dashboard() {
         </div>
 
       </header>
+
+      <MeldingenBanner />
 
       <SprongKaarten
         activeLeap={activeLeap}

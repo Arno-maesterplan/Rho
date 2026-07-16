@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
+import { stuurPushNaarFamilie } from "@/lib/push";
 
 interface Props {
   showForm: boolean;
@@ -129,6 +130,14 @@ export function NieuweUpdate({ showForm }: Props) {
       setFout(`Kon niet opslaan: ${error.message}`);
       return;
     }
+
+    // Pushmelding naar de familie (fire-and-forget)
+    stuurPushNaarFamilie({
+      title: `${naam || "Iemand"} plaatste een update 📸`,
+      body: titel.trim() || tekst.trim().slice(0, 80),
+      url: "/updates",
+      vanNaam: naam,
+    });
 
     setSuccess(true);
     setTimeout(() => {

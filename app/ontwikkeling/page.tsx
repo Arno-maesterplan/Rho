@@ -1,3 +1,4 @@
+import { LeeftijdRegel } from "@/components/LeeftijdRegel";
 import { getRhoAge } from "@/lib/rho";
 import { ONTWIKKELING, CATEGORIE_INFO, getHuidigeFase } from "@/lib/ontwikkeling";
 
@@ -17,6 +18,7 @@ export default function OntwikkelingPage() {
         <p className="text-[var(--rho-cream)]/50 text-sm font-body mt-1">
           Wat Rho nu ziet, hoort, voelt en leert — week per week
         </p>
+        <LeeftijdRegel />
       </header>
 
       <div className="space-y-4">
