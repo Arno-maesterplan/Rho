@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useNaam } from "@/lib/useNaam";
 import { WONDER_WEEKS, getRhoAge } from "@/lib/rho";
 import { stuurPushNaarFamilie } from "@/lib/push";
+import { uploadFotos } from "@/lib/fotoUpload";
 
 interface Props {
   showForm: boolean;
@@ -115,11 +116,14 @@ export function NieuweUpdate({ showForm }: Props) {
     setLoading(true);
     setFout(null);
 
+    // Foto's eerst naar storage — de database krijgt alleen korte URLs
+    const fotoUrls = fotos.length > 0 ? await uploadFotos(fotos, "updates") : [];
+
     const { error } = await supabase.from("updates").insert({
       title: titel.trim() || null,
       body: tekst.trim(),
       date: datum,
-      photo_urls: fotos.length > 0 ? fotos : null,
+      photo_urls: fotoUrls.length > 0 ? fotoUrls : null,
       author_name: naam || "Onbekend",
       leap_number: gelinkteSprong,
     });

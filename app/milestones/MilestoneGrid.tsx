@@ -9,6 +9,7 @@ import { useNaam } from "@/lib/useNaam";
 import { CommentSection } from "@/app/components/CommentSection";
 import { EmojiReactions } from "@/app/components/EmojiReactions";
 import { stuurPushNaarFamilie } from "@/lib/push";
+import { uploadFotos } from "@/lib/fotoUpload";
 
 type Template = { emoji: string; title: string; category: string };
 type Behaald = {
@@ -152,13 +153,15 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       fotos: fotos.length,
       datum,
     });
+    // Foto's eerst naar storage — de database krijgt alleen korte URLs
+    const fotoUrls = fotos.length > 0 ? await uploadFotos(fotos, "milestones") : [];
     const { error } = await supabase.from("milestones").insert({
       title: toInsert.title,
       emoji: toInsert.emoji,
       date: datum,
       description: nota || null,
-      photo_urls: fotos.length > 0 ? fotos : null,
-      photo_url: fotos.length > 0 ? fotos[0] : null,
+      photo_urls: fotoUrls.length > 0 ? fotoUrls : null,
+      photo_url: fotoUrls.length > 0 ? fotoUrls[0] : null,
       author_name: naam || "Onbekend",
     });
     setLoading(false);
@@ -204,11 +207,12 @@ export function MilestoneGrid({ templates, behaald }: Props) {
       fotos: fotos.length,
     });
 
+    const fotoUrls = fotos.length > 0 ? await uploadFotos(fotos, "milestones") : [];
     const { error } = await supabase.from("milestones").update({
       date: datum,
       description: nota || null,
-      photo_urls: fotos.length > 0 ? fotos : null,
-      photo_url: fotos.length > 0 ? fotos[0] : null,
+      photo_urls: fotoUrls.length > 0 ? fotoUrls : null,
+      photo_url: fotoUrls.length > 0 ? fotoUrls[0] : null,
     }).eq("title", toUpdate.title);
 
     setLoading(false);

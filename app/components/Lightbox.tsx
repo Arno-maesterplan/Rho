@@ -52,14 +52,26 @@ export function Lightbox() {
     >
       {/* Topbalk */}
       <div className="flex justify-between items-center p-4 shrink-0">
-        <a
-          href={src}
-          download={`rho-${Date.now()}.jpg`}
-          onClick={(e) => e.stopPropagation()}
+        <button
+          onClick={async (e) => {
+            e.stopPropagation();
+            try {
+              // Via blob zodat opslaan ook werkt voor foto's op storage (cross-origin)
+              const blob = await (await fetch(src)).blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `rho-${Date.now()}.jpg`;
+              a.click();
+              URL.revokeObjectURL(url);
+            } catch {
+              window.open(src, "_blank");
+            }
+          }}
           className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm font-body px-4 py-2 rounded-full transition-colors"
         >
           ⬇ Opslaan
-        </a>
+        </button>
         <button
           onClick={() => setSrc(null)}
           className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition-colors"
