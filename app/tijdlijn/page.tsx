@@ -143,6 +143,20 @@ export default async function TijdlijnPage() {
       <div className="relative">
         <div className="absolute left-[26px] top-0 bottom-0 w-px bg-[var(--rho-cream)]/10" />
 
+        {/* Vandaag-marker: hierboven komt de toekomst, hieronder het verhaal tot nu */}
+        <div className="relative pl-16 pb-5">
+          <div className="absolute left-[18px] top-0.5 w-[17px] h-[17px] rounded-full bg-[var(--rho-gold)] animate-pulse shadow-[0_0_12px_var(--rho-gold)]" />
+          <div className="flex items-center gap-3">
+            <p className="text-[var(--rho-gold)] text-xs font-body uppercase tracking-widest shrink-0">
+              📍 Vandaag
+            </p>
+            <div className="flex-1 h-px bg-gradient-to-r from-[var(--rho-gold)]/50 to-transparent" />
+          </div>
+          <p className="text-[var(--rho-cream)]/40 text-[11px] font-body mt-0.5">
+            Rho is {weeks} weken oud · scroll naar beneden voor haar verhaal tot nu
+          </p>
+        </div>
+
         <div className="space-y-2">
           {verleden.map((item, i) => {
             const isPast = item.datum <= today;
