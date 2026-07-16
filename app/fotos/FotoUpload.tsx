@@ -55,14 +55,20 @@ export function FotoUpload() {
     let gelukt = 0;
 
     for (let i = 0; i < files.length; i++) {
-      setVoortgang(`Foto ${i + 1} van ${files.length} uploaden...`);
+      setVoortgang(`Bestand ${i + 1} van ${files.length} uploaden...`);
       try {
-        const blob = await comprimeer(files[i]);
+        const isVideo = files[i].type.startsWith("video/");
+        if (isVideo && files[i].size > 50 * 1024 * 1024) {
+          alert(`"${files[i].name}" is groter dan 50 MB en wordt overgeslagen.`);
+          continue;
+        }
+        const blob = isVideo ? files[i] : await comprimeer(files[i]);
+        const ext = isVideo ? (files[i].name.split(".").pop() || "mp4").toLowerCase() : "jpg";
         const veiligeNaam = (naam || "Onbekend").replace(/[^a-zA-Z0-9]/g, "");
-        const pad = `album/${datum}_${veiligeNaam}_${Date.now()}-${Math.random().toString(36).slice(2, 6)}.jpg`;
+        const pad = `album/${datum}_${veiligeNaam}_${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
         const { error } = await supabase.storage
           .from("photos")
-          .upload(pad, blob, { contentType: "image/jpeg" });
+          .upload(pad, blob, { contentType: isVideo ? files[i].type : "image/jpeg" });
         if (!error) gelukt++;
         else console.error("Upload mislukt:", error);
       } catch (err) {
@@ -76,8 +82,8 @@ export function FotoUpload() {
 
     if (gelukt > 0) {
       stuurPushNaarFamilie({
-        title: `${naam || "Iemand"} voegde foto's toe 📷`,
-        body: gelukt === 1 ? "1 nieuwe foto van Rho" : `${gelukt} nieuwe foto's van Rho`,
+        title: `${naam || "Iemand"} deelde nieuwe beelden van Rho 📷`,
+        body: gelukt === 1 ? "1 nieuw kiekje van Rho" : `${gelukt} nieuwe kiekjes van Rho`,
         url: "/fotos",
         vanNaam: naam,
       });
@@ -91,7 +97,7 @@ export function FotoUpload() {
         onClick={() => setOpen(true)}
         className="w-full bg-[var(--rho-cream)]/10 hover:bg-[var(--rho-cream)]/15 border border-[var(--rho-cream)]/20 text-[var(--rho-cream)]/80 font-body py-3 rounded-2xl text-sm transition-colors mb-6"
       >
-        📷 Foto&apos;s toevoegen
+        📷 Foto&apos;s of video&apos;s toevoegen
       </button>
     );
   }
@@ -100,7 +106,7 @@ export function FotoUpload() {
     <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl p-4 space-y-3 mb-6">
       <div>
         <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
-          Wanneer zijn deze foto&apos;s gemaakt?
+          Wanneer zijn deze beelden gemaakt?
         </label>
         <input
           type="date"
@@ -117,13 +123,13 @@ export function FotoUpload() {
           ) : (
             <>
               <span className="text-lg">📷</span>
-              <span className="text-sm font-body">Kies één of meerdere foto&apos;s</span>
+              <span className="text-sm font-body">Kies foto&apos;s of video&apos;s</span>
             </>
           )}
         </div>
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           onChange={onFiles}
           disabled={bezig}

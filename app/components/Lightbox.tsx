@@ -7,13 +7,16 @@ import { useEffect, useState } from "react";
 // afbeeldingen binnen knoppen/links worden overgeslagen.
 export function Lightbox() {
   const [src, setSrc] = useState<string | null>(null);
+  const [isVideo, setIsVideo] = useState(false);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
       const target = e.target as HTMLElement;
-      if (!(target instanceof HTMLImageElement)) return;
+      const isImg = target instanceof HTMLImageElement;
+      const isVid = target instanceof HTMLVideoElement;
+      if (!isImg && !isVid) return;
 
-      // Sla afbeeldingen over die al eigen klikgedrag hebben
+      // Sla media over die al eigen klikgedrag heeft
       if (target.closest("button, summary, a, nav, [data-no-lightbox]")) return;
 
       // Sla kleine afbeeldingen over (avatars, icoontjes, decoratie)
@@ -22,7 +25,8 @@ export function Lightbox() {
 
       e.preventDefault();
       e.stopPropagation();
-      setSrc(target.currentSrc || target.src);
+      setIsVideo(isVid);
+      setSrc(isVid ? (target as HTMLVideoElement).src : ((target as HTMLImageElement).currentSrc || (target as HTMLImageElement).src));
     }
 
     document.addEventListener("click", onClick, true);
@@ -61,7 +65,7 @@ export function Lightbox() {
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a");
               a.href = url;
-              a.download = `rho-${Date.now()}.jpg`;
+              a.download = `rho-${Date.now()}.${isVideo ? "mp4" : "jpg"}`;
               a.click();
               URL.revokeObjectURL(url);
             } catch {
@@ -81,19 +85,30 @@ export function Lightbox() {
         </button>
       </div>
 
-      {/* Foto */}
+      {/* Foto of video */}
       <div className="flex-1 flex items-center justify-center px-4 pb-8 min-h-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt=""
-          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        />
+        {isVideo ? (
+          <video
+            src={src}
+            controls
+            autoPlay
+            playsInline
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={src}
+            alt=""
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        )}
       </div>
 
       <p className="text-white/40 text-xs font-body text-center pb-4 shrink-0">
-        Tik naast de foto om te sluiten · hou de foto ingedrukt om te delen
+        Tik ernaast om te sluiten · hou ingedrukt om te delen
       </p>
     </div>
   );

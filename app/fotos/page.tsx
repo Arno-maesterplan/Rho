@@ -10,6 +10,7 @@ type Foto = {
   datum: string;
   label: string;
   auteur?: string;
+  isVideo?: boolean;
 };
 
 export default async function FotosPage() {
@@ -27,11 +28,13 @@ export default async function FotosPage() {
   for (const f of albumFiles ?? []) {
     const m = f.name.match(/^(\d{4}-\d{2}-\d{2})_([a-zA-Z0-9]*)_/);
     const { data: pub } = supabase.storage.from("photos").getPublicUrl(`album/${f.name}`);
+    const isVideo = /\.(mp4|mov|webm|m4v|3gp)$/i.test(f.name);
     fotos.push({
       src: pub.publicUrl,
       datum: m?.[1] ?? f.created_at ?? new Date().toISOString(),
-      label: "Foto",
+      label: isVideo ? "Video" : "Foto",
       auteur: m?.[2] || undefined,
+      isVideo,
     });
   }
 
@@ -91,17 +94,32 @@ export default async function FotosPage() {
                 {formatDutchDate(dag)}
               </p>
               <div className="grid grid-cols-3 gap-1.5">
-                {dagFotos.map((f, i) => (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    key={`${dag}-${i}`}
-                    src={f.src}
-                    alt={f.label}
-                    title={`${f.label}${f.auteur ? ` · ${f.auteur}` : ""}`}
-                    loading="lazy"
-                    className="w-full aspect-square object-cover rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
-                  />
-                ))}
+                {dagFotos.map((f, i) =>
+                  f.isVideo ? (
+                    <div key={`${dag}-${i}`} className="relative">
+                      <video
+                        src={f.src}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="w-full aspect-square object-cover rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center text-sm">▶</span>
+                      </span>
+                    </div>
+                  ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      key={`${dag}-${i}`}
+                      src={f.src}
+                      alt={f.label}
+                      title={`${f.label}${f.auteur ? ` · ${f.auteur}` : ""}`}
+                      loading="lazy"
+                      className="w-full aspect-square object-cover rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
+                    />
+                  )
+                )}
               </div>
             </section>
           ))}
