@@ -2,7 +2,8 @@ import { LeeftijdRegel } from "@/components/LeeftijdRegel";
 import { getRhoAge } from "@/lib/rho";
 import { SLAAP_FASES, getHuidigeSlaapFase } from "@/lib/slaap";
 
-export const dynamic = "force-dynamic";
+// Geen databasedata nodig — cache 1 uur zodat de pagina instant laadt
+export const revalidate = 3600;
 
 export default function SlaapPage() {
   const { weeks } = getRhoAge();
