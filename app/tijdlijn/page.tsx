@@ -17,6 +17,7 @@ type Update = {
 };
 
 type Milestone = {
+  id: string;
   title: string;
   emoji: string;
   date: string;
@@ -36,7 +37,7 @@ export default async function TijdlijnPage() {
   const today = new Date();
 
   const [{ data: milestones }, { data: updates }] = await Promise.all([
-    supabase.from("milestones").select("title, emoji, date, description, author_name").order("date", { ascending: true }),
+    supabase.from("milestones").select("id, title, emoji, date, description, author_name").order("date", { ascending: true }),
     supabase.from("updates").select("id, title, body, photo_urls, created_at, date, author_name, leap_number").order("date", { ascending: true }),
   ]);
 
@@ -74,7 +75,13 @@ export default async function TijdlijnPage() {
     items.push({ type: "update", datum: new Date(d), data: u });
   }
 
-  items.sort((a, b) => a.datum.getTime() - b.datum.getTime());
+  // Nieuwste bovenaan; toekomstige sprongen apart in een inklapbaar blok
+  const komende = items
+    .filter((i): i is Extract<TijdlijnItem, { type: "wonder_week" }> => i.type === "wonder_week" && i.datum > today)
+    .sort((a, b) => a.datum.getTime() - b.datum.getTime());
+  const verleden = items
+    .filter((i) => !(i.type === "wonder_week" && i.datum > today))
+    .sort((a, b) => b.datum.getTime() - a.datum.getTime());
 
   function weekLabel(datum: Date) {
     const w = differenceInWeeks(datum, BIRTH_DATE);
@@ -98,27 +105,46 @@ export default async function TijdlijnPage() {
         </p>
       </header>
 
-      {/* Geboorte */}
-      <div className="relative pl-16 pb-6">
-        <div className="absolute left-4 top-1.5 w-5 h-5 rounded-full bg-[var(--rho-gold)] border-2 border-[var(--rho-gold)] flex items-center justify-center shadow-lg shadow-[var(--rho-gold)]/40">
-          <span className="text-[8px]">★</span>
-        </div>
-        <div className="absolute left-[26px] top-6 bottom-0 w-px bg-[var(--rho-cream)]/10" />
-        <div className="bg-gradient-to-br from-[var(--rho-gold)]/20 to-transparent border border-[var(--rho-gold)]/30 rounded-2xl p-4">
-          <p className="text-[var(--rho-gold)] text-xs font-body uppercase tracking-wider">Geboorte</p>
-          <h2 className="font-display text-xl text-[var(--rho-cream)] mt-0.5">Rho is geboren! 🎉</h2>
-          <p className="text-[var(--rho-cream)]/60 text-xs font-body mt-1">
-            {formatDutchDate("2026-05-13")} om 14:12
-          </p>
-        </div>
-      </div>
+      {/* Komende sprongen — compact en inklapbaar */}
+      {komende.length > 0 && (
+        <details className="mb-6 rounded-2xl border border-[var(--rho-cream)]/10 bg-[var(--rho-cream)]/4">
+          <summary className="cursor-pointer list-none p-4 flex items-center justify-between">
+            <span className="text-[var(--rho-cream)]/70 font-body text-sm">
+              🔮 Komende sprongen ({komende.length})
+            </span>
+            <span className="text-[var(--rho-cream)]/30 text-xs font-body">tik om te openen</span>
+          </summary>
+          <div className="border-t border-[var(--rho-cream)]/8 divide-y divide-[var(--rho-cream)]/5">
+            {komende.map((item) => {
+              const ww = item.data;
+              const daysUntil = differenceInDays(item.datum, today);
+              return (
+                <div key={`k-${ww.number}`} className="px-4 py-3 flex items-center gap-3">
+                  <span className="text-base shrink-0">{ww.emoji}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[var(--rho-cream)] font-display text-sm leading-snug">
+                      Sprong {ww.number} · {ww.name}
+                    </p>
+                    <p className="text-[var(--rho-cream)]/40 text-[10px] font-body">
+                      {formatDutchDate(ww.dateStart)}
+                    </p>
+                  </div>
+                  <span className="text-[var(--rho-cream)]/30 text-[10px] font-body shrink-0">
+                    over {daysUntil}d
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      )}
 
-      {/* Tijdlijn */}
+      {/* Tijdlijn — nieuwste bovenaan */}
       <div className="relative">
         <div className="absolute left-[26px] top-0 bottom-0 w-px bg-[var(--rho-cream)]/10" />
 
         <div className="space-y-2">
-          {items.map((item, i) => {
+          {verleden.map((item, i) => {
             const isPast = item.datum <= today;
             const isFuture = item.datum > today;
             const daysUntil = differenceInDays(item.datum, today);
@@ -223,7 +249,7 @@ export default async function TijdlijnPage() {
               return (
                 <a
                   key={`m-${m.title}-${i}`}
-                  href="/milestones"
+                  href={`/milestones?open=${m.id}`}
                   className="relative pl-16 pb-4 group block hover:no-underline"
                 >
                   <div className="absolute left-3.5 top-1 w-6 h-6 rounded-full bg-[var(--rho-gold)]/80 border-2 border-[var(--rho-gold)] flex items-center justify-center shadow-md shadow-[var(--rho-gold)]/20 transition-all group-hover:scale-110 pointer-events-none">
@@ -282,11 +308,18 @@ export default async function TijdlijnPage() {
         </div>
       </div>
 
+      {/* Geboorte — het begin van het verhaal, helemaal onderaan */}
       <div className="relative pl-16 pt-2">
-        <div className="absolute left-4 top-3 w-5 h-5 rounded-full border-2 border-dashed border-[var(--rho-cream)]/15" />
-        <p className="text-[var(--rho-cream)]/25 text-xs font-body italic pt-1">
-          Het verhaal gaat verder...
-        </p>
+        <div className="absolute left-4 top-3.5 w-5 h-5 rounded-full bg-[var(--rho-gold)] border-2 border-[var(--rho-gold)] flex items-center justify-center shadow-lg shadow-[var(--rho-gold)]/40">
+          <span className="text-[8px]">★</span>
+        </div>
+        <div className="bg-gradient-to-br from-[var(--rho-gold)]/20 to-transparent border border-[var(--rho-gold)]/30 rounded-2xl p-4">
+          <p className="text-[var(--rho-gold)] text-xs font-body uppercase tracking-wider">Geboorte</p>
+          <h2 className="font-display text-xl text-[var(--rho-cream)] mt-0.5">Rho is geboren! 🎉</h2>
+          <p className="text-[var(--rho-cream)]/60 text-xs font-body mt-1">
+            {formatDutchDate("2026-05-13")} om 14:12
+          </p>
+        </div>
       </div>
 
       {/* Decoratieve kat rechtsonder */}

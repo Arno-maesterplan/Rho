@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { formatDutchDate } from "@/lib/rho";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/Button";
 import { useNaam } from "@/lib/useNaam";
 import { CommentSection } from "@/app/components/CommentSection";
@@ -108,6 +108,17 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   const [successMsg, setSuccessMsg] = useState("");
 
   const behaaldMap = new Map(behaald.map((b) => [b.title, b]));
+
+  // Deep-link vanaf de tijdlijn: /milestones?open=<id> opent die milestone direct
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const openId = searchParams.get("open");
+    if (openId) {
+      const m = behaald.find((b) => b.id === openId);
+      if (m) setViewMilestone(m);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Haal alle fotos op (ondersteun zowel oud photo_url als nieuw photo_urls)
   function getFotos(b: Behaald): string[] {
