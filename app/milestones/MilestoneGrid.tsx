@@ -10,6 +10,7 @@ import { CommentSection } from "@/app/components/CommentSection";
 import { EmojiReactions } from "@/app/components/EmojiReactions";
 import { stuurPushNaarFamilie } from "@/lib/push";
 import { uploadFotos } from "@/lib/fotoUpload";
+import { fotoDatum } from "@/lib/fotoMeta";
 
 type Template = { emoji: string; title: string; category: string };
 type Behaald = {
@@ -100,6 +101,7 @@ export function MilestoneGrid({ templates, behaald }: Props) {
   const [editMilestone, setEditMilestone] = useState<Behaald | null>(null);
   const [viewMilestone, setViewMilestone] = useState<Behaald | null>(null);
   const [datum, setDatum] = useState(new Date().toISOString().split("T")[0]);
+  const [datumVanFoto, setDatumVanFoto] = useState(false);
   const [nota, setNota] = useState("");
   const [fotos, setFotos] = useState<string[]>([]);
   const [fotoLoading, setFotoLoading] = useState(false);
@@ -131,6 +133,14 @@ export function MilestoneGrid({ templates, behaald }: Props) {
     const file = e.target.files?.[0];
     if (!file || fotos.length >= 4) return;
     setFotoLoading(true);
+    // Opnamedatum uit de foto overnemen (alleen bij de eerste foto)
+    if (fotos.length === 0) {
+      const d = await fotoDatum(file);
+      if (d) {
+        setDatum(d);
+        setDatumVanFoto(true);
+      }
+    }
     const compressed = await comprimeerFoto(file);
     setFotos((prev) => [...prev, compressed].slice(0, 4));
     setFotoLoading(false);
@@ -424,7 +434,10 @@ export function MilestoneGrid({ templates, behaald }: Props) {
 
             <div>
               <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">Wanneer was dit?</label>
-              <input type="date" value={datum} onChange={(e) => setDatum(e.target.value)} className={inputClass} />
+              <input type="date" value={datum} onChange={(e) => { setDatum(e.target.value); setDatumVanFoto(false); }} className={inputClass} />
+              {datumVanFoto && (
+                <p className="text-[var(--rho-gold)]/70 text-[11px] font-body mt-1">📸 Datum overgenomen van de foto</p>
+              )}
             </div>
 
             <div>

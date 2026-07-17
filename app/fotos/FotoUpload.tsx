@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useNaam } from "@/lib/useNaam";
 import { stuurPushNaarFamilie } from "@/lib/push";
+import { fotoDatum } from "@/lib/fotoMeta";
 
 // Comprimeer naar max 1600px jpeg via canvas
 function comprimeer(file: File): Promise<Blob> {
@@ -65,7 +66,9 @@ export function FotoUpload() {
         const blob = isVideo ? files[i] : await comprimeer(files[i]);
         const ext = isVideo ? (files[i].name.split(".").pop() || "mp4").toLowerCase() : "jpg";
         const veiligeNaam = (naam || "Onbekend").replace(/[^a-zA-Z0-9]/g, "");
-        const pad = `album/${datum}_${veiligeNaam}_${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+        // Opnamedatum uit de foto zelf; anders de gekozen datum
+        const bestandsDatum = (!isVideo && (await fotoDatum(files[i]))) || datum;
+        const pad = `album/${bestandsDatum}_${veiligeNaam}_${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
         const { error } = await supabase.storage
           .from("photos")
           .upload(pad, blob, { contentType: isVideo ? files[i].type : "image/jpeg" });
@@ -106,7 +109,7 @@ export function FotoUpload() {
     <div className="bg-[var(--rho-cream)]/8 border border-[var(--rho-cream)]/15 rounded-2xl p-4 space-y-3 mb-6">
       <div>
         <label className="block text-[var(--rho-cream)]/60 text-xs font-body mb-1.5">
-          Wanneer zijn deze beelden gemaakt?
+          Wanneer zijn deze beelden gemaakt? (foto\u2019s met een eigen datum gebruiken die automatisch)
         </label>
         <input
           type="date"
